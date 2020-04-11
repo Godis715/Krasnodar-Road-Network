@@ -4,9 +4,11 @@ using namespace std;
 #include <vector>
 #include <stack>
 #include <queue>
-
+#include <unordered_set>
+using int_pair = pair<size_t, size_t>;
+using float_pair = pair<double, double>;
 //graph
-vector<vector<pair<size_t, size_t>>> outgoingEdges; // // vertex; distance
+vector<vector<int_pair>> outgoingEdges; // // vertex; distance
 vector<vector<int>> matrix; // matrix smezhnosty (-1 : path doesnt exist)
 vector<size_t> fixed_objects; // firestations, hospitals, burger kings
 vector<size_t> no_fixed_objects; // firestations, hospitals, burger kings
@@ -18,11 +20,11 @@ vector<size_t> dijkstra(const size_t start)
 	size_t n = outgoingEdges.size();
 
 	vector<size_t> distance(n, infinty);
-	auto f = [](pair<size_t, size_t> x, pair<size_t, size_t> y)
+	auto f = [](int_pair x, int_pair y)
 	{
-		return x.first > y.first;
+		return x.second > y.second;
 	};
-	std::priority_queue<pair<size_t, size_t>, vector<pair<size_t, size_t>>, decltype(f)> q(f);
+	std::priority_queue<int_pair, vector<int_pair>, decltype(f)> q(f);
 	// vertex; distance
 	q.push({ start, 0 });
 
@@ -36,6 +38,35 @@ vector<size_t> dijkstra(const size_t start)
 		for (auto& u : outgoingEdges[vertex.first])
 			if (distance[u.first] == infinty)
 				q.push({ u.second, vertex.second + u.second });
+	}
+	//for (int d : distance)
+	//	cout << d << " ";
+	return distance;
+}
+
+vector<int_pair> dijkstra_path(const size_t start)
+{
+	size_t n = outgoingEdges.size();
+
+	vector<int_pair> distance(n, int_pair(infinty, infinty)); // from, dist
+	auto f = [](pair<int_pair, size_t> x, pair<int_pair, size_t> y)
+	{
+		return x.second > y.second;
+	};
+	std::priority_queue<pair<int_pair, size_t>, vector<pair<int_pair, size_t>>, decltype(f)> q(f);
+	// vertex(from, to); distance
+	q.push({ {start, start}, 0 });
+
+	while (!q.empty())
+	{
+		auto vertex = q.top();
+		q.pop();
+		if (distance[vertex.first.second].second < infinty) // vertex already used
+			continue;
+		distance[vertex.first.second] = int_pair(vertex.first.first, vertex.second);
+		for (auto& u : outgoingEdges[vertex.first.second])
+			if (distance[u.first].second == infinty)
+				q.push({ {vertex.first.second, u.second}, vertex.second + u.second });
 	}
 	//for (int d : distance)
 	//	cout << d << " ";
@@ -64,7 +95,7 @@ void read_data(const string& file_name)
 	size_t n, e;
 	ifstream in(file_name);
 	in >> n >> e;
-	outgoingEdges = vector<vector<pair<size_t, size_t>>>(n);
+	outgoingEdges = vector<vector<int_pair>>(n);
 	for (size_t i = 0; i < e; ++i)
 	{
 		size_t v, u, d;
@@ -72,6 +103,26 @@ void read_data(const string& file_name)
 		outgoingEdges[v].push_back({ u, d });
 		//outgoingEdges[u].push_back({ v, d });
 	}
+}
+
+size_t lenght_tree_of_shortest_path(const vector<int_pair>& distance, vector<size_t> objects)
+{
+	vector<bool> used(distance.size(), false);
+	size_t lenght = 0;
+	stack<size_t> stack;
+	for (size_t v : objects)
+		stack.push(v);
+	while (!stack.empty())
+	{
+		size_t v = stack.top();
+		stack.pop();
+		if (used[v])
+			continue;
+		used[v] = true;
+		lenght += distance[v].second;
+		stack.push(distance[v].first);
+	}
+	return lenght;
 }
 
 void task_1()
@@ -179,38 +230,67 @@ void task_1()
 		}
 	}
 	// 4 - too hard now, do later
+	vector<vector<int_pair>> from_fixed_objects_with_path;
+	min = infinty;
+	index = 0;
+	for (size_t object : fixed_objects)
+	{
+		auto distance = dijkstra_path(object);
+		from_fixed_objects_with_path.push_back(distance);
+		size_t lenght = lenght_tree_of_shortest_path(distance, no_fixed_objects);
+		if (min > lenght)
+		{
+			min = lenght;
+			index = object;
+		}
+	}
 }
 
-pair<double, double> coord(size_t v)
+float_pair coord(size_t v)
 {
-	return pair<double, double>(0, 0);
+	return float_pair(0, 0);
 }
-
-pair<double, double> operator*(pair<double, double> l, pair<double, double> r)
-{
-	return pair<double, double>(l.first * r.first, l.second * r.second);
-}
-pair<double, double> operator+(pair<double, double> l, pair<double, double> r)
-{
-	return pair<double, double>(l.first + r.first, l.second + r.second);
-}
-pair<double, double> operator/(pair<double, double> p, double d)
-{
-	return pair<double, double>(p.first / d, p.second / d);
-}
-pair<double, double> operator*(pair<double, double> p, double d)
-{
-	return pair<double, double>(p.first * d, p.second * d);
-}
-double dist(pair<double, double> l, pair<double, double> r)
+double dist(float_pair l, float_pair r)
 {
 	return (l.first - r.first) * (l.first - r.first) + (l.second - r.second) * (l.second - r.second);
 }
+size_t get_nearest_vertex(float_pair vec)
+{
+	double distance = std::numeric_limits<double>::max();
+	size_t res = 0;
+	for (size_t j = 0; j < outgoingEdges.size(); ++j)
+	{
+		double cur_dist = dist(vec, coord(j));
+		if (distance > cur_dist)
+		{
+			distance = cur_dist;
+			res = j;
+		}
+	}
+	return res;
+}
 
-pair<size_t, size_t> nearest_clusters(const vector<pair<double, double>>& centroides)
+float_pair operator*(float_pair l, float_pair r)
+{
+	return float_pair(l.first * r.first, l.second * r.second);
+}
+float_pair operator+(float_pair l, float_pair r)
+{
+	return float_pair(l.first + r.first, l.second + r.second);
+}
+float_pair operator/(float_pair p, double d)
+{
+	return float_pair(p.first / d, p.second / d);
+}
+float_pair operator*(float_pair p, double d)
+{
+	return float_pair(p.first * d, p.second * d);
+}
+
+int_pair nearest_clusters(const vector<float_pair>& centroides)
 {
 	double min = std::numeric_limits<double>::max();
-	pair<size_t, size_t> res;
+	int_pair res;
 	for (size_t i = 0; i < centroides.size(); ++i)
 		for (size_t j = i + 1; j < centroides.size(); ++j)
 		{
@@ -225,10 +305,10 @@ pair<size_t, size_t> nearest_clusters(const vector<pair<double, double>>& centro
 	return res;
 }
 
-vector<vector<size_t>> clustering(size_t k)
+auto clustering(size_t k)
 {
 	vector<vector<size_t>> clusters(no_fixed_objects.size(), vector<size_t>(1));
-	vector<pair<double, double>> centroides(no_fixed_objects.size());
+	vector<float_pair> centroides(no_fixed_objects.size());
 
 	for (size_t i = 0; i < no_fixed_objects.size(); ++i)
 	{
@@ -247,13 +327,31 @@ vector<vector<size_t>> clustering(size_t k)
 
 		clusters.erase(clusters.begin() + pair.second);
 	}
-	return clusters;
+	return pair<vector<vector<size_t>>, vector<float_pair>>(clusters, centroides);
+}
+
+vector<size_t> get_centroids(const vector<float_pair>& centroides)
+{
+	vector<size_t> res(centroides.size(), 0);
+	for (size_t i = 0; i < centroides.size(); ++i)
+		res[i] = get_nearest_vertex(centroides[i]);
+	return res;
 }
 
 void task_2()
 {
+	size_t k = 5;
 	size_t obj = fixed_objects.front();
-	auto distance = dijkstra(obj);
+	auto distance = dijkstra_path(obj);
+	auto pair = clustering(k);
+	auto clusters = pair.first;
+	auto centroids = get_centroids(pair.second);
+
+	size_t lenght = lenght_tree_of_shortest_path(distance, no_fixed_objects);
+
+	size_t sum_lenght = lenght_tree_of_shortest_path(distance, centroids);
+	for (size_t i = 0; i < clusters.size(); i++)
+		sum_lenght += lenght_tree_of_shortest_path(dijkstra_path(centroids[i]), clusters[i]);
 }
 
 int main()
