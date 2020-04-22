@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <limits>
 #include <vector>
 #include <stack>
 #include <queue>
@@ -13,6 +14,12 @@ using std::vector;
 // vector<size_t> fixed_objects; // firestations, hospitals, burger kings
 // vector<size_t> no_fixed_objects; // homes
 constexpr size_t infinty = std::numeric_limits<size_t>::max();
+
+inline size_t max_value(const size_t a, const size_t b)
+{ return a > b ? a:b;}
+
+inline size_t min_value(const size_t a, const size_t b)
+{ return a < b ? a:b;}
 
 struct graph_t
 {
@@ -91,7 +98,7 @@ inline vector<vector<int>> floyd() // matrix smezhnosty (-1 : path doesnt exist)
 	for (size_t k = 0; k < n; ++k)
 		for (size_t i = 0; i < n; ++i)
 			for (size_t j = 0; j < n; ++j)
-				matrix[i][j] = std::_Min_value(matrix[i][j], matrix[i][k] + matrix[k][j]);
+				matrix[i][j] = min_value(matrix[i][j], matrix[i][k] + matrix[k][j]);
 	return matrix;
 }
 

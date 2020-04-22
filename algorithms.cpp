@@ -1,317 +1,318 @@
-#include "b.hpp"
+#include "algorithms.hpp"
 
-size_t task_1_1_a(size_t* _fixed_objects, size_t size, size_t object,
-	size_t way, const std::string& file_name)
-{
-	vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
-	auto graph = read_data(file_name);
-	reverse_graph(graph);
-
-	auto from_fixed_objects = dijkstra(graph.r_edges, object);
-	auto to_fixed_objects = dijkstra(graph.edges, object);
-
-	if (way == 1)
+extern "C" {
+	size_t task_1_1_a(size_t* _fixed_objects, size_t size, size_t object,
+		size_t way, const std::string& file_name)
 	{
-		size_t dist = infinty;
-		size_t index = 0;
-		for (size_t obj : fixed_objects)
-			if (dist < from_fixed_objects[obj])
-			{
-				dist = from_fixed_objects[obj];
-				index = obj;
-			}
-		return index;
-	}
-	else if (way == 2)
-	{
-		size_t dist = infinty;
-		size_t index = 0;
-		for (size_t obj : fixed_objects)
-			if (dist < to_fixed_objects[obj])
-			{
-				dist = to_fixed_objects[obj];
-				index = obj;
-			}
-		return index;
-	}
-	else
-	{
-		size_t dist = infinty;
-		size_t index = 0;
-		for (size_t obj : fixed_objects)
-			if (dist < to_fixed_objects[obj] + from_fixed_objects[obj])
-			{
-				dist = to_fixed_objects[obj] + from_fixed_objects[obj];
-				index = obj;
-			}
-		return index;
-	}
-}
-
-vector<size_t> task_1_1_b(size_t* _fixed_objects, size_t size, size_t object,
-	size_t max, size_t way, const std::string& file_name)
-{
-	vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
-	auto graph = read_data(file_name);
-	reverse_graph(graph);
-
-	auto from_fixed_objects = dijkstra(graph.r_edges, object);
-	auto to_fixed_objects = dijkstra(graph.edges, object);
-	vector<size_t> res;
-	if (way == 1)
-	{
-		for (size_t obj : fixed_objects)
-			if (max >= from_fixed_objects[obj])
-				res.push_back(obj);
-		return res;
-	}
-	else if (way == 2)
-	{
-		for (size_t obj : fixed_objects)
-			if (max >= to_fixed_objects[obj])
-				res.push_back(obj);
-		return res;
-	}
-	else
-	{
-		for (size_t obj : fixed_objects)
-			if (max >= to_fixed_objects[obj] + from_fixed_objects[obj])
-				res.push_back(obj);
-		return res;
-	}
-}
-
-size_t task_1_2(size_t* _fixed_objects, size_t f_size,
-	size_t* _objects, size_t o_size,
-	size_t way, const std::string& file_name)
-{
-	vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-
-	vector<vector<size_t>> to_fixed_objects;
-	vector<vector<size_t>> from_fixed_objects;
-
-	for (size_t object : fixed_objects)
-		from_fixed_objects.push_back(dijkstra(graph.edges, object));
-
-	for (size_t object : objects)
-		to_fixed_objects.push_back(dijkstra(graph.edges, object));
-
-	if (way == 1)
-	{
-		size_t min_to = infinty;
-		size_t index_to = 0;
-		for (size_t i : fixed_objects)
-		{
-			size_t max = 0;
-			for (auto& to_fixed_object : to_fixed_objects)
-				max = std::_Max_value(max, to_fixed_object[i]);
-			if (max < min_to)
-			{
-				min_to = max;
-				index_to = i;
-			}
-		}
-		return index_to;
-	}
-	else if (way == 2) {
-		size_t min_from = infinty;
-		size_t index_from = 0;
-		for (size_t i = 0; i < fixed_objects.size(); ++i)
-		{
-			size_t max = 0;
-			for (size_t object : objects)
-				max = std::_Max_value(max, from_fixed_objects[i][object]);
-			if (max < min_from)
-			{
-				min_from = max;
-				index_from = fixed_objects[i];
-			}
-		}
-		return index_from;
-	}
-	else {
-		size_t min_to_from = infinty;
-		size_t index_to_from = 0;
-		for (size_t i = 0; i < fixed_objects.size(); ++i)
-		{
-			size_t max = 0;
-			for (size_t j = 0; j < objects.size(); ++j)
-				max = std::_Max_value(max, from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]]);
-			if (max < min_to_from)
-			{
-				min_to_from = max;
-				index_to_from = fixed_objects[i];
-			}
-		}
-		return index_to_from;
-	}
-}
-
-size_t task_1_3(size_t* _fixed_objects, size_t f_size,
-	size_t* _objects, size_t o_size,
-	size_t way, const std::string& file_name)
-{
-	vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-
-	vector<vector<size_t>> to_fixed_objects;
-	vector<vector<size_t>> from_fixed_objects;
-
-	for (size_t object : fixed_objects)
-		from_fixed_objects.push_back(dijkstra(graph.edges, object));
-
-	for (size_t object : objects)
-		to_fixed_objects.push_back(dijkstra(graph.edges, object));
-
-
-	if (way == 1)
-	{
-		size_t min = infinty;
-		size_t index = 0;
-		for (size_t i : fixed_objects)
-		{
-			size_t sum = 0;
-			for (auto& to_fixed_object : to_fixed_objects)
-				sum += to_fixed_object[i];
-			if (sum < min)
-			{
-				min = sum;
-				index = fixed_objects[i];
-			}
-		}
-		return index;
-	}
-	else if (way == 2) {
-		size_t min = infinty;
-		size_t index = 0;
-		for (size_t i = 0; i < fixed_objects.size(); ++i)
-		{
-			size_t sum = 0;
-			for (size_t object : objects)
-				sum += from_fixed_objects[i][object];
-			if (sum < min)
-			{
-				min = sum;
-				index = fixed_objects[i];
-			}
-		}
-		return index;
-	}
-	else {
-		size_t min = infinty;
-		size_t index = 0;
-		for (size_t i = 0; i < fixed_objects.size(); ++i)
-		{
-			size_t sum = 0;
-			for (size_t j = 0; j < objects.size(); ++j)
-				sum += from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]];
-			if (sum < min)
-			{
-				min = sum;
-				index = fixed_objects[i];
-			}
-		}
-		return index;
-	}
-}
-
-size_t task_1_4(size_t* _fixed_objects, size_t f_size,
-	size_t* _objects, size_t o_size,
-	size_t way, const std::string& file_name)
-{
-	vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-
-	if (way == 1)
-	{
-		size_t min = infinty;
-		size_t index = 0;
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
+		auto graph = read_data(file_name);
 		reverse_graph(graph);
-		for (size_t object : fixed_objects)
+
+		auto from_fixed_objects = dijkstra(graph.r_edges, object);
+		auto to_fixed_objects = dijkstra(graph.edges, object);
+
+		if (way == 1)
 		{
-			size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
-			if (min > lenght)
-			{
-				min = lenght;
-				index = object;
-			}
+			size_t dist = infinty;
+			size_t index = 0;
+			for (size_t obj : fixed_objects)
+				if (dist < from_fixed_objects[obj])
+				{
+					dist = from_fixed_objects[obj];
+					index = obj;
+				}
+			return index;
 		}
-		return index;
+		else if (way == 2)
+		{
+			size_t dist = infinty;
+			size_t index = 0;
+			for (size_t obj : fixed_objects)
+				if (dist < to_fixed_objects[obj])
+				{
+					dist = to_fixed_objects[obj];
+					index = obj;
+				}
+			return index;
+		}
+		else
+		{
+			size_t dist = infinty;
+			size_t index = 0;
+			for (size_t obj : fixed_objects)
+				if (dist < to_fixed_objects[obj] + from_fixed_objects[obj])
+				{
+					dist = to_fixed_objects[obj] + from_fixed_objects[obj];
+					index = obj;
+				}
+			return index;
+		}
 	}
-	else if (way == 2)
+
+	vector<size_t> task_1_1_b(size_t* _fixed_objects, size_t size, size_t object,
+		size_t max, size_t way, const std::string& file_name)
 	{
-		size_t min = infinty;
-		size_t index = 0;
-		for (size_t object : fixed_objects)
-		{
-			size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
-			if (min > lenght)
-			{
-				min = lenght;
-				index = object;
-			}
-		}
-		return index;
-	}
-	else {
-		size_t min = infinty;
-		size_t index = 0;
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
+		auto graph = read_data(file_name);
 		reverse_graph(graph);
-		for (size_t object : fixed_objects)
+
+		auto from_fixed_objects = dijkstra(graph.r_edges, object);
+		auto to_fixed_objects = dijkstra(graph.edges, object);
+		vector<size_t> res;
+		if (way == 1)
 		{
-			size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
-				lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
-			if (min > lenght)
-			{
-				min = lenght;
-				index = object;
-			}
+			for (size_t obj : fixed_objects)
+				if (max >= from_fixed_objects[obj])
+					res.push_back(obj);
+			return res;
 		}
-		return index;
+		else if (way == 2)
+		{
+			for (size_t obj : fixed_objects)
+				if (max >= to_fixed_objects[obj])
+					res.push_back(obj);
+			return res;
+		}
+		else
+		{
+			for (size_t obj : fixed_objects)
+				if (max >= to_fixed_objects[obj] + from_fixed_objects[obj])
+					res.push_back(obj);
+			return res;
+		}
 	}
-}
 
-std::pair<vector<int_pair>, size_t> task_2_1(size_t* _objects, size_t o_size,
-	size_t object, const std::string& file_name)
-{
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-	auto distance = dijkstra_path(graph.edges, object);
-	return length_and_tree_of_shortest_path(distance, objects);
-}
-
-auto task_2_2(size_t* _objects, size_t o_size,
-	size_t k, const std::string& file_name)
-{
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-	return clustering(k, objects, graph);
-}
-
-auto task_2_3(size_t* _objects, size_t o_size,
-	size_t object, size_t k, const std::string& file_name)
-{
-	vector<size_t> objects(_objects, _objects + o_size);
-	auto graph = read_data(file_name);
-	auto pair = clustering(k, objects, graph);
-	auto clusters = pair.first;
-	auto centroids = get_centroids(pair.second, graph);
-
-	auto res = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, object), centroids);
-
-	for (size_t i = 0; i < clusters.size(); i++)
+	size_t task_1_2(size_t* _fixed_objects, size_t f_size,
+		size_t* _objects, size_t o_size,
+		size_t way, const std::string& file_name)
 	{
-		auto clust_tree = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, centroids[i]), clusters[i]);
-		res.second += clust_tree.second;
-		res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
-	}
-	return res;
-}
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
 
+		vector<vector<size_t>> to_fixed_objects;
+		vector<vector<size_t>> from_fixed_objects;
+
+		for (size_t object : fixed_objects)
+			from_fixed_objects.push_back(dijkstra(graph.edges, object));
+
+		for (size_t object : objects)
+			to_fixed_objects.push_back(dijkstra(graph.edges, object));
+
+		if (way == 1)
+		{
+			size_t min_to = infinty;
+			size_t index_to = 0;
+			for (size_t i : fixed_objects)
+			{
+				size_t max = 0;
+				for (auto& to_fixed_object : to_fixed_objects)
+					max = max_value(max, to_fixed_object[i]);
+				if (max < min_to)
+				{
+					min_to = max;
+					index_to = i;
+				}
+			}
+			return index_to;
+		}
+		else if (way == 2) {
+			size_t min_from = infinty;
+			size_t index_from = 0;
+			for (size_t i = 0; i < fixed_objects.size(); ++i)
+			{
+				size_t max = 0;
+				for (size_t object : objects)
+					max = max_value(max, from_fixed_objects[i][object]);
+				if (max < min_from)
+				{
+					min_from = max;
+					index_from = fixed_objects[i];
+				}
+			}
+			return index_from;
+		}
+		else {
+			size_t min_to_from = infinty;
+			size_t index_to_from = 0;
+			for (size_t i = 0; i < fixed_objects.size(); ++i)
+			{
+				size_t max = 0;
+				for (size_t j = 0; j < objects.size(); ++j)
+					max = max_value(max, from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]]);
+				if (max < min_to_from)
+				{
+					min_to_from = max;
+					index_to_from = fixed_objects[i];
+				}
+			}
+			return index_to_from;
+		}
+	}
+
+	size_t task_1_3(size_t* _fixed_objects, size_t f_size,
+		size_t* _objects, size_t o_size,
+		size_t way, const std::string& file_name)
+	{
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+
+		vector<vector<size_t>> to_fixed_objects;
+		vector<vector<size_t>> from_fixed_objects;
+
+		for (size_t object : fixed_objects)
+			from_fixed_objects.push_back(dijkstra(graph.edges, object));
+
+		for (size_t object : objects)
+			to_fixed_objects.push_back(dijkstra(graph.edges, object));
+
+
+		if (way == 1)
+		{
+			size_t min = infinty;
+			size_t index = 0;
+			for (size_t i : fixed_objects)
+			{
+				size_t sum = 0;
+				for (auto& to_fixed_object : to_fixed_objects)
+					sum += to_fixed_object[i];
+				if (sum < min)
+				{
+					min = sum;
+					index = fixed_objects[i];
+				}
+			}
+			return index;
+		}
+		else if (way == 2) {
+			size_t min = infinty;
+			size_t index = 0;
+			for (size_t i = 0; i < fixed_objects.size(); ++i)
+			{
+				size_t sum = 0;
+				for (size_t object : objects)
+					sum += from_fixed_objects[i][object];
+				if (sum < min)
+				{
+					min = sum;
+					index = fixed_objects[i];
+				}
+			}
+			return index;
+		}
+		else {
+			size_t min = infinty;
+			size_t index = 0;
+			for (size_t i = 0; i < fixed_objects.size(); ++i)
+			{
+				size_t sum = 0;
+				for (size_t j = 0; j < objects.size(); ++j)
+					sum += from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]];
+				if (sum < min)
+				{
+					min = sum;
+					index = fixed_objects[i];
+				}
+			}
+			return index;
+		}
+	}
+
+	size_t task_1_4(size_t* _fixed_objects, size_t f_size,
+		size_t* _objects, size_t o_size,
+		size_t way, const std::string& file_name)
+	{
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+
+		if (way == 1)
+		{
+			size_t min = infinty;
+			size_t index = 0;
+			reverse_graph(graph);
+			for (size_t object : fixed_objects)
+			{
+				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
+				if (min > lenght)
+				{
+					min = lenght;
+					index = object;
+				}
+			}
+			return index;
+		}
+		else if (way == 2)
+		{
+			size_t min = infinty;
+			size_t index = 0;
+			for (size_t object : fixed_objects)
+			{
+				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
+				if (min > lenght)
+				{
+					min = lenght;
+					index = object;
+				}
+			}
+			return index;
+		}
+		else {
+			size_t min = infinty;
+			size_t index = 0;
+			reverse_graph(graph);
+			for (size_t object : fixed_objects)
+			{
+				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
+					lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
+				if (min > lenght)
+				{
+					min = lenght;
+					index = object;
+				}
+			}
+			return index;
+		}
+	}
+
+	std::pair<vector<int_pair>, size_t> task_2_1(size_t* _objects, size_t o_size,
+		size_t object, const std::string& file_name)
+	{
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+		auto distance = dijkstra_path(graph.edges, object);
+		return length_and_tree_of_shortest_path(distance, objects);
+	}
+
+	auto task_2_2(size_t* _objects, size_t o_size,
+		size_t k, const std::string& file_name)
+	{
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+		return clustering(k, objects, graph);
+	}
+
+	auto task_2_3(size_t* _objects, size_t o_size,
+		size_t object, size_t k, const std::string& file_name)
+	{
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+		auto pair = clustering(k, objects, graph);
+		auto clusters = pair.first;
+		auto centroids = get_centroids(pair.second, graph);
+
+		auto res = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, object), centroids);
+
+		for (size_t i = 0; i < clusters.size(); i++)
+		{
+			auto clust_tree = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, centroids[i]), clusters[i]);
+			res.second += clust_tree.second;
+			res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
+		}
+		return res;
+	}
+}
 
 // 1 from object to fix
 // 2 from fix to object
