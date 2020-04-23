@@ -1,10 +1,11 @@
 #include "algorithms.hpp"
 
 extern "C" {
-	size_t task_1_1_a(size_t* _fixed_objects, size_t size, size_t object,
-		size_t way, const std::string& file_name)
+	size_t task_1_1_a(size_t* _fixed_objects, size_t f_size, size_t object,
+		size_t way, const char* _file_name)
 	{
-		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
+		std::string file_name = std::string(_file_name);
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
 
@@ -49,10 +50,11 @@ extern "C" {
 		}
 	}
 
-	vector<size_t> task_1_1_b(size_t* _fixed_objects, size_t size, size_t object,
-		size_t max, size_t way, const std::string& file_name)
+	vector<size_t> task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object, // vector -> int*
+		size_t max, size_t way, const char* _file_name)
 	{
-		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + size);
+		std::string file_name = std::string(_file_name);
+		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
 
@@ -84,8 +86,9 @@ extern "C" {
 
 	size_t task_1_2(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const std::string& file_name)
+		size_t way, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -152,8 +155,9 @@ extern "C" {
 
 	size_t task_1_3(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const std::string& file_name)
+		size_t way, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -221,8 +225,9 @@ extern "C" {
 
 	size_t task_1_4(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const std::string& file_name)
+		size_t way, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -277,8 +282,9 @@ extern "C" {
 	}
 
 	std::pair<vector<int_pair>, size_t> task_2_1(size_t* _objects, size_t o_size,
-		size_t object, const std::string& file_name)
+		size_t object, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 		auto distance = dijkstra_path(graph.edges, object);
@@ -286,16 +292,18 @@ extern "C" {
 	}
 
 	auto task_2_2(size_t* _objects, size_t o_size,
-		size_t k, const std::string& file_name)
+		size_t k, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 		return clustering(k, objects, graph);
 	}
 
 	auto task_2_3(size_t* _objects, size_t o_size,
-		size_t object, size_t k, const std::string& file_name)
+		size_t object, size_t k, const char* _file_name)
 	{
+		std::string file_name = std::string(_file_name);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 		auto pair = clustering(k, objects, graph);
