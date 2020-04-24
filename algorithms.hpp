@@ -315,13 +315,16 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 	out << clusters.size() << std::endl;
 	for (auto& cluster : clusters)
 	{
+		if (cluster.empty())
+			continue;
 		out << cluster.size() << ' ';
 		for (size_t v : cluster)
 			out << v << ' ';
 		out << std::endl;
 	}
 	for (float_pair center : centroides)
-		out << center.first << ' ' << center.first << ' ';
+		if (center.first > 0)
+			out << center.first << ' ' << center.first << ' ';
 	out << std::endl;
 	for (auto& i : dendrogramma)
 	{
