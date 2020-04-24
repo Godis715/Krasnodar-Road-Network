@@ -2,9 +2,8 @@
 
 extern "C" {
 	size_t task_1_1_a(size_t* _fixed_objects, size_t f_size, size_t object,
-		size_t way, const char* _file_name)
+		size_t way, const char* file_name)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
@@ -50,45 +49,53 @@ extern "C" {
 		}
 	}
 
-	vector<size_t> task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object, // vector -> int*
-		size_t max, size_t way, const char* _file_name)
+	size_t* task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object, // vector -> int*
+		size_t max, size_t way, const char* file_name)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
 
 		auto from_fixed_objects = dijkstra(graph.r_edges, object);
 		auto to_fixed_objects = dijkstra(graph.edges, object);
-		vector<size_t> res;
+		auto res = new size_t[300];
+		size_t* i = res;
 		if (way == 1)
 		{
 			for (size_t obj : fixed_objects)
 				if (max >= from_fixed_objects[obj])
-					res.push_back(obj);
+				{
+					*i = obj;
+					++i;
+				}
 			return res;
 		}
 		else if (way == 2)
 		{
 			for (size_t obj : fixed_objects)
 				if (max >= to_fixed_objects[obj])
-					res.push_back(obj);
+				{
+					*i = obj;
+					++i;
+				}
 			return res;
 		}
 		else
 		{
 			for (size_t obj : fixed_objects)
 				if (max >= to_fixed_objects[obj] + from_fixed_objects[obj])
-					res.push_back(obj);
+				{
+					*i = obj;
+					++i;
+				}
 			return res;
 		}
 	}
 
 	size_t task_1_2(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const char* _file_name)
+		size_t way, const char* file_name)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -155,9 +162,8 @@ extern "C" {
 
 	size_t task_1_3(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const char* _file_name)
+		size_t way, const char* file_name)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -225,9 +231,8 @@ extern "C" {
 
 	size_t task_1_4(size_t* _fixed_objects, size_t f_size,
 		size_t* _objects, size_t o_size,
-		size_t way, const char* _file_name)
+		size_t way, const char* file_name)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
@@ -281,29 +286,79 @@ extern "C" {
 		}
 	}
 
-	std::pair<vector<int_pair>, size_t> task_2_1(size_t* _objects, size_t o_size,
-		size_t object, const char* _file_name)
+	void task_2_1(size_t* _objects, size_t o_size,
+		size_t object, const char* file_name, const char* out_file)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 		auto distance = dijkstra_path(graph.edges, object);
-		return length_and_tree_of_shortest_path(distance, objects);
+		auto pair = length_and_tree_of_shortest_path(distance, objects);
+		std::ofstream out(out_file);
+		out << pair.second << std::endl;
+		for (auto edge : pair.first)
+			out << edge.first << " " << edge.second << ' ';
 	}
 
-	auto task_2_2(size_t* _objects, size_t o_size,
-		size_t k, const char* _file_name)
+	void task_2_2(size_t* _objects, size_t o_size,
+		size_t k, const char* file_name, const char* out_file)
 	{
-		std::string file_name = std::string(_file_name);
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
-		return clustering(k, objects, graph);
+		clustering(k, objects, graph, out_file);
 	}
 
-	auto task_2_3(size_t* _objects, size_t o_size,
-		size_t object, size_t k, const char* _file_name)
+	void task_2_3_out(vector<int_pair> tree, size_t lenght, const char* out_file)
 	{
-		std::string file_name = std::string(_file_name);
+		std::ofstream out(out_file, std::ios_base::trunc);
+		for (auto edge : tree)
+			out << edge.first << ' ' << edge.second << ' ';
+		out << std::endl << lenght;
+	}
+
+	void task_2_3_by_clust(size_t* _objects, size_t o_size,
+		size_t object, const char* file_name, const char* out_file)
+	{
+		vector<size_t> objects(_objects, _objects + o_size);
+		auto graph = read_data(file_name);
+		std::ifstream in(out_file);
+		size_t k;
+		in >> k;
+		vector<vector<size_t>> clusters(k);
+		for (size_t i = 0; i < k; ++i)
+		{
+			size_t size;
+			in >> size;
+			clusters[i] = vector<size_t>(size);
+			for (size_t j = 0; j < size; ++j)
+			{
+				size_t v;
+				in >> v;
+				clusters[i][j] = v;
+			}
+		}
+		vector<float_pair> centroids_coord(k);
+		for (size_t i = 0; i < k; ++i)
+		{
+			size_t x, y;
+			in >> x >> y;
+			centroids_coord[i] = { x, y };
+		}
+		auto centroids = get_centroids(centroids_coord, graph);
+
+		auto res = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, object), centroids);
+
+		for (size_t i = 0; i < clusters.size(); i++)
+		{
+			auto clust_tree = length_and_tree_of_shortest_path(dijkstra_path(graph.edges, centroids[i]), clusters[i]);
+			res.second += clust_tree.second;
+			res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
+		}
+		task_2_3_out(res.first, res.second, out_file);
+	}
+
+	void task_2_3(size_t* _objects, size_t o_size,
+		size_t object, size_t k, const char* file_name, const char* out_file)
+	{
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 		auto pair = clustering(k, objects, graph);
@@ -318,7 +373,7 @@ extern "C" {
 			res.second += clust_tree.second;
 			res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
 		}
-		return res;
+		task_2_3_out(res.first, res.second, out_file);
 	}
 }
 
@@ -327,6 +382,4 @@ extern "C" {
 // 3 from and to
 int main()
 {
-	std::string file_name = "file_name";
-	read_data(file_name);
 }
