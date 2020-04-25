@@ -16,7 +16,7 @@ extern "C" {
 			size_t dist = infinty;
 			size_t index = 0;
 			for (size_t obj : fixed_objects)
-				if (dist < from_fixed_objects[obj])
+				if (dist > from_fixed_objects[obj])
 				{
 					dist = from_fixed_objects[obj];
 					index = obj;
@@ -28,7 +28,7 @@ extern "C" {
 			size_t dist = infinty;
 			size_t index = 0;
 			for (size_t obj : fixed_objects)
-				if (dist < to_fixed_objects[obj])
+				if (dist > to_fixed_objects[obj])
 				{
 					dist = to_fixed_objects[obj];
 					index = obj;
@@ -40,7 +40,7 @@ extern "C" {
 			size_t dist = infinty;
 			size_t index = 0;
 			for (size_t obj : fixed_objects)
-				if (dist < to_fixed_objects[obj] + from_fixed_objects[obj])
+				if (dist > to_fixed_objects[obj] + from_fixed_objects[obj])
 				{
 					dist = to_fixed_objects[obj] + from_fixed_objects[obj];
 					index = obj;

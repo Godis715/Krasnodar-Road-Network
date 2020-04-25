@@ -2,11 +2,13 @@
 #-*- coding: utf-8 -*-
 
 import ctypes 
+import ast
+import random
 
 # loading lib
 libalgorithms = ctypes.CDLL('./build/libalgorithms.so')
 
-FILENAME_GRAPH = 'graph.json'
+FILENAME_GRAPH = 'parser/data/graph.txt'
 
 FILENAME_OUT = 'out.txt'
 
@@ -185,4 +187,24 @@ def task_2_3_by_clust(id_object, id_nodes):
 
 
 if __name__ == "__main__":
-    pass
+    id_objects = []
+    with open('parser/data/objects.txt', 'r') as file:
+        for row in file:
+            id_objects.append(int(row.replace('\n', '')))
+    print(id_objects)
+
+    id_nodes = []
+    for _ in range(10):
+        id_node = random.randint(0, 71350)
+        if id_node not in id_objects:
+            id_nodes.append(id_node)
+    print(id_nodes)
+
+    type_dir = 1
+
+    find_objects = task_1_1_a(id_objects, id_nodes, type_dir)
+
+    print(find_objects)
+  
+    
+        
