@@ -49,8 +49,8 @@ extern "C" {
 		}
 	}
 
-	size_t* task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object, // vector -> int*
-		size_t max, size_t way, const char* file_name)
+	size_t* task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object,
+		size_t max, size_t way, const char* file_name, size_t &out_size)
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
@@ -58,8 +58,9 @@ extern "C" {
 
 		auto from_fixed_objects = dijkstra(graph.r_edges, object);
 		auto to_fixed_objects = dijkstra(graph.edges, object);
-		auto res = new size_t[300];
+		auto res = new size_t[f_size];
 		size_t* i = res;
+		out_size = 0;
 		if (way == 1)
 		{
 			for (size_t obj : fixed_objects)
@@ -67,6 +68,7 @@ extern "C" {
 				{
 					*i = obj;
 					++i;
+					out_size++;
 				}
 			return res;
 		}
@@ -77,6 +79,7 @@ extern "C" {
 				{
 					*i = obj;
 					++i;
+					out_size++;
 				}
 			return res;
 		}
@@ -87,6 +90,7 @@ extern "C" {
 				{
 					*i = obj;
 					++i;
+					out_size++;
 				}
 			return res;
 		}
@@ -244,10 +248,10 @@ extern "C" {
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
-				if (min > lenght)
+				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
+				if (min > length)
 				{
-					min = lenght;
+					min = length;
 					index = object;
 				}
 			}
@@ -259,10 +263,10 @@ extern "C" {
 			size_t index = 0;
 			for (size_t object : fixed_objects)
 			{
-				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
-				if (min > lenght)
+				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
+				if (min > length)
 				{
-					min = lenght;
+					min = length;
 					index = object;
 				}
 			}
@@ -274,11 +278,11 @@ extern "C" {
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				size_t lenght = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
+				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
 					lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
-				if (min > lenght)
+				if (min > length)
 				{
-					min = lenght;
+					min = length;
 					index = object;
 				}
 			}
@@ -307,12 +311,12 @@ extern "C" {
 		clustering(k, objects, graph, out_file);
 	}
 
-	void task_2_3_out(vector<int_pair> tree, size_t lenght, const char* out_file)
+	void task_2_3_out(vector<int_pair> tree, size_t length, const char* out_file)
 	{
 		std::ofstream out(out_file, std::ios_base::trunc);
 		for (auto edge : tree)
 			out << edge.first << ' ' << edge.second << ' ';
-		out << std::endl << lenght;
+		out << std::endl << length;
 	}
 
 	void task_2_3_by_clust(size_t* _objects, size_t o_size,
@@ -375,6 +379,12 @@ extern "C" {
 		}
 		task_2_3_out(res.first, res.second, out_file);
 	}
+
+	// A function to free up the memory.
+	void free_memory(double* x)
+    {
+        delete [] x;
+    }
 }
 
 // 1 from object to fix
