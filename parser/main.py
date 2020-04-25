@@ -144,7 +144,7 @@ def create_objects(osm_root, base_nodes, all_nodes):
     data_supermarkets = _converting_object(osm_root, base_nodes, all_nodes, 'infrastructure', 'supermarket')
     print('============OTHER OBJECTS============')
     print('> HOUSE')
-    data_houses = _converting_object(osm_root, all_nodes, all_nodes, 'other', 'house')
+    data_houses = _converting_object(osm_root, base_nodes, all_nodes, 'other', 'house')
 
     print('*Concatenating...')
     data_objects = {}
@@ -175,6 +175,13 @@ if __name__ == "__main__":
             file.write(f"{link[0]} {link[1]} {link[2]}\n")
         for node_id, _ in sorted(matching_graph.items(), key=lambda x: x[1]):
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
+    try:
+        with open(f'data/objects.txt', 'w') as file:
+            for _, object_info in data_objects.items():
+                object_match_id = matching_graph[object_info['ref']]
+                file.write(f"{object_match_id}\n")
+    except:
+        pass
 
     with open(f'data/matching_graph.json', 'w') as file:
         file.write(str(matching_graph).replace("'", '"'))
