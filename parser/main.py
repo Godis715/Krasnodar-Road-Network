@@ -32,6 +32,8 @@ def create_links(osm_root, nodes, matching_graph):
     # Getting links: [[id1, id2, d], ...]
     links = []
     for road_osm in roads_osm:
+        road_oneway = road_osm.find("tag[@k='oneway']")
+        is_road_oneway = True if road_oneway is not None and road_oneway.get('v') == 'yes' else False
         road_nodes_osm = road_osm.findall('nd')
         for i in range(1,len(road_nodes_osm)):
             road_node1_id = road_nodes_osm[i-1].get('ref')
@@ -40,6 +42,8 @@ def create_links(osm_root, nodes, matching_graph):
             road_node2_coord = nodes[road_node2_id]
             d = (road_node2_coord[0] - road_node1_coord[0]) ** 2 + (road_node2_coord[1] - road_node1_coord[1]) ** 2
             links.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
+            if not is_road_oneway:
+                links.append([matching_graph[road_node2_id], matching_graph[road_node1_id], d])
     
     return links
 
@@ -178,8 +182,9 @@ if __name__ == "__main__":
     try:
         with open(f'data/objects.txt', 'w') as file:
             for _, object_info in data_objects.items():
-                object_match_id = matching_graph[object_info['ref']]
-                file.write(f"{object_match_id}\n")
+                if object_info['type'] == 'infrastructure':
+                    object_match_id = matching_graph[object_info['ref']]
+                    file.write(f"{object_match_id}\n")
     except:
         pass
 
