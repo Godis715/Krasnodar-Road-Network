@@ -83,7 +83,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
                 'ref': object_ref
             }
 
-    if object_name != 'house':
+    if object_name != '-':
         print("Converting ways... ")
         with click.progressbar(osm_way_objects) as osm_way_objects_bar:
             for osm_way_object in osm_way_objects_bar:
@@ -99,7 +99,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
                 ]
                 object_ref = _searching_near_node(object_location, base_nodes)
 
-                data_object[osm_node_object.get('id')] = {
+                data_object[osm_way_object.get('id')] = {
                     'type': object_type,
                     'name': object_name,
                     'location': object_location,
@@ -128,7 +128,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
             ]
             object_ref = _searching_near_node(object_location, base_nodes)
 
-            data_object[osm_node_object.get('id')] = {
+            data_object[osm_relation_object.get('id')] = {
                 'type': object_type,
                 'name': object_name,
                 'location': object_location,
