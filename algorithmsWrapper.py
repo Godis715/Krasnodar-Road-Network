@@ -195,25 +195,27 @@ if __name__ == "__main__":
     #print(id_objects)
 
     id_nodes = []
-    # for _ in range(10):
-    #     id_node = random.randint(0, 71350)
-    #     if id_node not in id_objects:
-    #         id_nodes.append(id_node)
+    for _ in range(10):
+        id_node = random.randint(0, 71350)
+        if id_node not in id_objects:
+            id_nodes.append(id_node)
 
-    id_nodes.append(51575)
+    #id_nodes.append(51575)
     print(id_nodes)
 
     type_dir = 2
-    
+
     max_dist = 1
 
     time_start = time.monotonic()
-    nodes_find_objects = task_1_1_b(id_objects, id_nodes, type_dir, max_dist)
+    find_object = task_1_4(id_objects, id_nodes, type_dir)
     time_end = time.monotonic()
     print("Time:", time_end - time_start)
 
-    for node_find_objects in nodes_find_objects:
-        print(node_find_objects)
+    print(find_object)
+
+    # for node_find_objects in nodes_find_objects:
+    #     print(node_find_objects)
   
     
         
