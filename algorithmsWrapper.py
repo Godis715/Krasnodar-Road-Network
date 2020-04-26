@@ -4,6 +4,7 @@
 import ctypes 
 import ast
 import random
+import time
 
 # loading lib
 libalgorithms = ctypes.CDLL('./build/libalgorithms.so')
@@ -52,7 +53,7 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
     result = []
     for id_node in id_nodes:
         size_res = ctypes.c_size_t()
-        id_objects = libalgorithms.task_1_1_b(
+        id_res_objects = libalgorithms.task_1_1_b(
             (ctypes.c_size_t * len(id_objects))(*id_objects),
             len(id_objects),
             id_node,
@@ -62,9 +63,9 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
             ctypes.byref(size_res)
         )
         result.append(
-            (id_node, id_objects[:size_res.value])
+            (id_node, id_res_objects[:size_res.value])
         )
-        libalgorithms.free_memory(id_objects)
+        libalgorithms.free_memory(id_res_objects)
     return result
 
 def task_1_2(id_objects, id_nodes, type_dir):
@@ -194,17 +195,25 @@ if __name__ == "__main__":
     #print(id_objects)
 
     id_nodes = []
-    for _ in range(10):
-        id_node = random.randint(0, 71350)
-        if id_node not in id_objects:
-            id_nodes.append(id_node)
+    # for _ in range(10):
+    #     id_node = random.randint(0, 71350)
+    #     if id_node not in id_objects:
+    #         id_nodes.append(id_node)
+
+    id_nodes.append(51575)
     print(id_nodes)
 
     type_dir = 2
+    
+    max_dist = 1
 
-    find_objects = task_1_1_a(id_objects, id_nodes, type_dir)
+    time_start = time.monotonic()
+    nodes_find_objects = task_1_1_b(id_objects, id_nodes, type_dir, max_dist)
+    time_end = time.monotonic()
+    print("Time:", time_end - time_start)
 
-    print(find_objects)
+    for node_find_objects in nodes_find_objects:
+        print(node_find_objects)
   
     
         

@@ -8,15 +8,13 @@ extern "C" {
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
 
-		auto from_fixed_objects = dijkstra(graph.r_edges, object);
-		auto to_fixed_objects = dijkstra(graph.edges, object);
-
 		if (way == 1)
 		{
+			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			size_t dist = infinty;
-			size_t index = 0;
+			size_t index = -1;
 			for (size_t obj : fixed_objects)
-				if (dist > from_fixed_objects[obj])
+				if (dist >= from_fixed_objects[obj])
 				{
 					dist = from_fixed_objects[obj];
 					index = obj;
@@ -25,10 +23,11 @@ extern "C" {
 		}
 		else if (way == 2)
 		{
+			auto to_fixed_objects = dijkstra(graph.edges, object);
 			size_t dist = infinty;
-			size_t index = 0;
+			size_t index = -1;
 			for (size_t obj : fixed_objects)
-				if (dist > to_fixed_objects[obj])
+				if (dist >= to_fixed_objects[obj])
 				{
 					dist = to_fixed_objects[obj];
 					index = obj;
@@ -37,10 +36,12 @@ extern "C" {
 		}
 		else
 		{
+			auto from_fixed_objects = dijkstra(graph.r_edges, object);
+			auto to_fixed_objects = dijkstra(graph.edges, object);
 			size_t dist = infinty;
-			size_t index = 0;
+			size_t index = -1;
 			for (size_t obj : fixed_objects)
-				if (dist > to_fixed_objects[obj] + from_fixed_objects[obj])
+				if (dist >= to_fixed_objects[obj] + from_fixed_objects[obj])
 				{
 					dist = to_fixed_objects[obj] + from_fixed_objects[obj];
 					index = obj;
@@ -56,13 +57,13 @@ extern "C" {
 		auto graph = read_data(file_name);
 		reverse_graph(graph);
 
-		auto from_fixed_objects = dijkstra(graph.r_edges, object);
-		auto to_fixed_objects = dijkstra(graph.edges, object);
 		auto res = new size_t[f_size];
 		size_t* i = res;
 		out_size = 0;
+	
 		if (way == 1)
 		{
+			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			for (size_t obj : fixed_objects)
 				if (max >= from_fixed_objects[obj])
 				{
@@ -74,6 +75,7 @@ extern "C" {
 		}
 		else if (way == 2)
 		{
+			auto to_fixed_objects = dijkstra(graph.edges, object);
 			for (size_t obj : fixed_objects)
 				if (max >= to_fixed_objects[obj])
 				{
@@ -85,6 +87,8 @@ extern "C" {
 		}
 		else
 		{
+			auto from_fixed_objects = dijkstra(graph.r_edges, object);
+			auto to_fixed_objects = dijkstra(graph.edges, object);
 			for (size_t obj : fixed_objects)
 				if (max >= to_fixed_objects[obj] + from_fixed_objects[obj])
 				{
