@@ -191,7 +191,7 @@ if __name__ == "__main__":
     with open('parser/data/objects.txt', 'r') as file:
         for row in file:
             id_objects.append(int(row.replace('\n', '')))
-    print(id_objects)
+    #print(id_objects)
 
     id_nodes = []
     for _ in range(10):
@@ -200,7 +200,7 @@ if __name__ == "__main__":
             id_nodes.append(id_node)
     print(id_nodes)
 
-    type_dir = 1
+    type_dir = 2
 
     find_objects = task_1_1_a(id_objects, id_nodes, type_dir)
 

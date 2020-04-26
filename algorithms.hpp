@@ -56,7 +56,7 @@ inline vector<size_t> dijkstra(const vector<vector<int_pair>>& graph, const size
 		distance[vertex.first] = vertex.second;
 		for (auto& u : graph[vertex.first])
 			if (distance[u.first] == infinty)
-				q.push({ u.second, vertex.second + u.second });
+				q.push({ u.first, vertex.second + u.second });
 	}
 	return distance;
 }
@@ -117,7 +117,8 @@ inline graph_t read_data(const char* file_name)
 	graph.coords = vector<float_pair>(n);
 	for (size_t i = 0; i < e; ++i)
 	{
-		size_t v, u, d;
+		size_t v, u;
+		double d;
 		in >> v >> u >> d;
 		graph.edges[v].push_back({ u, d });
 	}
