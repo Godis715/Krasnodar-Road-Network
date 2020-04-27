@@ -130,8 +130,8 @@ inline graph_t read_data(const char* file_name)
 		in >> x >> y;
 		graph.coords[i] = { x, y };
 	}
-	return graph;
 	in.close();
+	return graph;
 }
 
 inline void reverse_graph(graph_t& graph)
