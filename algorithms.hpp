@@ -323,7 +323,7 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 		++i;
 	}
 	std::ofstream out(out_file);
-	out << clusters.size() << std::endl;
+	out << k << std::endl;
 	for (auto& cluster : clusters)
 		if (cluster.size() != 0)
 		{
@@ -336,9 +336,10 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 		if (center.first > 0)
 			out << center.first << ' ' << center.first << '\n';
 	out << std::endl;
-	for (auto& i : dendrogramma)
-	{
-		for (int_pair who_step : i)
+	for (size_t i =0; i < dendrogramma.size();++i )
+	if (dendrogramma[i].size()!=0){
+out << i << ' ';
+		for (int_pair who_step : dendrogramma[i])
 			out << who_step.first << ' ' << who_step.second << ' ';
 		out << std::endl;
 	}
