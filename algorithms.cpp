@@ -51,7 +51,7 @@ extern "C" {
 	}
 
 	size_t* task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object,
-		size_t max, size_t way, const char* file_name, size_t &out_size)
+		size_t max, size_t way, const char* file_name, size_t& out_size)
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
@@ -60,7 +60,7 @@ extern "C" {
 		auto res = new size_t[f_size];
 		size_t* i = res;
 		out_size = 0;
-	
+
 		if (way == 1)
 		{
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
@@ -108,8 +108,8 @@ extern "C" {
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 
-		vector<vector<size_t>> to_fixed_objects;
-		vector<vector<size_t>> from_fixed_objects;
+		vector<vector<double>> to_fixed_objects;
+		vector<vector<double>> from_fixed_objects;
 
 		if (way == 1)
 		{
@@ -149,7 +149,7 @@ extern "C" {
 			return index_from;
 		}
 		else {
-			for (size_t object : objects){
+			for (size_t object : objects) {
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
 			}
@@ -178,8 +178,8 @@ extern "C" {
 		vector<size_t> objects(_objects, _objects + o_size);
 		auto graph = read_data(file_name);
 
-		vector<vector<size_t>> to_fixed_objects;
-		vector<vector<size_t>> from_fixed_objects;
+		vector<vector<double>> to_fixed_objects;
+		vector<vector<double>> from_fixed_objects;
 
 		if (way == 1)
 		{
@@ -219,7 +219,7 @@ extern "C" {
 			return index;
 		}
 		else {
-			for (size_t object : objects){
+			for (size_t object : objects) {
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
 			}
@@ -255,7 +255,7 @@ extern "C" {
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
+				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
 				if (min > length)
 				{
 					min = length;
@@ -270,7 +270,7 @@ extern "C" {
 			size_t index = -1;
 			for (size_t object : fixed_objects)
 			{
-				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
+				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
 				if (min > length)
 				{
 					min = length;
@@ -285,7 +285,7 @@ extern "C" {
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				size_t length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
+				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
 					lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
 				if (min > length)
 				{
@@ -389,9 +389,9 @@ extern "C" {
 
 	// A function to free up the memory.
 	void free_memory(double* x)
-    {
-        delete [] x;
-    }
+	{
+		delete[] x;
+	}
 }
 
 // 1 from object to fix
@@ -399,4 +399,17 @@ extern "C" {
 // 3 from and to
 int main()
 {
+	const char* file_name = "graph.txt";
+	const size_t length = 4;
+	std::ifstream file("objects.txt");
+	auto fix_obj = new size_t[length];
+	auto obj = new size_t[length];
+	for (size_t i = 0; i < length; ++i)
+		fix_obj[i] = i;
+	for (size_t i = 0; i < length; ++i)
+		obj[i] = i + 4;
+
+
+	auto u = task_1_4(fix_obj, length, obj, length, 1, file_name);
+	std::cout << u;
 }
