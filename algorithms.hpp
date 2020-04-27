@@ -18,13 +18,13 @@ constexpr size_t infinty = std::numeric_limits<size_t>::max();
 constexpr double double_infinty = std::numeric_limits<double>::max();
 
 template <class t>
-inline size_t max_value(const t a, const t b)
+inline t max_value(const t a, const t b)
 {
 	return a > b ? a : b;
 }
 
 template <class t>
-inline size_t min_value(const t a, const t b)
+inline t min_value(const t a, const t b)
 {
 	return a < b ? a : b;
 }
@@ -308,7 +308,7 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 		centroides[i] = graph.coords[no_fixed_objects[i]];
 	}
 	size_t i = 1;
-	while (clusters.size() > k)
+	for( size_t j = k; j < clusters.size(); ++j)
 	{
 		auto pair = nearest_clusters(centroides);
 		centroides[pair.first] = (centroides[pair.first] * clusters[pair.first].size() +
@@ -334,7 +334,7 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 		}
 	for (float_pair center : centroides)
 		if (center.first > 0)
-			out << center.first << ' ' << center.first << ' ';
+			out << center.first << ' ' << center.first << '\n';
 	out << std::endl;
 	for (auto& i : dendrogramma)
 	{

@@ -11,7 +11,7 @@ extern "C" {
 		{
 			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
-			auto dist = infinty;
+			double dist = double_infinty;
 			size_t index = -1;
 			for (size_t obj : fixed_objects)
 				if (dist >= from_fixed_objects[obj])
@@ -39,7 +39,7 @@ extern "C" {
 			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			auto to_fixed_objects = dijkstra(graph.edges, object);
-			auto dist = double_infinty;
+			double dist = double_infinty;
 			size_t index = -1;
 			for (size_t obj : fixed_objects)
 				if (dist >= to_fixed_objects[obj] + from_fixed_objects[obj])
@@ -118,7 +118,7 @@ extern "C" {
 		{
 			for (size_t object : objects)
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min_to = double_infinty;
+			double min_to = double_infinty;
 			size_t index_to = -1;
 			for (size_t i : fixed_objects)
 			{
@@ -136,7 +136,7 @@ extern "C" {
 		else if (way == 2) {
 			for (size_t object : fixed_objects)
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min_from = double_infinty;
+			double min_from = double_infinty;
 			size_t index_from = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
@@ -152,11 +152,11 @@ extern "C" {
 			return index_from;
 		}
 		else {
-			for (size_t object : objects) {
+			for (size_t object : objects)
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
+			for (size_t object : fixed_objects) 
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			}
-			auto min_to_from = double_infinty;
+			double min_to_from = double_infinty;
 			size_t index_to_from = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
@@ -206,7 +206,7 @@ extern "C" {
 		else if (way == 2) {
 			for (size_t object : fixed_objects)
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min = double_infinty;
+			double min = double_infinty;
 			size_t index = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
@@ -222,11 +222,11 @@ extern "C" {
 			return index;
 		}
 		else {
-			for (size_t object : objects) {
+			for (size_t object : objects)
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
+			for (size_t object : fixed_objects)
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			}
-			auto min = double_infinty;
+			double min = double_infinty;
 			size_t index = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
@@ -253,7 +253,7 @@ extern "C" {
 
 		if (way == 1)
 		{
-			auto min = double_infinty;
+			double min = double_infinty;
 			size_t index = -1;
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
@@ -269,7 +269,7 @@ extern "C" {
 		}
 		else if (way == 2)
 		{
-			auto min = double_infinty;
+			double min = double_infinty;
 			size_t index = -1;
 			for (size_t object : fixed_objects)
 			{
@@ -283,7 +283,7 @@ extern "C" {
 			return index;
 		}
 		else {
-			auto min = double_infinty;
+			double min = double_infinty;
 			size_t index = -1;
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
@@ -310,7 +310,7 @@ extern "C" {
 		std::ofstream out(out_file);
 		out << pair.second << std::endl;
 		for (auto edge : pair.first)
-			out << edge.first << " " << edge.second << ' ';
+			out << edge.first << " " << edge.second << '\n';
 	}
 
 	void task_2_2(size_t* _objects, size_t o_size,
