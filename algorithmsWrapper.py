@@ -261,6 +261,16 @@ def task_2_1(id_object, id_nodes):
     return weight, tree
 
 def task_2_2(id_nodes, number_clusters):
+    """ Counting clusters for selected nodes (members + centroids + dendrogram)
+
+        :param id_nodes: list<int>
+            * Ids nodes - SELECTED
+        :param number_clusters: int
+        
+        Return: (float, list<(int, int)>)
+            * weight and tree (array edges)
+    """
+    # Linking types
     libalgorithms.task_2_2.restype = None
     libalgorithms.task_2_2.argtypes = [
         ctypes.POINTER(ctypes.c_size_t), 
@@ -269,6 +279,7 @@ def task_2_2(id_nodes, number_clusters):
         ctypes.POINTER(ctypes.c_char),
         ctypes.POINTER(ctypes.c_char)
     ]
+    # Calling c++ func (libalgorithms.task_2_2)
     libalgorithms.task_2_2(
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
@@ -276,11 +287,30 @@ def task_2_2(id_nodes, number_clusters):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # parse content from FILENAME_OUT
-    # return clusters and dendrogramma
+    # Parsing content from FILENAME_OUT -> clusters, centroids, dendrogram
+    clusters = []
+    centroids = []
+    dendrogram = []
+    with open(FILENAME_OUT, 'r') as file_res:
+        _ = file_res.readline()
+        for _ in range(number_clusters):
+            cluster = list(map(int, file_res.readline().split(' ')[:-1]))[1:]
+            clusters.append(cluster)
+        for _ in range(number_clusters):
+            centroid_x, centroid_y = map(float, file_res.readline().split(' '))
+            centroids.append((centroid_x, centroid_y))
+        file_res.readline()
+        for merge_infos in file_res:
+            merge_info = list(map(int, merge_infos.split(' ')[:-1]))
+            dendrogram.append(merge_info)
+
+    return clusters, centroids, dendrogram
 
 def task_2_3_by_clust(id_object, id_nodes):
-    # clusters in FILENAME_OUT 
+    """ 
+        ...
+    """
+    # Linking types
     libalgorithms.task_2_3_by_clust.restype = None
     libalgorithms.task_2_3_by_clust.argtypes = [
         ctypes.POINTER(ctypes.c_size_t), 
@@ -289,6 +319,7 @@ def task_2_3_by_clust(id_object, id_nodes):
         ctypes.POINTER(ctypes.c_char),
         ctypes.POINTER(ctypes.c_char)
     ]
+    # Calling c++ func (libalgorithms.task_2_3_by_clust)
     libalgorithms.task_2_3_by_clust(
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
@@ -296,16 +327,20 @@ def task_2_3_by_clust(id_object, id_nodes):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # parse content from FILENAME_OUT
-    # return tree and length
-
+    # Parsing content from FILENAME_OUT -> tree
+    tree = []
+    with open(FILENAME_OUT, 'r') as file_res:
+        _ = int(file_res.readline())
+        for edge in file_res:
+            v_from, v_to = map(int, edge.split(' '))
+            tree.append((v_from, v_to))
+    return tree
 
 if __name__ == "__main__":
     id_objects = []
     with open('parser/data/objects.txt', 'r') as file:
         for row in file:
             id_objects.append(int(row.replace('\n', '')))
-    #print(id_objects)
 
     id_nodes = []
     for _ in range(30):
@@ -313,21 +348,22 @@ if __name__ == "__main__":
         if id_node not in id_objects:
             id_nodes.append(id_node)
 
-    #id_nodes.append(51575)
     print(id_nodes)
 
-    type_dir = 3
+    # type_dir = 3
 
-    max_dist = 0.00001
+    # max_dist = 0.00001
 
     number_clusters = 8
 
-    time_start = time.monotonic()
     task_2_2(id_nodes, number_clusters)
+
+    time_start = time.monotonic()
+    tree = task_2_3_by_clust(id_objects[0], id_nodes)
     time_end = time.monotonic()
     print("Time:", time_end - time_start)
 
-    # print(weight, tree)
+    print(tree)
 
     # for node_find_objects in nodes_find_objects:
     #     print(node_find_objects)

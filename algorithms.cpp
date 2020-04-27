@@ -324,9 +324,9 @@ extern "C" {
 	void task_2_3_out(vector<int_pair> tree, size_t length, const char* out_file)
 	{
 		std::ofstream out(out_file, std::ios_base::trunc);
+		out << length << std::endl;
 		for (auto edge : tree)
-			out << edge.first << ' ' << edge.second << ' ';
-		out << std::endl << length;
+			out << edge.first << ' ' << edge.second << std::endl;
 	}
 
 	void task_2_3_by_clust(size_t* _objects, size_t o_size,
