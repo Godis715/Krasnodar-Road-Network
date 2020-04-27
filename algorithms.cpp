@@ -6,10 +6,10 @@ extern "C" {
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
-		reverse_graph(graph);
 
 		if (way == 1)
 		{
+			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			auto dist = infinty;
 			size_t index = -1;
@@ -24,7 +24,7 @@ extern "C" {
 		else if (way == 2)
 		{
 			auto to_fixed_objects = dijkstra(graph.edges, object);
-			auto dist = infinty;
+			double dist = double_infinty;
 			size_t index = -1;
 			for (size_t obj : fixed_objects)
 				if (dist >= to_fixed_objects[obj])
@@ -36,9 +36,10 @@ extern "C" {
 		}
 		else
 		{
+			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			auto to_fixed_objects = dijkstra(graph.edges, object);
-			auto dist = infinty;
+			auto dist = double_infinty;
 			size_t index = -1;
 			for (size_t obj : fixed_objects)
 				if (dist >= to_fixed_objects[obj] + from_fixed_objects[obj])
@@ -51,11 +52,11 @@ extern "C" {
 	}
 
 	size_t* task_1_1_b(size_t* _fixed_objects, size_t f_size, size_t object,
-		size_t max, size_t way, const char* file_name, size_t& out_size)
+		double max, size_t way, const char* file_name, size_t& out_size)
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		auto graph = read_data(file_name);
-		reverse_graph(graph);
+		
 
 		auto res = new size_t[f_size];
 		size_t* i = res;
@@ -63,6 +64,7 @@ extern "C" {
 
 		if (way == 1)
 		{
+			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			for (size_t obj : fixed_objects)
 				if (max >= from_fixed_objects[obj])
@@ -87,6 +89,7 @@ extern "C" {
 		}
 		else
 		{
+			reverse_graph(graph);
 			auto from_fixed_objects = dijkstra(graph.r_edges, object);
 			auto to_fixed_objects = dijkstra(graph.edges, object);
 			for (size_t obj : fixed_objects)
@@ -115,11 +118,11 @@ extern "C" {
 		{
 			for (size_t object : objects)
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min_to = infinty;
+			auto min_to = double_infinty;
 			size_t index_to = -1;
 			for (size_t i : fixed_objects)
 			{
-				size_t max = 0;
+				double max = 0;
 				for (auto& to_fixed_object : to_fixed_objects)
 					max = max_value(max, to_fixed_object[i]);
 				if (max < min_to)
@@ -133,11 +136,11 @@ extern "C" {
 		else if (way == 2) {
 			for (size_t object : fixed_objects)
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min_from = infinty;
+			auto min_from = double_infinty;
 			size_t index_from = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
-				size_t max = 0;
+				double max = 0;
 				for (size_t object : objects)
 					max = max_value(max, from_fixed_objects[i][object]);
 				if (max < min_from)
@@ -153,11 +156,11 @@ extern "C" {
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
 			}
-			auto min_to_from = infinty;
+			auto min_to_from = double_infinty;
 			size_t index_to_from = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
-				size_t max = 0;
+				double max = 0;
 				for (size_t j = 0; j < objects.size(); ++j)
 					max = max_value(max, from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]]);
 				if (max < min_to_from)
@@ -185,11 +188,11 @@ extern "C" {
 		{
 			for (size_t object : objects)
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			for (size_t i : fixed_objects)
 			{
-				size_t sum = 0;
+				double sum = 0;
 				for (auto& to_fixed_object : to_fixed_objects)
 					sum += to_fixed_object[i];
 				if (sum < min)
@@ -203,11 +206,11 @@ extern "C" {
 		else if (way == 2) {
 			for (size_t object : fixed_objects)
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
-				size_t sum = 0;
+				double sum = 0;
 				for (size_t object : objects)
 					sum += from_fixed_objects[i][object];
 				if (sum < min)
@@ -223,11 +226,11 @@ extern "C" {
 				to_fixed_objects.push_back(dijkstra(graph.edges, object));
 				from_fixed_objects.push_back(dijkstra(graph.edges, object));
 			}
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			for (size_t i = 0; i < fixed_objects.size(); ++i)
 			{
-				size_t sum = 0;
+				double sum = 0;
 				for (size_t j = 0; j < objects.size(); ++j)
 					sum += from_fixed_objects[i][objects[j]] + to_fixed_objects[j][fixed_objects[i]];
 				if (sum < min)
@@ -250,12 +253,12 @@ extern "C" {
 
 		if (way == 1)
 		{
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
+				auto length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects);
 				if (min > length)
 				{
 					min = length;
@@ -266,11 +269,11 @@ extern "C" {
 		}
 		else if (way == 2)
 		{
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			for (size_t object : fixed_objects)
 			{
-				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
+				auto length = lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
 				if (min > length)
 				{
 					min = length;
@@ -280,12 +283,12 @@ extern "C" {
 			return index;
 		}
 		else {
-			auto min = infinty;
+			auto min = double_infinty;
 			size_t index = -1;
 			reverse_graph(graph);
 			for (size_t object : fixed_objects)
 			{
-				double length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
+				auto length = lenght_tree_of_shortest_path(dijkstra_path(graph.r_edges, object), objects) +
 					lenght_tree_of_shortest_path(dijkstra_path(graph.edges, object), objects);
 				if (min > length)
 				{
@@ -402,14 +405,23 @@ int main()
 	const char* file_name = "graph.txt";
 	const size_t length = 4;
 	std::ifstream file("objects.txt");
-	auto fix_obj = new size_t[length];
-	auto obj = new size_t[length];
-	for (size_t i = 0; i < length; ++i)
-		fix_obj[i] = i;
-	for (size_t i = 0; i < length; ++i)
-		obj[i] = i + 4;
+	
+	vector<size_t> obj = { 14687, 29979, 57026, 46098, 39868, 12121, 41830, 46221, 18433, 17354, 69789, 27971, 43592, 25327, 66945, 49617, 17634, 71053, 21742, 44433, 24638, 55160, 9788, 28048, 47714, 34432, 4756, 22613, 46309, 63179, 58377, 5047, 5305, 16219, 34498, 30917, 48819, 65310, 21787, 58655, 4455, 64519, 36783, 38047, 353, 50420, 62254, 68702, 36948, 21360, 21500, 34173, 46377, 28448, 41242, 67839, 27362, 68836, 57515, 43056, 62395, 71083, 43521, 38429, 12420, 63785, 14804, 70314, 59321, 50445, 69228, 56143, 5858, 2546, 21002, 24663, 59726, 10642, 27788, 7261, 54149, 23460, 21444, 58012, 60084, 24133, 64154, 30359, 11692, 11695, 23376, 51317, 24679, 66676, 44524, 65372, 70505, 7059, 20618, 4859 };
+	vector<size_t> _fix_obj;
+	while (!file.eof())
+	{
+		size_t x;
+		file >> x;
+		_fix_obj.push_back(x);
+	}
+	file.close();
+	auto fix_obj = new size_t[_fix_obj.size()];
+	for (size_t i = 0; i < _fix_obj.size(); ++i)
+		fix_obj[i] = _fix_obj[i];
 
-
-	auto u = task_1_4(fix_obj, length, obj, length, 1, file_name);
-	std::cout << u;
+	for (size_t i = 0; i < obj.size(); ++i)
+	{
+		auto u = task_1_1_a(fix_obj, _fix_obj.size(), obj[i], 2, file_name);
+		std::cout << u << std::endl;
+	}
 }

@@ -15,13 +15,16 @@ using std::vector;
 // vector<size_t> fixed_objects; // firestations, hospitals, burger kings
 // vector<size_t> no_fixed_objects; // homes
 constexpr size_t infinty = std::numeric_limits<size_t>::max();
+constexpr double double_infinty = std::numeric_limits<double>::max();
 
-inline size_t max_value(const size_t a, const size_t b)
+template <class t>
+inline size_t max_value(const t a, const t b)
 {
 	return a > b ? a : b;
 }
 
-inline size_t min_value(const size_t a, const size_t b)
+template <class t>
+inline size_t min_value(const t a, const t b)
 {
 	return a < b ? a : b;
 }
