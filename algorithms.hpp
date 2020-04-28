@@ -159,10 +159,12 @@ inline double lenght_tree_of_shortest_path(const vector<i_f_pair>& distance, vec
 		if (used[v])
 			continue;
 		used[v] = true;
-		lenght += distance[v].second;
-		if (distance[v].first == infinty)
-			return infinty;
-		stack.push(distance[v].first);
+
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			lenght += distance[v].second;
+			stack.push(distance[v].first);
+		}
 	}
 	return lenght;
 }
@@ -180,9 +182,13 @@ inline vector<int_pair> tree_of_shortest_path(const vector<i_f_pair>& distance, 
 		stack.pop();
 		if (used[v])
 			continue;
+		
 		used[v] = true;
-		stack.push(distance[v].first);
-		tree.push_back({ distance[v].first , v });
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			stack.push(distance[v].first);
+			tree.push_back({ distance[v].first , v });
+		}
 	}
 	return tree;
 }
@@ -201,12 +207,15 @@ inline std::pair<vector<int_pair>, double> length_and_tree_of_shortest_path(cons
 		stack.pop();
 		if (used[v])
 			continue;
-		if (distance[v].first == infinty)
-			lenght = infinty;
+
 		used[v] = true;
-		lenght += distance[v].second;
-		stack.push(distance[v].first);
-		tree.push_back({ distance[v].first , v });
+		
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			lenght += distance[v].second;
+			stack.push(distance[v].first);
+			tree.push_back({ distance[v].first , v });
+		}
 	}
 	return std::pair<vector<int_pair>, double>(tree, lenght);
 }
@@ -269,30 +278,47 @@ inline int_pair nearest_clusters(const vector<float_pair>& centroides)
 	return res;
 }
 
+inline vector<size_t> get_centroids(const vector<float_pair>& centroides, const graph_t& graph)
+{
+	vector<size_t> res(centroides.size(), 0);
+	for (size_t i = 0; i < centroides.size(); ++i)
+		res[i] = get_nearest_vertex(centroides[i], graph);
+	return res;
+}
+
+// for centroide wiit negative (<0)amount 
+inline vector<size_t> get_centroids_with_invalid(const vector<float_pair>& centroides, const graph_t& graph)
+{
+	vector<size_t> res;
+	for (size_t i = 0; i < centroides.size(); ++i)
+		if (centroides[i].first > 0)
+			res.push_back(get_nearest_vertex(centroides[i], graph));
+	return res;
+}
+
 inline auto clustering(size_t k, const vector<size_t>& no_fixed_objects, const graph_t& graph)
 {
 	vector<vector<size_t>> clusters(no_fixed_objects.size(), vector<size_t>(1));
-	vector<float_pair> centroides(no_fixed_objects.size());
+	vector<float_pair> centroids(no_fixed_objects.size());
 
 	for (size_t i = 0; i < no_fixed_objects.size(); ++i)
 	{
 		clusters[i][0] = no_fixed_objects[i];
-		centroides[i] = graph.coords[no_fixed_objects[i]];
+		centroids[i] = graph.coords[no_fixed_objects[i]];
 	}
 
 	while (clusters.size() > k)
 	{
-		auto pair = nearest_clusters(centroides);
-		centroides[pair.first] = (centroides[pair.first] * clusters[pair.first].size() +
-			centroides[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
+		auto pair = nearest_clusters(centroids);
+		centroids[pair.first] = (centroids[pair.first] * clusters[pair.first].size() +
+			centroids[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
 
-		for (auto node : clusters[pair.second])
-			clusters[pair.first].push_back(node);
+		clusters[pair.first].insert(clusters[pair.first].end(), clusters[pair.second].begin(), clusters[pair.second].end());
 
 		clusters.erase(clusters.begin() + pair.second);
-		centroides.erase(centroides.begin() + pair.second);
+		centroids.erase(centroids.begin() + pair.second);
 	}
-	return std::pair<vector<vector<size_t>>, vector<float_pair>>(clusters, centroides);
+	return std::pair<vector<vector<size_t>>, vector<float_pair>>(clusters, centroids);
 }
 
 inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
@@ -300,28 +326,29 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 {
 	vector<vector<size_t>> clusters(no_fixed_objects.size(), vector<size_t>(1));
 	vector<vector<int_pair>> dendrogramma(no_fixed_objects.size());
-	vector<float_pair> centroides(no_fixed_objects.size());
+	vector<float_pair> centroids(no_fixed_objects.size());
 
 	for (size_t i = 0; i < no_fixed_objects.size(); ++i)
 	{
 		clusters[i][0] = no_fixed_objects[i];
-		centroides[i] = graph.coords[no_fixed_objects[i]];
+		centroids[i] = graph.coords[no_fixed_objects[i]];
 	}
-	size_t i = 1;
-	for( size_t j = k; j < clusters.size(); ++j)
+	size_t height_merge = 1;
+	for (size_t i = k; i < clusters.size(); ++i)
 	{
-		auto pair = nearest_clusters(centroides);
-		centroides[pair.first] = (centroides[pair.first] * clusters[pair.first].size() +
-			centroides[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
+		auto pair = nearest_clusters(centroids);
+		centroids[pair.first] = (centroids[pair.first] * clusters[pair.first].size() +
+			centroids[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
 
-		for (auto node : clusters[pair.second])
-			clusters[pair.first].push_back(node);
+		clusters[pair.first].insert(clusters[pair.first].end(), clusters[pair.second].begin(), clusters[pair.second].end());
+
 
 		clusters[pair.second].clear();
-		centroides[pair.second] = { -1.0, -1.0 };
-		dendrogramma[pair.first].push_back({ pair.second, i });
-		++i;
+		centroids[pair.second] = { -1.0, -1.0 };
+		dendrogramma[pair.first].push_back({ pair.second, height_merge });
+		++height_merge;
 	}
+	auto centroids_object = get_centroids_with_invalid(centroids, graph);
 	std::ofstream out(out_file);
 	out << k << std::endl;
 	for (auto& cluster : clusters)
@@ -332,23 +359,22 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 				out << v << ' ';
 			out << std::endl;
 		}
-	for (float_pair center : centroides)
+
+	for (size_t center : centroids_object)
+		out << center << ' ';
+	out << std::endl;
+	out.setf(std::ios::fixed);
+	out.precision(8);
+	for (float_pair center : centroids)
 		if (center.first > 0)
 			out << center.first << ' ' << center.first << std::endl;
 	out << std::endl;
-	for (size_t i =0; i < dendrogramma.size();++i )
-	if (dendrogramma[i].size()!=0){
-		out << i << ' ';
-		for (int_pair who_step : dendrogramma[i])
-			out << who_step.first << ' ' << who_step.second << ' ';
-		out << std::endl;
-	}
-}
-
-inline vector<size_t> get_centroids(const vector<float_pair>& centroides, const graph_t& graph)
-{
-	vector<size_t> res(centroides.size(), 0);
-	for (size_t i = 0; i < centroides.size(); ++i)
-		res[i] = get_nearest_vertex(centroides[i], graph);
-	return res;
+	for (size_t i = 0; i < dendrogramma.size(); ++i)
+		if (dendrogramma[i].size() != 0) {
+			out << i << ' ';
+			for (int_pair who_step : dendrogramma[i])
+				out << who_step.first << ' ' << who_step.second << ' ';
+			out << std::endl;
+		}
+	out.close();
 }
