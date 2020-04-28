@@ -7,6 +7,7 @@
 #include <queue>
 
 using int_pair = std::pair<size_t, size_t>;
+using i_f_pair = std::pair<size_t, double>;
 using float_pair = std::pair<double, double>;
 using std::vector;
 
@@ -14,36 +15,39 @@ using std::vector;
 // vector<size_t> fixed_objects; // firestations, hospitals, burger kings
 // vector<size_t> no_fixed_objects; // homes
 constexpr size_t infinty = std::numeric_limits<size_t>::max();
+constexpr double double_infinty = std::numeric_limits<double>::max();
 
-inline size_t max_value(const size_t a, const size_t b)
+template <class t>
+inline t max_value(const t a, const t b)
 {
 	return a > b ? a : b;
 }
 
-inline size_t min_value(const size_t a, const size_t b)
+template <class t>
+inline t min_value(const t a, const t b)
 {
 	return a < b ? a : b;
 }
 
 struct graph_t
 {
-	vector<vector<int_pair>> edges; // vertex; distance
-	vector<vector<int_pair>> r_edges;
+	vector<vector<i_f_pair>> edges; // vertex; distance
+	vector<vector<i_f_pair>> r_edges;
 	vector<float_pair> coords;
 	size_t size;
 };
 //
 
-inline vector<size_t> dijkstra(const vector<vector<int_pair>>& graph, const size_t start)
+inline vector<double> dijkstra(const vector<vector<i_f_pair>>& graph, const size_t start)
 {
 	size_t n = graph.size();
 
-	vector<size_t> distance(n, infinty);
-	auto f = [](int_pair x, int_pair y)
+	vector<double> distance(n, infinty);
+	auto f = [](i_f_pair x, i_f_pair y)
 	{
 		return x.second > y.second;
 	};
-	std::priority_queue<int_pair, vector<int_pair>, decltype(f)> q(f);
+	std::priority_queue<i_f_pair, vector<i_f_pair>, decltype(f)> q(f);
 	// vertex; distance
 	q.push({ start, 0 });
 
@@ -56,21 +60,21 @@ inline vector<size_t> dijkstra(const vector<vector<int_pair>>& graph, const size
 		distance[vertex.first] = vertex.second;
 		for (auto& u : graph[vertex.first])
 			if (distance[u.first] == infinty)
-				q.push({ u.second, vertex.second + u.second });
+				q.push({ u.first, vertex.second + u.second });
 	}
 	return distance;
 }
 
-inline vector<int_pair> dijkstra_path(const vector<vector<int_pair>>& graph, const size_t start)
+inline vector<i_f_pair> dijkstra_path(const vector<vector<i_f_pair>>& graph, const size_t start)
 {
 	size_t n = graph.size();
 
-	vector<int_pair> distance(n, int_pair(infinty, infinty)); // from, dist
-	auto f = [](std::pair<int_pair, size_t> x, std::pair<int_pair, size_t> y)
+	vector<i_f_pair> distance(n, i_f_pair(infinty, infinty)); // from, dist
+	auto f = [](std::pair<int_pair, double> x, std::pair<int_pair, double> y)
 	{
 		return x.second > y.second;
 	};
-	std::priority_queue<std::pair<int_pair, size_t>, vector<std::pair<int_pair, size_t>>, decltype(f)> q(f);
+	std::priority_queue<std::pair<int_pair, double>, vector<std::pair<int_pair, double>>, decltype(f)> q(f);
 	// vertex(from, to); distance
 	q.push({ {start, start}, 0 });
 
@@ -80,11 +84,12 @@ inline vector<int_pair> dijkstra_path(const vector<vector<int_pair>>& graph, con
 		q.pop();
 		if (distance[vertex.first.second].second < infinty) // vertex already used
 			continue;
-		distance[vertex.first.second] = int_pair(vertex.first.first, vertex.second);
+		distance[vertex.first.second] = i_f_pair(vertex.first.first, vertex.second);
 		for (auto& u : graph[vertex.first.second])
 			if (distance[u.first].second == infinty)
-				q.push({ {vertex.first.second, u.second}, vertex.second + u.second });
+				q.push({ {vertex.first.second, u.first}, vertex.second + u.second });
 	}
+
 	return distance;
 }
 
@@ -113,11 +118,12 @@ inline graph_t read_data(const char* file_name)
 	in >> n >> e;
 	graph_t graph;
 	graph.size = n;
-	graph.edges = vector<vector<int_pair>>(n);
+	graph.edges = vector<vector<i_f_pair>>(n);
 	graph.coords = vector<float_pair>(n);
 	for (size_t i = 0; i < e; ++i)
 	{
-		size_t v, u, d;
+		size_t v, u;
+		double d;
 		in >> v >> u >> d;
 		graph.edges[v].push_back({ u, d });
 	}
@@ -127,21 +133,22 @@ inline graph_t read_data(const char* file_name)
 		in >> x >> y;
 		graph.coords[i] = { x, y };
 	}
+	in.close();
 	return graph;
 }
 
 inline void reverse_graph(graph_t& graph)
 {
-	graph.r_edges = vector<vector<int_pair>>(graph.size);
+	graph.r_edges = vector<vector<i_f_pair>>(graph.size);
 	for (size_t i = 0; i < graph.size; ++i)
 		for (size_t j = 0; j < graph.edges[i].size(); ++j)
 			graph.r_edges[graph.edges[i][j].first].push_back({ i, graph.edges[i][j].second });
 }
 
-inline size_t lenght_tree_of_shortest_path(const vector<int_pair>& distance, vector<size_t> objects)
+inline double lenght_tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
 {
 	vector<bool> used(distance.size(), false);
-	size_t lenght = 0;
+	double lenght = 0;
 	std::stack<size_t> stack;
 	for (size_t v : objects)
 		stack.push(v);
@@ -152,13 +159,17 @@ inline size_t lenght_tree_of_shortest_path(const vector<int_pair>& distance, vec
 		if (used[v])
 			continue;
 		used[v] = true;
-		lenght += distance[v].second;
-		stack.push(distance[v].first);
+
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			lenght += distance[v].second;
+			stack.push(distance[v].first);
+		}
 	}
 	return lenght;
 }
 
-inline vector<int_pair> tree_of_shortest_path(const vector<int_pair>& distance, vector<size_t> objects)
+inline vector<int_pair> tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
 {
 	vector<int_pair> tree;
 	vector<bool> used(distance.size(), false);
@@ -171,17 +182,21 @@ inline vector<int_pair> tree_of_shortest_path(const vector<int_pair>& distance, 
 		stack.pop();
 		if (used[v])
 			continue;
+		
 		used[v] = true;
-		stack.push(distance[v].first);
-		tree.push_back({ distance[v].first , v });
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			stack.push(distance[v].first);
+			tree.push_back({ distance[v].first , v });
+		}
 	}
 	return tree;
 }
 
-inline std::pair<vector<int_pair>, size_t> length_and_tree_of_shortest_path(const vector<int_pair>& distance, vector<size_t> objects)
+inline std::pair<vector<int_pair>, double> length_and_tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
 {
 	vector<bool> used(distance.size(), false);
-	size_t lenght = 0;
+	double lenght = 0;
 	vector<int_pair> tree;
 	std::stack<size_t> stack;
 	for (size_t v : objects)
@@ -192,12 +207,17 @@ inline std::pair<vector<int_pair>, size_t> length_and_tree_of_shortest_path(cons
 		stack.pop();
 		if (used[v])
 			continue;
+
 		used[v] = true;
-		lenght += distance[v].second;
-		stack.push(distance[v].first);
-		tree.push_back({ distance[v].first , v });
+		
+		if (distance[v].first != infinty && distance[v].first != v)
+		{
+			lenght += distance[v].second;
+			stack.push(distance[v].first);
+			tree.push_back({ distance[v].first , v });
+		}
 	}
-	return std::pair<vector<int_pair>, size_t>(tree, lenght);
+	return std::pair<vector<int_pair>, double>(tree, lenght);
 }
 
 inline double dist(float_pair l, float_pair r)
@@ -258,30 +278,47 @@ inline int_pair nearest_clusters(const vector<float_pair>& centroides)
 	return res;
 }
 
+inline vector<size_t> get_centroids(const vector<float_pair>& centroides, const graph_t& graph)
+{
+	vector<size_t> res(centroides.size(), 0);
+	for (size_t i = 0; i < centroides.size(); ++i)
+		res[i] = get_nearest_vertex(centroides[i], graph);
+	return res;
+}
+
+// for centroide wiit negative (<0)amount 
+inline vector<size_t> get_centroids_with_invalid(const vector<float_pair>& centroides, const graph_t& graph)
+{
+	vector<size_t> res;
+	for (size_t i = 0; i < centroides.size(); ++i)
+		if (centroides[i].first > 0)
+			res.push_back(get_nearest_vertex(centroides[i], graph));
+	return res;
+}
+
 inline auto clustering(size_t k, const vector<size_t>& no_fixed_objects, const graph_t& graph)
 {
 	vector<vector<size_t>> clusters(no_fixed_objects.size(), vector<size_t>(1));
-	vector<float_pair> centroides(no_fixed_objects.size());
+	vector<float_pair> centroids(no_fixed_objects.size());
 
 	for (size_t i = 0; i < no_fixed_objects.size(); ++i)
 	{
 		clusters[i][0] = no_fixed_objects[i];
-		centroides[i] = graph.coords[no_fixed_objects[i]];
+		centroids[i] = graph.coords[no_fixed_objects[i]];
 	}
 
 	while (clusters.size() > k)
 	{
-		auto pair = nearest_clusters(centroides);
-		centroides[pair.first] = (centroides[pair.first] * clusters[pair.first].size() +
-			centroides[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
+		auto pair = nearest_clusters(centroids);
+		centroids[pair.first] = (centroids[pair.first] * clusters[pair.first].size() +
+			centroids[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
 
-		for (auto node : clusters[pair.second])
-			clusters[pair.first].push_back(node);
+		clusters[pair.first].insert(clusters[pair.first].end(), clusters[pair.second].begin(), clusters[pair.second].end());
 
 		clusters.erase(clusters.begin() + pair.second);
-		centroides.erase(centroides.begin() + pair.second);
+		centroids.erase(centroids.begin() + pair.second);
 	}
-	return std::pair<vector<vector<size_t>>, vector<float_pair>>(clusters, centroides);
+	return std::pair<vector<vector<size_t>>, vector<float_pair>>(clusters, centroids);
 }
 
 inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
@@ -289,55 +326,55 @@ inline void clustering(size_t k, const vector<size_t>& no_fixed_objects,
 {
 	vector<vector<size_t>> clusters(no_fixed_objects.size(), vector<size_t>(1));
 	vector<vector<int_pair>> dendrogramma(no_fixed_objects.size());
-	vector<float_pair> centroides(no_fixed_objects.size());
+	vector<float_pair> centroids(no_fixed_objects.size());
 
 	for (size_t i = 0; i < no_fixed_objects.size(); ++i)
 	{
 		clusters[i][0] = no_fixed_objects[i];
-		centroides[i] = graph.coords[no_fixed_objects[i]];
+		centroids[i] = graph.coords[no_fixed_objects[i]];
 	}
-	size_t i = 1;
-	while (clusters.size() > k)
+	size_t height_merge = 1;
+	for (size_t i = k; i < clusters.size(); ++i)
 	{
-		auto pair = nearest_clusters(centroides);
-		centroides[pair.first] = (centroides[pair.first] * clusters[pair.first].size() +
-			centroides[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
+		auto pair = nearest_clusters(centroids);
+		centroids[pair.first] = (centroids[pair.first] * clusters[pair.first].size() +
+			centroids[pair.second] * clusters[pair.second].size()) / (clusters[pair.first].size() + clusters[pair.second].size());
 
-		for (auto node : clusters[pair.second])
-			clusters[pair.first].push_back(node);
+		clusters[pair.first].insert(clusters[pair.first].end(), clusters[pair.second].begin(), clusters[pair.second].end());
 
-		clusters[pair.second] = vector<size_t>();
-		centroides[pair.second] = { -1.0, -1.0 };
-		dendrogramma[pair.first].push_back({ pair.second, i });
-		++i;
+
+		clusters[pair.second].clear();
+		centroids[pair.second] = { -1.0, -1.0 };
+		dendrogramma[pair.first].push_back({ pair.second, height_merge });
+		++height_merge;
 	}
+	auto centroids_object = get_centroids_with_invalid(centroids, graph);
 	std::ofstream out(out_file);
-	out << clusters.size() << std::endl;
+	out << k << std::endl;
 	for (auto& cluster : clusters)
-	{
-		if (cluster.empty())
-			continue;
-		out << cluster.size() << ' ';
-		for (size_t v : cluster)
-			out << v << ' ';
-		out << std::endl;
-	}
-	for (float_pair center : centroides)
-		if (center.first > 0)
-			out << center.first << ' ' << center.first << ' ';
-	out << std::endl;
-	for (auto& i : dendrogramma)
-	{
-		for (int_pair who_step : i)
-			out << who_step.first << ' ' << who_step.second << ' ';
-		out << std::endl;
-	}
-}
+		if (cluster.size() != 0)
+		{
+			out << cluster.size() << ' ';
+			for (size_t v : cluster)
+				out << v << ' ';
+			out << std::endl;
+		}
 
-inline vector<size_t> get_centroids(const vector<float_pair>& centroides, const graph_t& graph)
-{
-	vector<size_t> res(centroides.size(), 0);
-	for (size_t i = 0; i < centroides.size(); ++i)
-		res[i] = get_nearest_vertex(centroides[i], graph);
-	return res;
+	for (size_t center : centroids_object)
+		out << center << ' ';
+	out << std::endl;
+	out.setf(std::ios::fixed);
+	out.precision(8);
+	for (float_pair center : centroids)
+		if (center.first > 0)
+			out << center.first << ' ' << center.first << std::endl;
+	out << std::endl;
+	for (size_t i = 0; i < dendrogramma.size(); ++i)
+		if (dendrogramma[i].size() != 0) {
+			out << i << ' ';
+			for (int_pair who_step : dendrogramma[i])
+				out << who_step.first << ' ' << who_step.second << ' ';
+			out << std::endl;
+		}
+	out.close();
 }

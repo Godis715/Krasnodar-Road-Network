@@ -11,7 +11,7 @@ def create_nodes(osm_root):
     # Getting all nodes from osm
     osm_all_nodes = osm_root.findall("node")
     # Converting
-    all_nodes = dict({osm_node.get('id'): [float(osm_node.get('lon')), float(osm_node.get('lat'))] for osm_node in osm_root.findall("node")})
+    all_nodes = dict({osm_node.get('id'): [float(osm_node.get('lon')), float(osm_node.get('lat'))] for osm_node in osm_all_nodes})
 
     # Getting all roads from osm
     roads_osm = osm_root.findall("way/tag[@k='highway']/..")
@@ -30,6 +30,7 @@ def create_links(osm_root, nodes, matching_graph):
     roads_osm = osm_root.findall("way/tag[@k='highway']/..")
 
     # Getting links: [[id1, id2, d], ...]
+    links_graph = []
     links = []
     for road_osm in roads_osm:
         road_oneway = road_osm.find("tag[@k='oneway']")
@@ -41,11 +42,13 @@ def create_links(osm_root, nodes, matching_graph):
             road_node1_coord = nodes[road_node1_id]
             road_node2_coord = nodes[road_node2_id]
             d = (road_node2_coord[0] - road_node1_coord[0]) ** 2 + (road_node2_coord[1] - road_node1_coord[1]) ** 2
-            links.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
+            links_graph.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
+            links.append([road_node1_id, road_node2_id])
             if not is_road_oneway:
-                links.append([matching_graph[road_node2_id], matching_graph[road_node1_id], d])
+                links_graph.append([matching_graph[road_node2_id], matching_graph[road_node1_id], d])
+                links.append([road_node2_id, road_node1_id])
     
-    return links
+    return links, links_graph
 
 def _searching_near_node(object_location, nodes):
 
@@ -83,7 +86,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
                 'ref': object_ref
             }
 
-    if object_name != 'house':
+    if object_name != '-':
         print("Converting ways... ")
         with click.progressbar(osm_way_objects) as osm_way_objects_bar:
             for osm_way_object in osm_way_objects_bar:
@@ -99,7 +102,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
                 ]
                 object_ref = _searching_near_node(object_location, base_nodes)
 
-                data_object[osm_node_object.get('id')] = {
+                data_object[osm_way_object.get('id')] = {
                     'type': object_type,
                     'name': object_name,
                     'location': object_location,
@@ -128,7 +131,7 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
             ]
             object_ref = _searching_near_node(object_location, base_nodes)
 
-            data_object[osm_node_object.get('id')] = {
+            data_object[osm_relation_object.get('id')] = {
                 'type': object_type,
                 'name': object_name,
                 'location': object_location,
@@ -168,7 +171,7 @@ if __name__ == "__main__":
     base_nodes, all_nodes = create_nodes(osm_root)
     
     matching_graph = dict({node_id: i for i, node_id in enumerate(base_nodes)})
-    links_graph = create_links(osm_root, base_nodes, matching_graph)
+    links, links_graph = create_links(osm_root, base_nodes, matching_graph)
     
     data_objects = create_objects(osm_root, base_nodes, all_nodes)
 
@@ -187,6 +190,9 @@ if __name__ == "__main__":
                     file.write(f"{object_match_id}\n")
     except:
         pass
+
+    with open(f'data/links.json', 'w') as file:
+        file.write(str(links).replace("'", '"'))
 
     with open(f'data/matching_graph.json', 'w') as file:
         file.write(str(matching_graph).replace("'", '"'))
