@@ -267,8 +267,8 @@ def task_2_2(id_nodes, number_clusters):
             * Ids nodes - SELECTED
         :param number_clusters: int
         
-        Return: (float, list<(int, int)>)
-            * weight and tree (array edges)
+        Return: (list<list<int>>, list<int>, list<(float, float)>, list<list<int>>)
+            * clusters, centroids_ids, centroids_coords, dendrogram
     """
     # Linking types
     libalgorithms.task_2_2.restype = None
@@ -289,26 +289,38 @@ def task_2_2(id_nodes, number_clusters):
     )
     # Parsing content from FILENAME_OUT -> clusters, centroids, dendrogram
     clusters = []
-    centroids = []
+    centroids_ids = []
+    centroids_coords = []
     dendrogram = []
     with open(FILENAME_OUT, 'r') as file_res:
         _ = file_res.readline()
         for _ in range(number_clusters):
-            cluster = list(map(int, file_res.readline().split(' ')[:-1]))[1:]
+            cluster = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))[1:]
             clusters.append(cluster)
+        centroids_ids = map(int, file_res.readline().replace(' \n', '\n').split(' '))
         for _ in range(number_clusters):
             centroid_x, centroid_y = map(float, file_res.readline().split(' '))
-            centroids.append((centroid_x, centroid_y))
+            centroids_coords.append((centroid_x, centroid_y))
         file_res.readline()
         for merge_infos in file_res:
-            merge_info = list(map(int, merge_infos.split(' ')[:-1]))
+            merge_info = list(map(int, merge_infos.replace(' \n', '\n').split(' ')))
             dendrogram.append(merge_info)
 
-    return clusters, centroids, dendrogram
+    return clusters, centroids_ids, centroids_coords, dendrogram
 
 def task_2_3_by_clust(id_object, id_nodes):
-    """ 
-        ...
+    """ Searching tree shortest distances with minimal weight from object 
+        to centroids of clusters and from centroids to nodes of clusters
+        from selected object of infrastructure
+
+        :param id_object: int
+            * Id object of infrastructure - SELECTED
+        :param id_nodes: list<int>
+            * Ids nodes - SELECTED
+        :param number_clusters: int
+        
+        Return: (float, list<(int, int)> )
+            * length, tree (array of pair ids)
     """
     # Linking types
     libalgorithms.task_2_3_by_clust.restype = None
@@ -330,11 +342,11 @@ def task_2_3_by_clust(id_object, id_nodes):
     # Parsing content from FILENAME_OUT -> tree
     tree = []
     with open(FILENAME_OUT, 'r') as file_res:
-        _ = int(file_res.readline())
+        length = float(file_res.readline())
         for edge in file_res:
             v_from, v_to = map(int, edge.split(' '))
             tree.append((v_from, v_to))
-    return tree
+    return length, tree
 
 if __name__ == "__main__":
     id_objects = []
@@ -354,19 +366,16 @@ if __name__ == "__main__":
 
     # max_dist = 0.00001
 
-    number_clusters = 8
+    # number_clusters = 8
 
-    task_2_2(id_nodes, number_clusters)
+    # task_2_2(id_nodes, number_clusters)
 
-    time_start = time.monotonic()
-    tree = task_2_3_by_clust(id_objects[0], id_nodes)
-    time_end = time.monotonic()
-    print("Time:", time_end - time_start)
+    # time_start = time.monotonic()
+    # length, tree = task_2_3_by_clust(id_objects[0], id_nodes)
+    # time_end = time.monotonic()
+    # print("Time:", time_end - time_start)
 
-    print(tree)
-
-    # for node_find_objects in nodes_find_objects:
-    #     print(node_find_objects)
+    # print(length, tree)
   
     
         
