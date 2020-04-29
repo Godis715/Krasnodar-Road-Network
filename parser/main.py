@@ -186,7 +186,7 @@ if __name__ == "__main__":
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
     # Graph objects
     try:
-        with open(f'{PATH_DATA}/objects.txt', 'w') as file:
+        with open(f'{PATH_DATA}/graph_objects.txt', 'w') as file:
             for _, object_info in data_objects.items():
                 if object_info['type'] == 'infrastructure':
                     object_match_id = matching_graph[object_info['ref']]
@@ -195,11 +195,11 @@ if __name__ == "__main__":
         pass
 
     # Real links
-    with open(f'{PATH_DATA}/links.json', 'w') as file:
+    with open(f'{PATH_DATA}/data_links.json', 'w') as file:
         file.write(str(links).replace("'", '"'))
 
     # Real nodes
-    with open(f'{PATH_DATA}/nodes.json', 'w') as file:
+    with open(f'{PATH_DATA}/data_nodes.json', 'w') as file:
         file.write(str(base_nodes).replace("'", '"'))
 
     # Real objects

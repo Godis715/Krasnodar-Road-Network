@@ -33,9 +33,9 @@ def info_nodes():
         
         status: int
     '''
-    with open(os.path.join(PATH_DATA, 'nodes.json'), 'r') as file:
-        data_objects = file.read()
-    response = make_response(data_objects, 200)
+    with open(os.path.join(PATH_DATA, 'data_nodes.json'), 'r') as file:
+        data_nodes = file.read()
+    response = make_response(data_nodes, 200)
     response.mimetype="application/json"
     return response
 
@@ -72,7 +72,7 @@ def info_objects():
 
 def _graph__get_all_id_objects():
     id_objects = []
-    with open(os.path.join(PATH_DATA, 'objects.txt'), 'r') as file:
+    with open(os.path.join(PATH_DATA, 'graph_objects.txt'), 'r') as file:
         for row in file:
             id_objects.append(int(row.replace('\n', '')))
     return id_objects
