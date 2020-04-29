@@ -4,7 +4,7 @@ import numpy as np
 import click
 from functools import reduce
 
-
+PATH_DATA = './../data'
 
 def create_nodes(osm_root):
     print('==> nodes...')
@@ -176,14 +176,14 @@ if __name__ == "__main__":
     data_objects = create_objects(osm_root, base_nodes, all_nodes)
 
     print('Saving...')
-    with open(f'data/graph.txt', 'w') as file:
+    with open(f'{PATH_DATA}/graph.txt', 'w') as file:
         file.write(f"{len(base_nodes)} {len(links_graph)}\n")
         for link in links_graph:
             file.write(f"{link[0]} {link[1]} {link[2]}\n")
         for node_id, _ in sorted(matching_graph.items(), key=lambda x: x[1]):
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
     try:
-        with open(f'data/objects.txt', 'w') as file:
+        with open(f'{PATH_DATA}/objects.txt', 'w') as file:
             for _, object_info in data_objects.items():
                 if object_info['type'] == 'infrastructure':
                     object_match_id = matching_graph[object_info['ref']]
@@ -191,14 +191,14 @@ if __name__ == "__main__":
     except:
         pass
 
-    with open(f'data/links.json', 'w') as file:
+    with open(f'{PATH_DATA}/links.json', 'w') as file:
         file.write(str(links).replace("'", '"'))
 
-    with open(f'data/matching_graph.json', 'w') as file:
+    with open(f'{PATH_DATA}/matching_graph.json', 'w') as file:
         file.write(str(matching_graph).replace("'", '"'))
 
-    with open(f'data/nodes.json', 'w') as file:
+    with open(f'{PATH_DATA}/nodes.json', 'w') as file:
         file.write(str(base_nodes).replace("'", '"'))
 
-    with open(f'data/data_objects.json', 'w') as file:
+    with open(f'{PATH_DATA}/data_objects.json', 'w') as file:
         file.write(str(data_objects).replace("'", '"'))
