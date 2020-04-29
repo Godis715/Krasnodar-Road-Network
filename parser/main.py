@@ -170,18 +170,21 @@ if __name__ == "__main__":
     print('Creating:')
     base_nodes, all_nodes = create_nodes(osm_root)
     
-    matching_graph = dict({node_id: i for i, node_id in enumerate(base_nodes)})
-    links, links_graph = create_links(osm_root, base_nodes, matching_graph)
+    matching_to_graph = dict({node_id: i for i, node_id in enumerate(base_nodes)})
+    matching_from_graph = dict({i: node_id for i, node_id in enumerate(base_nodes)})
+    links, links_graph = create_links(osm_root, base_nodes, matching_to_graph)
     
     data_objects = create_objects(osm_root, base_nodes, all_nodes)
 
     print('Saving...')
+    # Graph (nodes and links)
     with open(f'{PATH_DATA}/graph.txt', 'w') as file:
         file.write(f"{len(base_nodes)} {len(links_graph)}\n")
         for link in links_graph:
             file.write(f"{link[0]} {link[1]} {link[2]}\n")
-        for node_id, _ in sorted(matching_graph.items(), key=lambda x: x[1]):
+        for node_id, _ in sorted(matching_to_graph.items(), key=lambda x: x[1]):
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
+    # Graph objects
     try:
         with open(f'{PATH_DATA}/objects.txt', 'w') as file:
             for _, object_info in data_objects.items():
@@ -191,14 +194,21 @@ if __name__ == "__main__":
     except:
         pass
 
+    # Real links
     with open(f'{PATH_DATA}/links.json', 'w') as file:
         file.write(str(links).replace("'", '"'))
 
-    with open(f'{PATH_DATA}/matching_graph.json', 'w') as file:
-        file.write(str(matching_graph).replace("'", '"'))
-
+    # Real nodes
     with open(f'{PATH_DATA}/nodes.json', 'w') as file:
         file.write(str(base_nodes).replace("'", '"'))
 
+    # Real objects
     with open(f'{PATH_DATA}/data_objects.json', 'w') as file:
         file.write(str(data_objects).replace("'", '"'))
+
+     # Matching: real and graph
+    with open(f'{PATH_DATA}/matching_to_graph.json', 'w') as file:
+        file.write(str(matching_to_graph).replace("'", '"'))
+
+    with open(f'{PATH_DATA}/matching_from_graph.json', 'w') as file:
+        file.write(str(matching_from_graph).replace("'", '"'))

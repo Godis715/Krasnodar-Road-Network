@@ -6,6 +6,9 @@ from logging.handlers import RotatingFileHandler, SMTPHandler
 from flask import Flask, request
 from config import Configuration
 
+# For visibility of folder
+sys.path.insert(0, os.path.join('./../algorithms'))
+
 def register_logger(app, logs_dir):
     log_file_format = "[%(levelname)s] - %(asctime)s - %(name)s - : %(message)s in %(pathname)s:[%(funcName)s]:%(lineno)d"
     log_console_format = "[%(levelname)s]: %(message)s"

@@ -6,13 +6,16 @@ import ast
 import random
 import time
 import typing
+import os
 
-FILENAME_GRAPH = 'parser/data/graph.txt'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-FILENAME_OUT = 'out.txt'
+FILENAME_GRAPH = os.path.join(BASE_DIR, '../data/graph.txt')
+
+FILENAME_OUT = os.path.join(BASE_DIR, 'out.txt')
 
 # loading lib
-libalgorithms = ctypes.CDLL('./build/libalgorithms.so')
+libalgorithms = ctypes.CDLL(os.path.join(BASE_DIR, 'build/libalgorithms.so'))
 
 # free_memory c++ func
 libalgorithms.free_memory.argtypes = [
