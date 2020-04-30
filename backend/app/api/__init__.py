@@ -162,7 +162,7 @@ def find_objects_in_radius():
         status: int
     '''
     logger.setLevel(logging.INFO)
-    logger.info("Request on API Gateway 'api/objects/find/closest'")
+    logger.info("Request on API Gateway 'api/objects/find/in_radius'")
 
     # Validation of body request
     validator = trafaret.Dict({
@@ -182,7 +182,7 @@ def find_objects_in_radius():
     type_dir = {"to": 1, "from": 2, "to-from": 3}[validated_data['metrics']]
     max_dist = validated_data['max_dist']
 
-    # Results: list<(int, int)>. Array of pair (id_node, id_object) 
+    # Results: list<(int, list<int>)>. Array of pair (id_node, array id_object) 
     results = algorithmsWrapper.task_1_1_b(id_objects, id_nodes, type_dir, max_dist)
     
     # Converting results from graph to real
@@ -191,5 +191,69 @@ def find_objects_in_radius():
     response_data = {}
     for result in results:
         response_data[matching_from_graph[result[0]]] = list([matching_from_graph[id_object] for id_object in result[1]])
+
+    return jsonify(response_data), 200
+
+@bp.route('/objects/find/optimal', methods=['GET'])
+def find_object_optimal():
+    '''
+    Function for implementation API endpoint 'api/objects/find/optimal'.
+
+    > Request:
+        - body:
+            :param nodes: list<str>,
+                Ids nodes
+            :param criterion: str
+                Value: "closest-furthest"|"min-dist-sum"|"min-tree-weight"
+            :param metrics: str
+                Type direction: 'to', 'from', 'to-from'
+                
+    > Response:
+        (Success)
+            - body:
+                "id_object": <id_object>
+        (Failed)
+            - body: 
+                :param detail: str
+        
+        status: int
+    '''
+    logger.setLevel(logging.INFO)
+    logger.info("Request on API Gateway 'api/objects/find/optimal'")
+
+    # Validation of body request
+    validator = trafaret.Dict({
+        trafaret.Key('nodes'): trafaret.List(trafaret.String),
+        trafaret.Key('criterion'): trafaret.Enum(
+            "closest-furthest",
+            "min-dist-sum", 
+            "min-tree-weight"
+        ),
+        trafaret.Key('metrics'): trafaret.Enum("to", "from", "to-from")
+    })
+    try:
+        validated_data = validator.check(request.json)
+    except trafaret.DataError:
+        return jsonify({'details': f"Error of body request: {trafaret.extract_error(validator, request.json)}"}), 400
+
+    # Getting info for graph
+    id_objects = _graph__get_all_id_objects()
+    id_nodes = _graph__get_id_nodes(validated_data['nodes'])
+
+    type_dir = {"to": 1, "from": 2, "to-from": 3}[validated_data['metrics']]
+    criterion = validated_data['criterion']
+
+    # Result: int (id_object) 
+    if criterion == "closest-furthest":
+        result = algorithmsWrapper.task_1_2(id_objects, id_nodes, type_dir)
+    elif criterion == "min-dist-sum":
+        result = algorithmsWrapper.task_1_3(id_objects, id_nodes, type_dir)
+    elif criterion == "min-tree-weight":
+        result = algorithmsWrapper.task_1_4(id_objects, id_nodes, type_dir)
+    
+    # Converting results from graph to real
+    with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
+        matching_from_graph = ast.literal_eval(file.read())
+    response_data = {"id_object": matching_from_graph[result]}
 
     return jsonify(response_data), 200
