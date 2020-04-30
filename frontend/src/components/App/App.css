@@ -1,0 +1,24 @@
+.App {
+    --indent: 2em;
+    height: calc(100vh - 2 * var(--indent));
+    width: calc(100vw - 2 * var(--indent));
+    margin: var(--indent);
+    display: flex;
+    min-width: var(--toolbar-min-width);
+    position: relative;
+}
+
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+}
+
+.toolbar-container {
+    background-color: gray;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    z-index: 999;
+}
