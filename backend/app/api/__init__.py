@@ -3,6 +3,7 @@ import trafaret
 import ast
 import os
 import algorithmsWrapper
+import numpy as np
 from flask import jsonify, abort, make_response, request
 from flask import Blueprint
 from flask_cors import CORS
@@ -213,7 +214,8 @@ def find_object_optimal():
     > Response:
         (Success)
             - body:
-                "id_object": <id_object>
+                :param id_object: <id_node>
+                    * Id node for finding object
         (Failed)
             - body: 
                 :param detail: str
@@ -257,5 +259,89 @@ def find_object_optimal():
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
         matching_from_graph = ast.literal_eval(file.read())
     response_data = {"id_object": matching_from_graph[result]}
+
+    return jsonify(response_data), 200
+
+@bp.route('/shortest_paths_tree', methods=['GET'])
+def shortest_paths_tree():
+    '''
+    Function for implementation API endpoint 'api/shortest_paths_tree'.
+
+    > Request:
+        - body:
+            :param nodes: list<str>,
+                Ids nodes
+            :param object: str
+                Id node for object
+                
+    > Response:
+        (Success)
+            - body:
+                :param tree_weight: double
+                :paths_weight: double
+                    * Sum of the shortest paths
+                --1 version--
+                :param shortest_paths_tree: {
+                    :param root: {
+                        :param node_id: str
+                        :param children: [
+                            {
+                                :param node_id: str
+                                :param children: [...]
+                            }
+                            ...
+                        ]
+                    }
+                }
+                --2 version--
+                :param shortest_paths_tree: [(str, str), ...]
+                    * Array edges
+        (Failed)
+            - body: 
+                :param detail: str
+        
+        status: int
+    '''
+    logger.setLevel(logging.INFO)
+    logger.info("Request on API Gateway 'api/shortest_paths_tree'")
+
+    # Validation of body request
+    validator = trafaret.Dict({
+        trafaret.Key('nodes'): trafaret.List(trafaret.String),
+        trafaret.Key('object'): trafaret.String
+    })
+    try:
+        validated_data = validator.check(request.json)
+    except trafaret.DataError:
+        return jsonify({'details': f"Error of body request: {trafaret.extract_error(validator, request.json)}"}), 400
+
+    # Getting info for graph
+    id_nodes = _graph__get_id_nodes(validated_data['nodes'])
+    id_object = _graph__get_id_nodes([validated_data['object']])[0]
+    print(id_object)
+
+    # Result: float (tree_weight), list<(int, int)> (array edges)
+    result = algorithmsWrapper.task_2_1(id_object, id_nodes)
+    tree_weight, edges = result
+
+    # Converting results from graph to real
+    with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
+        matching_from_graph = ast.literal_eval(file.read())
+
+    # creation_tree = lambda node_id: list([
+    #     {
+    #         "node_id": matching_from_graph[edge[1]], 
+    #         "children": creation_tree(edge[1])
+    #     } for edge in edges if edge[0] == node_id
+    # ])
+    # shortest_paths_tree = {"root": matching_from_graph[id_object], "children": creation_tree(id_object)}
+
+    shortest_paths_tree = list(map(lambda edge: (matching_from_graph[edge[0]], matching_from_graph[edge[1]]), edges))
+    
+    response_data = {
+        "tree_weight": tree_weight,
+        "paths_weight": None,
+        "shortest_paths_tree": shortest_paths_tree
+    }
 
     return jsonify(response_data), 200
