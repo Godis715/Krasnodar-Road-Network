@@ -42,7 +42,7 @@ inline vector<double> dijkstra(const vector<vector<i_f_pair>>& graph, const size
 {
 	size_t n = graph.size();
 
-	vector<double> distance(n, infinty);
+	vector<double> distance(n, double(infinty) + 1);
 	auto f = [](i_f_pair x, i_f_pair y)
 	{
 		return x.second > y.second;
@@ -54,12 +54,47 @@ inline vector<double> dijkstra(const vector<vector<i_f_pair>>& graph, const size
 	while (!q.empty())
 	{
 		auto vertex = q.top();
+		size_t v = vertex.first;
 		q.pop();
-		if (distance[vertex.first] < infinty) // vertex already used
+		if (distance[v] < infinty) // vertex already used
 			continue;
-		distance[vertex.first] = vertex.second;
-		for (auto& u : graph[vertex.first])
-			if (distance[u.first] == infinty)
+		distance[v] = vertex.second;
+		for (auto& u : graph[v])
+			if (distance[u.first] > infinty)
+				q.push({ u.first, vertex.second + u.second });
+	}
+	return distance;
+}
+
+inline vector<double> dijkstra_fast(const vector<vector<i_f_pair>>& graph,
+	const size_t start, const vector<size_t>& objects)
+{
+	size_t n = graph.size();
+	size_t is_not_end = objects.size();
+
+	vector<char> checker(n, 0);
+	for (size_t obj : objects)
+		checker[obj] = 1;
+	vector<double> distance(n, double(infinty) + 1); // from, dist
+	auto f = [](std::pair<int_pair, double> x, std::pair<int_pair, double> y)
+	{return x.second > y.second; };
+
+	std::priority_queue<i_f_pair, vector<i_f_pair>, decltype(f)> q(f);
+	// vertex; distance
+	q.push({ start, 0 });
+
+	while (!q.empty() && is_not_end)
+	{
+		auto vertex = q.top();
+		size_t v = vertex.first;
+		q.pop();
+		if (distance[v] < infinty) // vertex already used
+			continue;
+		if (checker[v])
+			--is_not_end;
+		distance[v] = vertex.second;
+		for (auto& u : graph[v])
+			if (distance[u.first] > infinty)
 				q.push({ u.first, vertex.second + u.second });
 	}
 	return distance;
@@ -77,19 +112,57 @@ inline vector<i_f_pair> dijkstra_path(const vector<vector<i_f_pair>>& graph, con
 	std::priority_queue<std::pair<int_pair, double>, vector<std::pair<int_pair, double>>, decltype(f)> q(f);
 	// vertex(from, to); distance
 	q.push({ {start, start}, 0 });
-
+	//size_t c = 0;
 	while (!q.empty())
 	{
 		auto vertex = q.top();
+		size_t v = vertex.first.second;
 		q.pop();
-		if (distance[vertex.first.second].second < infinty) // vertex already used
+		if (distance[v].second < infinty) // vertex already used
 			continue;
-		distance[vertex.first.second] = i_f_pair(vertex.first.first, vertex.second);
-		for (auto& u : graph[vertex.first.second])
-			if (distance[u.first].second == infinty)
-				q.push({ {vertex.first.second, u.first}, vertex.second + u.second });
-	}
 
+		distance[v] = i_f_pair(vertex.first.first, vertex.second);
+		for (auto& u : graph[v])
+			if (distance[u.first].second == infinty)
+				q.push({ {v, u.first}, vertex.second + u.second });
+		//++c;
+	}
+	//std::cout << c << std::endl;
+	return distance;
+}
+
+
+inline vector<i_f_pair> dijkstra_path_fast(const vector<vector<i_f_pair>>& graph,
+	const size_t start, const vector<size_t>& objects)
+{
+	size_t n = graph.size();
+	size_t is_not_end = objects.size();
+
+	vector<char> checker(n, 0);
+	for (size_t obj : objects)
+		checker[obj] = 1;
+	vector<i_f_pair> distance(n, i_f_pair(infinty, infinty)); // from, dist
+	auto f = [](std::pair<int_pair, double> x, std::pair<int_pair, double> y)
+	{return x.second > y.second; };
+
+	std::priority_queue<std::pair<int_pair, double>, vector<std::pair<int_pair, double>>, decltype(f)> q(f);
+	// vertex(from, to); distance
+	q.push({ {start, start}, 0 });
+
+	while (!q.empty() && is_not_end)
+	{
+		auto vertex = q.top();
+		size_t v = vertex.first.second;
+		q.pop();
+		if (distance[v].second < infinty) // vertex already used
+			continue;
+		if (checker[v])
+			--is_not_end;
+		distance[v] = i_f_pair(vertex.first.first, vertex.second);
+		for (auto& u : graph[v])
+			if (distance[u.first].second == infinty)
+				q.push({ {v, u.first}, vertex.second + u.second });
+	}
 	return distance;
 }
 
@@ -145,79 +218,85 @@ inline void reverse_graph(graph_t& graph)
 			graph.r_edges[graph.edges[i][j].first].push_back({ i, graph.edges[i][j].second });
 }
 
-inline double lenght_tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
+inline double weight_tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
 {
-	vector<bool> used(distance.size(), false);
-	double lenght = 0;
+	vector<char> used(distance.size(), 0);
+	double weight = 0;
 	std::stack<size_t> stack;
 	for (size_t v : objects)
-		stack.push(v);
+		if (distance[v].first != infinty)
+			stack.push(v);
 	while (!stack.empty())
 	{
 		size_t v = stack.top();
 		stack.pop();
 		if (used[v])
 			continue;
-		used[v] = true;
+		used[v] = 1;
 
-		if (distance[v].first != infinty && distance[v].first != v)
+		if (distance[v].first != v)
 		{
-			lenght += distance[v].second;
+			weight += distance[v].second - distance[distance[v].first].second;
 			stack.push(distance[v].first);
 		}
 	}
-	return lenght;
+	return weight;
 }
 
-inline vector<int_pair> tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
+//inline vector<int_pair> tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
+//{
+//	vector<int_pair> tree;
+//	vector<bool> used(distance.size(), false);
+//	std::stack<size_t> stack;
+//	for (size_t v : objects)
+//		stack.push(v);
+//	while (!stack.empty())
+//	{
+//		size_t v = stack.top();
+//		stack.pop();
+//		if (used[v])
+//			continue;
+//
+//		used[v] = true;
+//		if (distance[v].first != infinty && distance[v].first != v)
+//		{
+//			stack.push(distance[v].first);
+//			tree.push_back({ distance[v].first , v });
+//		}
+//	}
+//	return tree;
+//}
+
+inline std::pair<vector<int_pair>, float_pair> tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
 {
+	vector<char> used(distance.size(), 0);
+	double weight = 0;
+	double lenght_path = 0;
 	vector<int_pair> tree;
-	vector<bool> used(distance.size(), false);
 	std::stack<size_t> stack;
 	for (size_t v : objects)
-		stack.push(v);
+		if (distance[v].first != infinty)
+		{
+			stack.push(v);
+			lenght_path += distance[v].second;
+		}
 	while (!stack.empty())
 	{
 		size_t v = stack.top();
 		stack.pop();
 		if (used[v])
 			continue;
-		
-		used[v] = true;
-		if (distance[v].first != infinty && distance[v].first != v)
+
+		used[v] = 1;
+
+		if (distance[v].first != v)
 		{
+			weight += distance[v].second - distance[distance[v].first].second;
 			stack.push(distance[v].first);
 			tree.push_back({ distance[v].first , v });
 		}
 	}
-	return tree;
-}
-
-inline std::pair<vector<int_pair>, double> length_and_tree_of_shortest_path(const vector<i_f_pair>& distance, vector<size_t> objects)
-{
-	vector<bool> used(distance.size(), false);
-	double lenght = 0;
-	vector<int_pair> tree;
-	std::stack<size_t> stack;
-	for (size_t v : objects)
-		stack.push(v);
-	while (!stack.empty())
-	{
-		size_t v = stack.top();
-		stack.pop();
-		if (used[v])
-			continue;
-
-		used[v] = true;
-		
-		if (distance[v].first != infinty && distance[v].first != v)
-		{
-			lenght += distance[v].second;
-			stack.push(distance[v].first);
-			tree.push_back({ distance[v].first , v });
-		}
-	}
-	return std::pair<vector<int_pair>, double>(tree, lenght);
+	return std::pair<vector<int_pair>, float_pair>(tree, { weight, lenght_path });
 }
 
 inline double dist(float_pair l, float_pair r)
