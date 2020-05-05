@@ -32,34 +32,28 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        const data = {};
-
-        fetchNodes()
-            .then(
-                (nodes) => {
-                    data["nodes"] = nodes;
-                    return fetchRoads();
-                }
+        let nodes, objects, roads;
+        const fetching = [
+            fetchNodes().then(
+                (_nodes) => nodes = _nodes
+            ),
+            fetchObjects().then(
+                (_objects) => objects = _objects
+            ),
+            fetchRoads().then(
+                (_roads) => roads = _roads
             )
-            .then(
-                (roads) => {
-                    data["roads"] = roads;
-                    return fetchObjects();
-                }
-            )
-            .then(
-                (objects) => {
-                    data["objects"] = objects;
-                }
-            )
-            .then(
-                () => {
-                    this.setState({
-                        ...data,
-                        bounds: this.map.current.leafletElement.getBounds()
-                    });
-                }
-            );
+        ];
+        Promise.all(fetching).then(
+            () => {
+                this.setState({
+                    nodes,
+                    objects,
+                    roads,
+                    bounds: this.map.current.leafletElement.getBounds()
+                });
+            }
+        );
     }
 
     onZoomChanged(ev) {

@@ -1,14 +1,5 @@
-import nodes from "./nodes.json";
+import axios from "axios";
 
 export default function fetchNodes() {
-    return Promise.resolve(
-        Object.entries(nodes)
-            .reduce(
-                (newNodes, [key, [lng, lat]]) => {
-                    newNodes[key] = [lat, lng];
-                    return newNodes;
-                },
-                {}
-            )
-    );
+    return axios.get("localhost:3000/nodes/info");
 }

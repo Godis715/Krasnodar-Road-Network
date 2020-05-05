@@ -1,5 +1,5 @@
-import objects from "./objects.json";
+import axios from "axios";
 
 export default function fetchObjects() {
-    return Promise.resolve(objects);
+    return axios.get("localhost:3000/objects/info");
 }
