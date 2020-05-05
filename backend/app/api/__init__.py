@@ -5,12 +5,14 @@ import os
 import algorithmsWrapper
 from flask import jsonify, abort, make_response, request
 from flask import Blueprint
+from flask_cors import CORS
 
 PATH_DATA = './../data'
 
 logger = logging.getLogger(__name__)
 
 bp = Blueprint('api', __name__)
+CORS(bp)
 
 @bp.errorhandler(404)
 def not_found(error):
