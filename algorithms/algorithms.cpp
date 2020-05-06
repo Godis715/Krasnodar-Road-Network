@@ -372,7 +372,7 @@ extern "C" {
 			{
 				auto clust_tree = tree_of_shortest_path(dijkstra_path(graph.edges, centroids[i]), clusters[i]);
 				res.second.first += clust_tree.second.first;
-				res.second.second += clust_tree.second.second + distance[centroids[i]].second;
+				res.second.second += clust_tree.second.second + distance[centroids[i]].second * clusters[i].size();
 				res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
 			}
 		task_2_3_out(res.first, res.second.first, res.second.second, out_file);
@@ -396,7 +396,7 @@ extern "C" {
 			{
 				auto clust_tree = tree_of_shortest_path(dijkstra_path(graph.edges, centroids[i]), clusters[i]);
 				res.second.first += clust_tree.second.first;
-				res.second.second += clust_tree.second.second + distance[centroids[i]].second;
+				res.second.second += clust_tree.second.second + distance[centroids[i]].second * clusters[i].size();
 				res.first.insert(res.first.end(), clust_tree.first.begin(), clust_tree.first.end());
 			}
 		task_2_3_out(res.first, res.second.first, res.second.second, out_file);
