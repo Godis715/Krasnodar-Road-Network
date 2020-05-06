@@ -1,5 +1,5 @@
 import React from "react";
-import { Map, TileLayer } from "react-leaflet";
+import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import fetchNodes from "./fetchNodes";
 import fetchRoads from "./fetchRoads";
 import fetchObjects from "./fetchObjects";

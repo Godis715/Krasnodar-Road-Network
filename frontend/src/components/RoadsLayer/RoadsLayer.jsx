@@ -1,13 +1,29 @@
 import React from "react";
-import { Polyline, CircleMarker, LayerGroup } from "react-leaflet";
+import { Polyline, Marker } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
 import inBounds from "../../utils/inBounds";
+import L from "leaflet";
 
-class Roads extends React.Component {
+const CUSTOM_ICON_GENERATOR = () => L.divIcon({
+    className: "custom-icon-cluster"
+});
+
+const CUSTOM_ICON_CLUSTER = L.divIcon({
+    className: "custom-icon"
+});
+
+class Roads extends React.PureComponent {
+
     render() {
         const { nodes, adjList, zoom, bounds } = this.props;
         return (
             zoom > 15 &&
-            <LayerGroup>
+            <MarkerClusterGroup
+                maxClusterRadius={20}
+                showCoverageOnHover={false}
+                spiderfyOnMaxZoo={false}
+                iconCreateFunction={CUSTOM_ICON_GENERATOR}
+            >
                 {
                     adjList
                         .filter(
@@ -32,16 +48,18 @@ class Roads extends React.Component {
                         )
                         .map(
                             ([key, position]) => (
-                                <CircleMarker
-                                    center={position}
+                                <Marker
+                                    position={position}
                                     key={key}
-                                    radius={3}
-                                    color={"#f00"}
+                                    icon={CUSTOM_ICON_CLUSTER}
+                                    onClick={
+                                        (ev) => console.log(key)
+                                    }
                                 />
                             )
                         )
                 }
-            </LayerGroup>
+            </MarkerClusterGroup>
         );
     }
 }

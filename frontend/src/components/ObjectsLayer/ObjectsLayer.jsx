@@ -1,26 +1,31 @@
 import React from "react";
-import { CircleMarker, LayerGroup } from "react-leaflet";
+import { Marker } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
 
 class ObjectsLayer extends React.Component {
     render() {
         const { objects } = this.props;
         return (
-            <LayerGroup>{
-				Object.entries(objects)
-					.filter(
-						([_, { type }]) => type === "infrastructure"
-					)
-                    .map(
-                        ([key, { location }]) => (
-                            <CircleMarker
-                                center={[location[1], location[0]]}
-                                color="#f99"
-								key={key}
-								radius={3}
-                            />
+            <MarkerClusterGroup
+                maxClusterRadius={30}
+                showCoverageOnHover={false}
+                spiderfyOnMaxZoo={false}
+            >
+                {
+                    Object.entries(objects)
+                        .filter(
+                            ([_, { type }]) => type === "infrastructure"
                         )
-                	)
-            }</LayerGroup>
+                        .map(
+                            ([key, { location }]) => (
+                                <Marker
+                                    position={[location[1], location[0]]}
+                                    key={key}
+                                />
+                            )
+                        )
+                }
+            </MarkerClusterGroup>
         );
     }
 }

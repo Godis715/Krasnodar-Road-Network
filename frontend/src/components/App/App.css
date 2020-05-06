@@ -22,3 +22,23 @@
     height: 100%;
     z-index: 999;
 }
+
+.custom-icon::after {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 75);
+    margin: 2px;
+}
+
+.custom-icon-cluster::after {
+    content: "";
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 3px solid rgb(0, 0, 75);
+    box-sizing: border-box;
+}
