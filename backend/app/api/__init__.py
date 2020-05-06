@@ -72,6 +72,27 @@ def info_objects():
     response.mimetype="application/json"
     return response
 
+@bp.route('/links/info', methods=['GET'])
+def info_links():
+    '''
+    Function for implementation API endpoint 'api/links/info'.
+
+    > Response:
+        (Success)
+            - body:[[str, str], ...]
+                * Array of edges (<id_node>, <id_node>)
+        (Failed)
+            - body: 
+                :param detail: str
+        
+        status: int
+    '''
+    with open(os.path.join(PATH_DATA, 'data_links.json'), 'r') as file:
+        data_objects = file.read()
+    response = make_response(data_objects, 200)
+    response.mimetype="application/json"
+    return response
+
 
 def _graph__get_all_id_objects():
     id_objects = []
@@ -280,20 +301,6 @@ def shortest_paths_tree():
                 :param tree_weight: double
                 :paths_weight: double
                     * Sum of the shortest paths
-                --1 version--
-                :param shortest_paths_tree: {
-                    :param root: {
-                        :param node_id: str
-                        :param children: [
-                            {
-                                :param node_id: str
-                                :param children: [...]
-                            }
-                            ...
-                        ]
-                    }
-                }
-                --2 version--
                 :param shortest_paths_tree: [(str, str), ...]
                     * Array edges
         (Failed)
@@ -327,14 +334,6 @@ def shortest_paths_tree():
     # Converting results from graph to real
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
         matching_from_graph = ast.literal_eval(file.read())
-
-    # creation_tree = lambda node_id: list([
-    #     {
-    #         "node_id": matching_from_graph[edge[1]], 
-    #         "children": creation_tree(edge[1])
-    #     } for edge in edges if edge[0] == node_id
-    # ])
-    # shortest_paths_tree = {"root": matching_from_graph[id_object], "children": creation_tree(id_object)}
 
     shortest_paths_tree = list(map(lambda edge: (matching_from_graph[edge[0]], matching_from_graph[edge[1]]), edges))
     
