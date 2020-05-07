@@ -26,6 +26,7 @@
 }
 
 .selected-node-icon:hover::after {
+	opacity: 0.6;
 	filter: 
 		contrast(0%)
 		sepia(100%)

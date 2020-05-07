@@ -5,40 +5,30 @@ import "./collapsableList.css";
 class CollapsableList extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            opened: 0
-        };
-
         this.onToggled = this.onToggled.bind(this);
     }
 
-    onToggled(index) {
-        if (this.state.opened === index) {
-            this.setState({
-                opened: -1
-            });
-        }
-        else {
-            this.setState({
-                opened: index
-            });
-        }
+    onToggled(id) {
+        this.props.onChange(
+            this.props.opened === id
+                ? null
+                : id
+        );
     }
 
     render() {
-        const { items } = this.props;
+        const { items, opened } = this.props;
         return (
             <div className="collapsable-list">
                 {
                     items.map(
-                        (item, i) => (
+                        (item) => (
                             <CollapsableCard
                                 key={item.title}
                                 title={item.title}
                                 content={item.content}
-                                isOpen={this.state.opened === i}
-                                value={i}
+                                isOpen={opened === item.id}
+                                value={item.id}
                                 onToggled={this.onToggled}
                             />
                         )

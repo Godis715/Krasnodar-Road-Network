@@ -1,0 +1,14 @@
+.object-in-radius-icon:after {
+	--size: 8px;
+    content: "";
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    box-sizing: border-box;
+    background-color: red;
+    transform: translate(
+		calc(-1 * var(--size) / 2 + 12px / 2),
+		calc(-1 * var(--size) / 2 + 12px / 2)
+	);
+}
