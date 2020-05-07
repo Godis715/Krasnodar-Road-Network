@@ -3,9 +3,11 @@
     height: calc(100vh - 2 * var(--indent));
     width: calc(100vw - 2 * var(--indent));
     margin: var(--indent);
-    display: flex;
-    min-width: var(--toolbar-min-width);
     position: relative;
+
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: var(--indent);
 }
 
 .leaflet-container {
@@ -14,31 +16,52 @@
 }
 
 .toolbar-container {
+
+}
+
+.node-list {
+    width: fit-content;
+}
+
+.node-list__item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
+}
+
+.remove-node {
+    width: 1.2em;
+    height: 1.2em;
+    background-color: lightgray;
+    margin-left: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20%;
+    cursor: pointer;
+}
+
+.remove-node:hover {
     background-color: gray;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 400px;
-    height: 100%;
-    z-index: 999;
 }
 
-.custom-icon::after {
-    content: "";
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: rgb(0, 0, 75);
-    margin: 2px;
+.remove-node::after {
+    content: "x";
+    font-size: 0.8em;
 }
 
-.custom-icon-cluster::after {
+.remove-node:hover::after {
+    color: white;
+}
+
+.object-icon_selected::after {
     content: "";
     display: block;
-    width: 12px;
-    height: 12px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    border: 3px solid rgb(0, 0, 75);
+    border: 8px solid red;
     box-sizing: border-box;
+    background-color: rgba(255, 0, 0, 0.5);
+    transform: translate(-19.5px, -19.5px);
 }
