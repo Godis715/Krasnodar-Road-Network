@@ -299,7 +299,7 @@ def shortest_paths_tree():
         (Success)
             - body:
                 :param tree_weight: double
-                :paths_weight: double
+                :param paths_weight: double
                     * Sum of the shortest paths
                 :param shortest_paths_tree: [(str, str), ...]
                     * Array edges
@@ -329,7 +329,7 @@ def shortest_paths_tree():
 
     # Result: float (tree_weight), list<(int, int)> (array edges)
     result = algorithmsWrapper.task_2_1(id_object, id_nodes)
-    tree_weight, edges = result
+    tree_weight, paths_weight, edges = result
 
     # Converting results from graph to real
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
@@ -339,7 +339,7 @@ def shortest_paths_tree():
     
     response_data = {
         "tree_weight": tree_weight,
-        "paths_weight": None,
+        "paths_weight": paths_weight,
         "shortest_paths_tree": shortest_paths_tree
     }
 
