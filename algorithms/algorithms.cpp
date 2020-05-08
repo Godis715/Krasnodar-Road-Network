@@ -21,6 +21,7 @@ extern "C" {
 				}
 			std::ofstream uuu("log3.txt");
 			uuu << index << std::endl;
+			uuu << object << std::endl;
 			uuu.close();
 			return index;
 		}
