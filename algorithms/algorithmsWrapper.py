@@ -233,8 +233,8 @@ def task_2_1(id_object, id_nodes):
         :param id_nodes: list<int>
             * Ids nodes - SELECTED
         
-        Return: (float, list<(int, int)>)
-            * weight and tree (array edges)
+        Return: (float, float, list<(int, int)>)
+            * tree_weight, paths_weight and tree (array edges)
     """
     # Linking types
     libalgorithms.task_2_1.restype = None
@@ -253,15 +253,15 @@ def task_2_1(id_object, id_nodes):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # Parsing content from FILENAME_OUT -> (weight, tree)
+    # Parsing content from FILENAME_OUT -> (tree_weight, paths_weight, tree)
     tree = []
     with open(FILENAME_OUT, 'r') as file_res:
-        weight = float(file_res.readline())
+        tree_weight, paths_weight = map(float, file_res.readline().split(' '))
         for edge in file_res:
             v_from, v_to = map(int, edge.split(' '))
             tree.append((v_from, v_to))
 
-    return weight, tree
+    return tree_weight, paths_weight, tree
 
 def task_2_2(id_nodes, number_clusters):
     """ Counting clusters for selected nodes (members + centroids + dendrogram)
@@ -322,8 +322,8 @@ def task_2_3_by_clust(id_object, id_nodes):
             * Ids nodes - SELECTED
         :param number_clusters: int
         
-        Return: (float, list<(int, int)> )
-            * length, tree (array of pair ids)
+        Return: (float, float, list<(int, int)> )
+            * tree_weight, paths_weight, tree (array of pair ids)
     """
     # Linking types
     libalgorithms.task_2_3_by_clust.restype = None
@@ -342,14 +342,14 @@ def task_2_3_by_clust(id_object, id_nodes):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # Parsing content from FILENAME_OUT -> tree
+    # Parsing content from FILENAME_OUT -> tree_weight, paths_weight, tree
     tree = []
     with open(FILENAME_OUT, 'r') as file_res:
-        length = float(file_res.readline())
+        tree_weight, paths_weight = map(float, file_res.readline().split(' '))
         for edge in file_res:
             v_from, v_to = map(int, edge.split(' '))
             tree.append((v_from, v_to))
-    return length, tree
+    return tree_weight, paths_weight, tree
 
 if __name__ == "__main__":
     id_objects = []

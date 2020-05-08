@@ -76,9 +76,10 @@ inline vector<double> dijkstra_fast(const vector<vector<i_f_pair>>& graph,
 	for (size_t obj : objects)
 		checker[obj] = 1;
 	vector<double> distance(n, double(infinty) + 1); // from, dist
-	auto f = [](std::pair<int_pair, double> x, std::pair<int_pair, double> y)
-	{return x.second > y.second; };
-
+	auto f = [](i_f_pair x, i_f_pair y)
+	{
+		return x.second > y.second;
+	};
 	std::priority_queue<i_f_pair, vector<i_f_pair>, decltype(f)> q(f);
 	// vertex; distance
 	q.push({ start, 0 });
