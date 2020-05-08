@@ -309,7 +309,7 @@ extern "C" {
 		std::ofstream out(out_file);
 		out << pair.second.first << ' ' << pair.second.second << std::endl;
 		for (auto edge : pair.first)
-			out << edge.first << " " << edge.second << '\n';
+			out << edge.first << ' ' << edge.second << std::endl;
 		out.close();
 	}
 
