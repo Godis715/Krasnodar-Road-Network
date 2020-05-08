@@ -9,6 +9,7 @@ import fetchNodes from "./fetchNodes";
 import fetchRoads from "./fetchRoads";
 import fetchObjects from "./fetchObjects";
 import findOptimalRequest from "./findOptimalRequest";
+import findShortestPathsTree from "./findShortestPathsTreeRequest";
 import clusterNodes from "./clusterNodesRequest";
 
 // Layers
@@ -17,10 +18,13 @@ import ObjectsLayer from "../ObjectsLayer/ObjectsLayer";
 import SelectedNodesLayer from "../SelectedNodesLayer/SelectedNodesLayer";
 import ClosestObjectLayer from "../ClosestObjectsLayer/ClosestObjectsLayer";
 import ObjectsInRadiusLayer from "../ObjectsInRadiusLayer/ObjectsInRadiusLayer";
+import ShortestPathsTreeLayer from "../ShortestPathsTreeLayer/ShortestPathsTreeLayer";
+import SelectedObjectLayer from "../SelectedObjectLayer/SelectedObjectLayer";
 import OptimalObjectLayer from "../OptimalObjectLayer/OptimalObjectLayer";
 import NodesLayer from "../NodesLayer/NodesLayer";
 
 // Menus
+import ShortestPathsTreeMenu from "../ShortestPathsTreeMenu/ShortestPathsTreeMenu";
 import FindClosestMenu from "../FindClosestMenu/FindClosestMenu";
 import FindInRadiusMenu from "../FindInRadiusMenu/FindInRadiusMenu";
 import ClusteringMenu from "../ClusteringMenu/ClusteringMenu";
@@ -49,6 +53,7 @@ export default class App extends React.PureComponent {
         this.onZoomChanged = this.onZoomChanged.bind(this);
         this.onMoveChanged = this.onMoveChanged.bind(this);
         this.onNodeSelected = this.onNodeSelected.bind(this);
+        this.onObjectSelected = this.onObjectSelected.bind(this);
         this.onTabChanged = this.onTabChanged.bind(this);
     }
 
@@ -144,13 +149,48 @@ export default class App extends React.PureComponent {
         }
     }
 
+    onObjectSelected(objectId) {
+        const { selectedObject, openedTab } = this.state;
+        if (openedTab !== "shortest-paths-tree") {
+            console.log("Unable to select not in shortest-paths-tree tab");
+            return;
+        }
+        if (!selectedObject || selectedObject !== objectId) {
+            this.setState({
+                selectedObject: objectId
+            });
+        }
+        else {
+            this.setState({
+                selectedObject: null
+            });
+        }
+    }
+
     onTabChanged(openedTab) {
         this.setState({ openedTab });
     }
 
     render() {
         const { latDelta, lngDelta, minZoom } = this.props;
-        const { zoom, nodes, roads, bounds, objects, focused, closest, selectedNodes, openedTab, inRadius, optimal, clusters, lat, lng } = this.state;
+        const {
+            zoom,
+            nodes,
+            roads,
+            bounds,
+            objects,
+            focused,
+            closest,
+            selectedNodes,
+            openedTab,
+            inRadius,
+            optimal,
+            clusters,
+            selectedObject,
+            shortestPathsTreeInfo,
+            lat,
+            lng
+        } = this.state;
 
         const position = [lat, lng];
 
@@ -181,6 +221,7 @@ export default class App extends React.PureComponent {
                         Boolean(nodes) && <>
                             <ObjectsLayer
                                 objects={objects}
+                                onObjectSelected={this.onObjectSelected}
                             />
 
                             {
@@ -250,6 +291,24 @@ export default class App extends React.PureComponent {
                                 openedTab === "find-optimal" &&
                                 <OptimalObjectLayer
                                     objectPosition={optimal && nodes[optimal]}
+                                />
+                            }
+                            {
+                                openedTab === "shortest-paths-tree" &&
+                                <SelectedObjectLayer
+                                    onObjectSelected={this.onObjectSelected}
+                                    objects={objects}
+                                    selectedObject={selectedObject}
+                                />
+                            }
+                            {
+                                shortestPathsTreeInfo &&
+                                <ShortestPathsTreeLayer
+                                    adjList={shortestPathsTreeInfo.shortest_paths_tree}
+                                    nodes={nodes}
+                                    bounds={
+                                        leafletBoundsToArray(bounds)
+                                    }
                                 />
                             }
                         </>
@@ -334,7 +393,17 @@ export default class App extends React.PureComponent {
                             {
                                 id: "shortest-paths-tree",
                                 title: "Дерево кратчайших путей",
-                                content: <></>
+                                content: <ShortestPathsTreeMenu
+                                    onFindShortestPathsTree={
+                                        () => findShortestPathsTree(objects[selectedObject].ref, selectedNodes).then(
+                                            (data) => this.setState({ shortestPathsTreeInfo: data })
+                                        )
+                                    }
+                                    disabled={
+                                        Boolean(shortestPathsTreeInfo && selectedObject)
+                                    }
+                                    info={shortestPathsTreeInfo}
+                                />
                             },
                             {
                                 id: "clustering",

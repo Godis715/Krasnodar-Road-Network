@@ -10,7 +10,7 @@ const OBJECT_ICON = L.divIcon({
 
 class ObjectsLayer extends React.Component {
     render() {
-        const { objects } = this.props;
+        const { objects, onObjectSelected } = this.props;
         return (
             <MarkerClusterGroup
                 maxClusterRadius={30}
@@ -29,6 +29,9 @@ class ObjectsLayer extends React.Component {
                                     position={[location[1], location[0]]}
                                     key={key}
                                     icon={OBJECT_ICON}
+                                    onClick={
+                                        () => onObjectSelected(key)
+                                    }
                                 />
                             )
                         )

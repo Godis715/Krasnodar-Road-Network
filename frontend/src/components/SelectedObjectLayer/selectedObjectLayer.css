@@ -1,0 +1,15 @@
+.selected-object-icon::after {
+	--size: 40px;
+    content: "";
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    border: 5px solid red;
+    box-sizing: border-box;
+    background-color: rgba(255, 0, 0, 0.5);
+    transform: translate(
+		calc(-1 * var(--size) / 2 + 12px / 2),
+		calc(-1 * var(--size) / 2 + 12px / 2)
+	);
+}
