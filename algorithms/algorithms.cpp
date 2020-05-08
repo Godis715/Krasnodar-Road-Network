@@ -214,7 +214,7 @@ extern "C" {
 				if (sum < min)
 				{
 					min = sum;
-					index = fixed_objects[i];
+					index = i;
 				}
 			}
 			return index;
