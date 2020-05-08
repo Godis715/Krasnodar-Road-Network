@@ -3,36 +3,38 @@ import { Map, TileLayer } from "react-leaflet";
 import CollapsableList from "../CollapsableList/CollapsableList";
 
 // Requests
-import findClosest from "./findClosestRequest";
-import findInRadiusRequest from "./findInRadiusRequest";
-import fetchNodes from "./fetchNodes";
-import fetchRoads from "./fetchRoads";
-import fetchObjects from "./fetchObjects";
-import findOptimalRequest from "./findOptimalRequest";
-import findShortestPathsTree from "./findShortestPathsTreeRequest";
-import clusterNodes from "./clusterNodesRequest";
+import {
+    findClosest,
+    findInRadius,
+    fetchNodes,
+    fetchRoads,
+    fetchObjects,
+    findOptimal,
+    findSPT,
+    clusterNodes
+} from "./requests";
 
 // Layers
-import RoadsLayer from "../RoadsLayer/RoadsLayer";
-import ObjectsLayer from "../ObjectsLayer/ObjectsLayer";
-import SelectedNodesLayer from "../SelectedNodesLayer/SelectedNodesLayer";
-import ClosestObjectLayer from "../ClosestObjectsLayer/ClosestObjectsLayer";
-import ObjectsInRadiusLayer from "../ObjectsInRadiusLayer/ObjectsInRadiusLayer";
-import ShortestPathsTreeLayer from "../ShortestPathsTreeLayer/ShortestPathsTreeLayer";
-import SelectedObjectLayer from "../SelectedObjectLayer/SelectedObjectLayer";
-import OptimalObjectLayer from "../OptimalObjectLayer/OptimalObjectLayer";
-import NodesLayer from "../NodesLayer/NodesLayer";
+import RoadsLayer from "../_Layers/RoadsLayer/RoadsLayer";
+import ObjectsLayer from "../_Layers/ObjectsLayer/ObjectsLayer";
+import SelectedNodesLayer from "../_Layers/SelectedNodesLayer/SelectedNodesLayer";
+import ClosestObjectLayer from "../_Layers/ClosestObjectsLayer/ClosestObjectsLayer";
+import ObjectsInRadiusLayer from "../_Layers/ObjectsInRadiusLayer/ObjectsInRadiusLayer";
+import ShortestPathsTreeLayer from "../_Layers/ShortestPathsTreeLayer/ShortestPathsTreeLayer";
+import SelectedObjectLayer from "../_Layers/SelectedObjectLayer/SelectedObjectLayer";
+import OptimalObjectLayer from "../_Layers/OptimalObjectLayer/OptimalObjectLayer";
+import NodesLayer from "../_Layers/NodesLayer/NodesLayer";
 
 // Menus
-import ShortestPathsTreeMenu from "../ShortestPathsTreeMenu/ShortestPathsTreeMenu";
-import FindClosestMenu from "../FindClosestMenu/FindClosestMenu";
-import FindInRadiusMenu from "../FindInRadiusMenu/FindInRadiusMenu";
-import ClusteringMenu from "../ClusteringMenu/ClusteringMenu";
-import FindOptimalMenu from "../FindOptimalMenu/FindOptimalMenu";
-import deepEqual from "deep-equal";
+import ShortestPathsTreeMenu from "../_Menus/ShortestPathsTreeMenu/ShortestPathsTreeMenu";
+import FindClosestMenu from "../_Menus/FindClosestMenu/FindClosestMenu";
+import FindInRadiusMenu from "../_Menus/FindInRadiusMenu/FindInRadiusMenu";
+import ClusteringMenu from "../_Menus/ClusteringMenu/ClusteringMenu";
+import FindOptimalMenu from "../_Menus/FindOptimalMenu/FindOptimalMenu";
 
 // Utils
 import leafletBoundsToArray from "./leafletBoundsToArray";
+import deepEqual from "deep-equal";
 
 import "./App.css";
 
@@ -174,22 +176,29 @@ export default class App extends React.PureComponent {
     render() {
         const { latDelta, lngDelta, minZoom } = this.props;
         const {
+            // map general
+            lat,
+            lng,
             zoom,
+            bounds,
             nodes,
             roads,
-            bounds,
             objects,
-            focused,
-            closest,
-            selectedNodes,
+            // interface general
             openedTab,
+            // customization
+            shouldClusterNodes,
+            showRoads,
+            // map interaction
+            selectedObject,
+            selectedNodes,
+            focused,
+            // data from backend
+            closest,
             inRadius,
             optimal,
             clusters,
-            selectedObject,
-            shortestPathsTreeInfo,
-            lat,
-            lng
+            sptData
         } = this.state;
 
         const position = [lat, lng];
@@ -231,19 +240,18 @@ export default class App extends React.PureComponent {
                                     bounds={
                                         leafletBoundsToArray(bounds)
                                     }
-                                    clusterNodes={this.state.clusterNodes}
+                                    clusterNodes={shouldClusterNodes}
                                     onNodeSelected={this.onNodeSelected}
                                 />
                             }
                             {
-                                zoom > 15 &&
+                                showRoads && zoom > 15 &&
                                 <RoadsLayer
                                     nodes={nodes}
                                     adjList={roads}
                                     bounds={
                                         leafletBoundsToArray(bounds)
                                     }
-                                    showRoads={this.state.showRoads}
                                 />
                             }
 
@@ -302,9 +310,9 @@ export default class App extends React.PureComponent {
                                 />
                             }
                             {
-                                shortestPathsTreeInfo &&
+                                openedTab === "shortest-paths-tree" && sptData &&
                                 <ShortestPathsTreeLayer
-                                    adjList={shortestPathsTreeInfo.shortest_paths_tree}
+                                    adjList={sptData.shortest_paths_tree}
                                     nodes={nodes}
                                     bounds={
                                         leafletBoundsToArray(bounds)
@@ -321,10 +329,10 @@ export default class App extends React.PureComponent {
                             <input
                                 type="checkbox"
                                 id="show-roads"
-                                checked={this.state.showRoads}
+                                checked={showRoads}
                                 onChange={
                                     () => this.setState({
-                                        showRoads: !this.state.showRoads
+                                        showRoads: !showRoads
                                     })
                                 }
                             />
@@ -333,10 +341,10 @@ export default class App extends React.PureComponent {
                             <input
                                 type="checkbox"
                                 id="cluster-nodes"
-                                checked={this.state.clusterNodes}
+                                checked={shouldClusterNodes}
                                 onChange={
                                     () => this.setState({
-                                        clusterNodes: !this.state.clusterNodes
+                                        shouldClusterNodes: !shouldClusterNodes
                                     })
                                 }
                             />
@@ -346,7 +354,7 @@ export default class App extends React.PureComponent {
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
                     <CollapsableList
                         onChange={this.onTabChanged}
-                        opened={this.state.openedTab}
+                        opened={openedTab}
                         items={[
                             {
                                 id: "find-closest",
@@ -365,7 +373,7 @@ export default class App extends React.PureComponent {
                                 title: "Найти объекты в радиусе",
                                 content: <FindInRadiusMenu
                                     onFindInRadius={
-                                        (radius, metrics) => findInRadiusRequest(selectedNodes, radius, metrics).then(
+                                        (radius, metrics) => findInRadius(selectedNodes, radius, metrics).then(
                                             (data) => this.setState({ inRadius: data })
                                         )
                                     }
@@ -377,14 +385,14 @@ export default class App extends React.PureComponent {
                                 title: "Поиск оптимально расположенного объекта",
                                 content: <FindOptimalMenu
                                     onFindOptimal={
-                                        (criterion, metrics) => findOptimalRequest(selectedNodes, criterion, metrics).then(
+                                        (criterion, metrics) => findOptimal(selectedNodes, criterion, metrics).then(
                                             (data) => this.setState({ optimal: data })
                                         )
                                     }
                                     onNavigate={
                                         () => this.setState({
-                                            lat: nodes[this.state.optimal][0],
-                                            lng: nodes[this.state.optimal][1]
+                                            lat: nodes[optimal][0],
+                                            lng: nodes[optimal][1]
                                         })
                                     }
                                     disabled={Boolean(optimal)}
@@ -395,14 +403,14 @@ export default class App extends React.PureComponent {
                                 title: "Дерево кратчайших путей",
                                 content: <ShortestPathsTreeMenu
                                     onFindShortestPathsTree={
-                                        () => findShortestPathsTree(objects[selectedObject].ref, selectedNodes).then(
-                                            (data) => this.setState({ shortestPathsTreeInfo: data })
+                                        () => findSPT(objects[selectedObject].ref, selectedNodes).then(
+                                            (data) => this.setState({ sptData: data })
                                         )
                                     }
                                     disabled={
-                                        Boolean(shortestPathsTreeInfo && selectedObject)
+                                        Boolean(sptData && selectedObject)
                                     }
-                                    info={shortestPathsTreeInfo}
+                                    info={sptData}
                                 />
                             },
                             {

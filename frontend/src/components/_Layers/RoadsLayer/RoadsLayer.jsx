@@ -1,12 +1,12 @@
 import React from "react";
 import { Polyline } from "react-leaflet";
-import inBounds from "../../utils/inBounds";
+import inBounds from "../../../utils/inBounds";
 
 class Roads extends React.PureComponent {
     render() {
-        const { nodes, adjList, bounds, showRoads } = this.props;
+        const { nodes, adjList, bounds } = this.props;
         return <>{
-            showRoads && adjList
+            adjList
                 .filter(
                     ([from, to]) =>
                         inBounds(nodes[from], bounds) ||

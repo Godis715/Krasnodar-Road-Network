@@ -1,7 +1,7 @@
 import React from "react";
 import { Marker, LayerGroup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
-import inBounds from "../../utils/inBounds";
+import inBounds from "../../../utils/inBounds";
 import L from "leaflet";
 
 import "./nodesLayer.css";

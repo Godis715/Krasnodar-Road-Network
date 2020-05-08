@@ -1,5 +1,5 @@
 import React from "react";
-import RadioGroup from "../RadioGroup/RadioGroup";
+import RadioGroup from "../../RadioGroup/RadioGroup";
 
 class FindOptimalMenu extends React.PureComponent {
     constructor(props) {

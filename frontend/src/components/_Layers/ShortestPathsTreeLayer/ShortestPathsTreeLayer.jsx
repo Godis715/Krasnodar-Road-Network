@@ -1,6 +1,6 @@
 import React from "react";
 import { Polyline } from "react-leaflet";
-import inBounds from "../../utils/inBounds";
+import inBounds from "../../../utils/inBounds";
 
 class ShortestPathsTreeLayer extends React.PureComponent {
     render() {
