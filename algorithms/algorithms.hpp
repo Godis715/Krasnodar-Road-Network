@@ -60,7 +60,7 @@ inline vector<double> dijkstra(const vector<vector<i_f_pair>>& graph, const size
 			continue;
 		distance[v] = vertex.second;
 		for (auto& u : graph[v])
-			if (distance[u.first] > infinty)
+			//if (distance[u.first] > infinty)
 				q.push({ u.first, vertex.second + u.second });
 	}
 	return distance;
@@ -95,7 +95,7 @@ inline vector<double> dijkstra_fast(const vector<vector<i_f_pair>>& graph,
 			--is_not_end;
 		distance[v] = vertex.second;
 		for (auto& u : graph[v])
-			if (distance[u.first] > infinty)
+			//if (distance[u.first] > infinty)
 				q.push({ u.first, vertex.second + u.second });
 	}
 	return distance;
@@ -124,7 +124,7 @@ inline vector<i_f_pair> dijkstra_path(const vector<vector<i_f_pair>>& graph, con
 
 		distance[v] = i_f_pair(vertex.first.first, vertex.second);
 		for (auto& u : graph[v])
-			if (distance[u.first].second == infinty)
+			//if (distance[u.first].second == infinty)
 				q.push({ {v, u.first}, vertex.second + u.second });
 		//++c;
 	}
@@ -161,7 +161,7 @@ inline vector<i_f_pair> dijkstra_path_fast(const vector<vector<i_f_pair>>& graph
 			--is_not_end;
 		distance[v] = i_f_pair(vertex.first.first, vertex.second);
 		for (auto& u : graph[v])
-			if (distance[u.first].second == infinty)
+			//if (distance[u.first].second == infinty)
 				q.push({ {v, u.first}, vertex.second + u.second });
 	}
 	return distance;
