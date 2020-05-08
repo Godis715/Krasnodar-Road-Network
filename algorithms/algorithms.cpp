@@ -109,6 +109,14 @@ extern "C" {
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
+		std::ofstream uuu("log1.txt");
+		for (auto i : fixed_objects)
+			uuu << i << std::endl;
+		uuu.close();
+		uuu = std::ofstream("log2.txt");
+		for (auto i : objects)
+			uuu << i << std::endl;
+		uuu.close();
 		auto graph = read_data(file_name);
 
 		vector<vector<double>> to_fixed_objects;
@@ -179,6 +187,14 @@ extern "C" {
 	{
 		vector<size_t> fixed_objects(_fixed_objects, _fixed_objects + f_size);
 		vector<size_t> objects(_objects, _objects + o_size);
+		std::ofstream uuu("log1.txt");
+		for (auto i : fixed_objects)
+			uuu << i << std::endl;
+		uuu.close();
+		uuu = std::ofstream("log2.txt");
+		for (auto i : objects)
+			uuu << i << std::endl;
+		uuu.close();
 		auto graph = read_data(file_name);
 
 		vector<vector<double>> to_fixed_objects;
