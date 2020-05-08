@@ -9,6 +9,7 @@ import fetchNodes from "./fetchNodes";
 import fetchRoads from "./fetchRoads";
 import fetchObjects from "./fetchObjects";
 import findOptimalRequest from "./findOptimalRequest";
+import clusterNodes from "./clusterNodesRequest";
 
 // Layers
 import RoadsLayer from "../RoadsLayer/RoadsLayer";
@@ -22,6 +23,7 @@ import NodesLayer from "../NodesLayer/NodesLayer";
 // Menus
 import FindClosestMenu from "../FindClosestMenu/FindClosestMenu";
 import FindInRadiusMenu from "../FindInRadiusMenu/FindInRadiusMenu";
+import ClusteringMenu from "../ClusteringMenu/ClusteringMenu";
 import FindOptimalMenu from "../FindOptimalMenu/FindOptimalMenu";
 import deepEqual from "deep-equal";
 
@@ -124,7 +126,8 @@ export default class App extends React.PureComponent {
                 ],
                 focused: null,
                 inRadius: null,
-                closest: null
+                closest: null,
+                optimal: null
             });
         }
         else {
@@ -135,7 +138,8 @@ export default class App extends React.PureComponent {
                 ],
                 focused: null,
                 inRadius: null,
-                closest: null
+                closest: null,
+                optimal: null
             });
         }
     }
@@ -146,7 +150,7 @@ export default class App extends React.PureComponent {
 
     render() {
         const { latDelta, lngDelta, minZoom } = this.props;
-        const { zoom, nodes, roads, bounds, objects, focused, closest, selectedNodes, openedTab, inRadius, optimal, lat, lng } = this.state;
+        const { zoom, nodes, roads, bounds, objects, focused, closest, selectedNodes, openedTab, inRadius, optimal, clusters, lat, lng } = this.state;
 
         const position = [lat, lng];
 
@@ -325,6 +329,23 @@ export default class App extends React.PureComponent {
                                         })
                                     }
                                     disabled={Boolean(optimal)}
+                                />
+                            },
+                            {
+                                id: "shortest-paths-tree",
+                                title: "Дерево кратчайших путей",
+                                content: <></>
+                            },
+                            {
+                                id: "clustering",
+                                title: "Кластеризация узлов",
+                                content: <ClusteringMenu
+                                    onClusterNodes={
+                                        (num, metrics) => clusterNodes(selectedNodes, num, metrics).then(
+                                            (data) => console.log(data)//this.setState({ clusters: data })
+                                        )
+                                    }
+                                    disabled={Boolean(clusters)}
                                 />
                             }
                         ]}
