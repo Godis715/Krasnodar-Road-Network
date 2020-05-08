@@ -19,6 +19,9 @@ extern "C" {
 					dist = from_fixed_objects[obj];
 					index = obj;
 				}
+			uuu = std::ofstream("log3.txt");
+			uuu << index << std::endl;
+			uuu.close();
 			return index;
 		}
 		else if (way == 2)
@@ -139,6 +142,9 @@ extern "C" {
 					index_to = i;
 				}
 			}
+			uuu = std::ofstream("log3.txt");
+			uuu << index_to << std::endl;
+			uuu.close();
 			return index_to;
 		}
 		else if (way == 2) {
@@ -217,6 +223,9 @@ extern "C" {
 					index = i;
 				}
 			}
+			uuu = std::ofstream("log3.txt");
+			uuu << index << std::endl;
+			uuu.close();
 			return index;
 		}
 		else if (way == 2) {
