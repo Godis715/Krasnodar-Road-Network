@@ -8,6 +8,7 @@ import findInRadiusRequest from "./findInRadiusRequest";
 import fetchNodes from "./fetchNodes";
 import fetchRoads from "./fetchRoads";
 import fetchObjects from "./fetchObjects";
+import findOptimalRequest from "./findOptimalRequest";
 
 // Layers
 import RoadsLayer from "../RoadsLayer/RoadsLayer";
@@ -15,11 +16,13 @@ import ObjectsLayer from "../ObjectsLayer/ObjectsLayer";
 import SelectedNodesLayer from "../SelectedNodesLayer/SelectedNodesLayer";
 import ClosestObjectLayer from "../ClosestObjectsLayer/ClosestObjectsLayer";
 import ObjectsInRadiusLayer from "../ObjectsInRadiusLayer/ObjectsInRadiusLayer";
+import OptimalObjectLayer from "../OptimalObjectLayer/OptimalObjectLayer";
 import NodesLayer from "../NodesLayer/NodesLayer";
 
 // Menus
 import FindClosestMenu from "../FindClosestMenu/FindClosestMenu";
 import FindInRadiusMenu from "../FindInRadiusMenu/FindInRadiusMenu";
+import FindOptimalMenu from "../FindOptimalMenu/FindOptimalMenu";
 import deepEqual from "deep-equal";
 
 // Utils
@@ -34,7 +37,9 @@ export default class App extends React.PureComponent {
         this.state = {
             zoom: 12,
             selectedNodes: [],
-            openedTab: null
+            openedTab: null,
+            lat: 45.0347,
+            lng: 38.9699
         };
 
         this.map = React.createRef();
@@ -46,8 +51,6 @@ export default class App extends React.PureComponent {
     }
 
     static defaultProps = {
-        lat: 45.0347,
-        lng: 38.9699,
         minZoom: 11,
         // find out exact boundaries
         latDelta: 0.25,
@@ -92,7 +95,8 @@ export default class App extends React.PureComponent {
         }
     }
 
-    onMoveChanged() {
+    onMoveChanged(ev) {
+        console.log(this.map.current);
         const boundsPrev = this.state.bounds;
         const bounds = this.map.current.leafletElement.getBounds();
         if (!deepEqual(bounds, boundsPrev)) {
@@ -102,7 +106,7 @@ export default class App extends React.PureComponent {
             });
         }
         else {
-            console.log("CHanging bounds skipped");
+            console.log("Changing bounds skipped");
         }
     }
 
@@ -118,7 +122,9 @@ export default class App extends React.PureComponent {
                     ...selectedNodes,
                     nodeId
                 ],
-                focused: null
+                focused: null,
+                inRadius: null,
+                closest: null
             });
         }
         else {
@@ -127,7 +133,9 @@ export default class App extends React.PureComponent {
                     ...selectedNodes.slice(0, i),
                     ...selectedNodes.slice(i + 1)
                 ],
-                focused: null
+                focused: null,
+                inRadius: null,
+                closest: null
             });
         }
     }
@@ -137,8 +145,8 @@ export default class App extends React.PureComponent {
     }
 
     render() {
-        const { lat, lng, latDelta, lngDelta, minZoom } = this.props;
-        const { zoom, nodes, roads, bounds, objects, focused, closest, selectedNodes, openedTab, inRadius } = this.state;
+        const { latDelta, lngDelta, minZoom } = this.props;
+        const { zoom, nodes, roads, bounds, objects, focused, closest, selectedNodes, openedTab, inRadius, optimal, lat, lng } = this.state;
 
         const position = [lat, lng];
 
@@ -234,6 +242,12 @@ export default class App extends React.PureComponent {
                                     nodePosition={focused && nodes[focused]}
                                 />
                             }
+                            {
+                                openedTab === "find-optimal" &&
+                                <OptimalObjectLayer
+                                    objectPosition={optimal && nodes[optimal]}
+                                />
+                            }
                         </>
                     }
                 </Map>
@@ -280,6 +294,7 @@ export default class App extends React.PureComponent {
                                             (data) => this.setState({ closest: data })
                                         )
                                     }
+                                    disabled={Boolean(closest)}
                                 />
                             },
                             {
@@ -291,12 +306,26 @@ export default class App extends React.PureComponent {
                                             (data) => this.setState({ inRadius: data })
                                         )
                                     }
+                                    disabled={Boolean(inRadius)}
                                 />
                             },
                             {
                                 id: "find-optimal",
                                 title: "Поиск оптимально расположенного объекта",
-                                content: <div>Описание второго задания</div>
+                                content: <FindOptimalMenu
+                                    onFindOptimal={
+                                        (criterion, metrics) => findOptimalRequest(selectedNodes, criterion, metrics).then(
+                                            (data) => this.setState({ optimal: data })
+                                        )
+                                    }
+                                    onNavigate={
+                                        () => this.setState({
+                                            lat: nodes[this.state.optimal][0],
+                                            lng: nodes[this.state.optimal][1]
+                                        })
+                                    }
+                                    disabled={Boolean(optimal)}
+                                />
                             }
                         ]}
                     />

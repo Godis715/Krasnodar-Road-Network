@@ -36,7 +36,18 @@ class FindClosestMenu extends React.PureComponent {
                     ]}
                     onChange={this.onMetricsChanged}
                 />
-                <button onClick={this.onSubmit}>Найти</button>
+                <button
+                    onClick={this.onSubmit}
+                >
+                    Найти
+                </button>
+                {
+                    this.props.disabled &&
+                    <div>
+                        Ближайшие объекты найдены. Чтобы увидеть результат, наведите на значок здания.
+                    </div>
+                }
+
             </div>
         );
     }

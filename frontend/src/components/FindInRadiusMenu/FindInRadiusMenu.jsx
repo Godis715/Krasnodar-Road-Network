@@ -60,7 +60,17 @@ class FindInRadiusMenu extends React.PureComponent {
                     <input id="radius-input" type="text" value={radius} onChange={this.onRadiusChanged} />
                     <span>м</span>
                 </div>
-                <button onClick={this.onSubmit}>Найти</button>
+                <button
+                    onClick={this.onSubmit}
+                >
+                    Найти
+                </button>
+                {
+                    this.props.disabled &&
+                    <div>
+                        Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.
+                    </div>
+                }
             </div>
         );
     }
