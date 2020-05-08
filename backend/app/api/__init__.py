@@ -107,7 +107,7 @@ def _graph__get_id_nodes(nodes):
     id_nodes = list([matching_to_graph[node] for node in nodes])
     return id_nodes
 
-@bp.route('/objects/find/closest', methods=['GET'])
+@bp.route('/objects/find/closest', methods=['POST'])
 def find_objects_closest():
     '''
     Function for implementation API endpoint 'api/objects/find/closest'.
@@ -161,7 +161,7 @@ def find_objects_closest():
 
     return jsonify(response_data), 200
 
-@bp.route('/objects/find/in_radius', methods=['GET'])
+@bp.route('/objects/find/in_radius', methods=['POST'])
 def find_objects_in_radius():
     '''
     Function for implementation API endpoint 'api/objects/find/in_radius'.
@@ -218,7 +218,7 @@ def find_objects_in_radius():
 
     return jsonify(response_data), 200
 
-@bp.route('/objects/find/optimal', methods=['GET'])
+@bp.route('/objects/find/optimal', methods=['POST'])
 def find_object_optimal():
     '''
     Function for implementation API endpoint 'api/objects/find/optimal'.
@@ -283,7 +283,7 @@ def find_object_optimal():
 
     return jsonify(response_data), 200
 
-@bp.route('/shortest_paths_tree', methods=['GET'])
+@bp.route('/shortest_paths_tree', methods=['POST'])
 def shortest_paths_tree():
     '''
     Function for implementation API endpoint 'api/shortest_paths_tree'.
