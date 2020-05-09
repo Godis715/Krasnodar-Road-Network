@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
 import numpy as np
 import click
+import math
 from functools import reduce
 
 PATH_DATA = './../data'
@@ -24,6 +25,17 @@ def create_nodes(osm_root):
 
     return base_nodes, all_nodes
 
+def _measure(lat1, lon1, lat2, lon2):
+    R = 6378.137 # Radius of earth in KM
+    dLat = lat2 * math.pi / 180 - lat1 * math.pi / 180
+    dLon = lon2 * math.pi / 180 - lon1 * math.pi / 180
+    a = math.sin(dLat/2) * math.sin(dLat/2) + \
+        math.cos(lat1 * math.pi / 180) * math.cos(lat2 * math.pi / 180) * \
+        math.sin(dLon/2) * math.sin(dLon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = R * c
+    return d * 1000 # meters
+
 def create_links(osm_root, nodes, matching_graph):
     print('==> links...')
     # Getting all roads from osm
@@ -41,7 +53,12 @@ def create_links(osm_root, nodes, matching_graph):
             road_node2_id = road_nodes_osm[i].get('ref')
             road_node1_coord = nodes[road_node1_id]
             road_node2_coord = nodes[road_node2_id]
-            d = (road_node2_coord[0] - road_node1_coord[0]) ** 2 + (road_node2_coord[1] - road_node1_coord[1]) ** 2
+            d = _measure(
+                lat1=road_node1_coord[1],
+                lon1=road_node1_coord[0],
+                lat2=road_node2_coord[1],
+                lon2=road_node2_coord[0]
+            )
             links_graph.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
             links.append([road_node1_id, road_node2_id])
             if not is_road_oneway:
