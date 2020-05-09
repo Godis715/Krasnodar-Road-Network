@@ -214,7 +214,7 @@ def find_objects_in_radius():
         matching_from_graph = ast.literal_eval(file.read())
     response_data = {}
     for result in results:
-        response_data[matching_from_graph[result[0]]] = list([matching_from_graph[id_object] for id_object in result[1]])
+        response_data[matching_from_graph[result[0]]] = list(matching_from_graph[id_object] for id_object in result[1])
 
     return jsonify(response_data), 200
 
@@ -325,7 +325,6 @@ def shortest_paths_tree():
     # Getting info for graph
     id_nodes = _graph__get_id_nodes(validated_data['nodes'])
     id_object = _graph__get_id_nodes([validated_data['object']])[0]
-    print(id_object)
 
     # Result: float (tree_weight), list<(int, int)> (array edges)
     result = algorithmsWrapper.task_2_1(id_object, id_nodes)
@@ -341,6 +340,106 @@ def shortest_paths_tree():
         "tree_weight": tree_weight,
         "paths_weight": paths_weight,
         "shortest_paths_tree": shortest_paths_tree
+    }
+
+    return jsonify(response_data), 200
+
+@bp.route('/clustering', methods=['POST'])
+def clustering():
+    '''
+    Function for implementation API endpoint 'api/clustering'.
+
+    > Request:
+        - body:
+            :param nodes: list<str>,
+                Ids nodes
+            :param clusters_n: int
+                Number of clusters
+            :param metrics: str
+                Type direction: 'to', 'from', 'to-from'
+                
+    > Response:
+        (Success)
+            - body:
+                :param clusters: {
+                    :param centroid: {
+                        :param id: <node_id>
+                        :param location: [float, float]
+                            * Coordinates (lan, lon)
+                    }
+                    :param members: array<<node_id>>
+                        * Id nodes of cluster
+                }
+                :param dendrogram: {
+                    <node_id>: [
+                        {
+                            :param cluster: <node_id>
+                            :param height: int
+                                * Height of merging
+                        },
+                        ...
+                    ],
+                    ...
+                }
+        (Failed)
+            - body: 
+                :param detail: str
+        
+        status: int
+    '''
+    logger.setLevel(logging.INFO)
+    logger.info("Request on API Gateway 'api/clustering'")
+
+    # Validation of body request
+    validator = trafaret.Dict({
+        trafaret.Key('nodes'): trafaret.List(trafaret.String),
+        trafaret.Key('clusters_n'): trafaret.Int,
+        trafaret.Key('metrics'): trafaret.Enum("to", "from", "to-from")
+    })
+    try:
+        validated_data = validator.check(request.json)
+    except trafaret.DataError:
+        return jsonify({'details': f"Error of body request: {trafaret.extract_error(validator, request.json)}"}), 400
+
+    # Getting info for graph
+    id_nodes = _graph__get_id_nodes(validated_data['nodes'])
+    clusters_n = validated_data['clusters_n']
+
+    # Result: float (tree_weight), list<(int, int)> (array edges)
+    result = algorithmsWrapper.task_2_2(id_nodes, clusters_n)
+    clusters_members, centroids_ids, centroids_coords, dendrogram = result
+
+    # Converting results from graph to real
+    with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
+        matching_from_graph = ast.literal_eval(file.read())
+
+    dendrogram_data = {}
+    for merge_info in dendrogram:
+        id_one_cur_clust = validated_data['nodes'][merge_info[0]]
+        dendrogram_data[id_one_cur_clust] = []
+        for i in range(1, len(merge_info) - 1, 2):
+            id_other_cur_clust = validated_data['nodes'][merge_info[i]]
+            height_merge = merge_info[i + 1]
+            dendrogram_data[id_one_cur_clust].append({
+                "cluster": id_other_cur_clust,
+                "height": height_merge
+            })
+
+    clusters_data = []
+    for i in range(clusters_n):
+        clusters_data.append({
+            "centroid": {
+                "id": matching_from_graph[centroids_ids[i]],
+                "location": centroids_coords[i]
+            },
+            "members": list(
+                matching_from_graph[member_id] for member_id in clusters_members[i]
+            )
+        })
+
+    response_data = {
+        "clusters": clusters_data,
+        "dendrogram": dendrogram_data
     }
 
     return jsonify(response_data), 200

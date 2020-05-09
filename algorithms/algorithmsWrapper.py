@@ -290,17 +290,17 @@ def task_2_2(id_nodes, number_clusters):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # Parsing content from FILENAME_OUT -> clusters, centroids, dendrogram
-    clusters = []
+    # Parsing content from FILENAME_OUT -> clusters_members, centroids, dendrograms
+    clusters_members = []
     centroids_ids = []
     centroids_coords = []
     dendrogram = []
     with open(FILENAME_OUT, 'r') as file_res:
         _ = file_res.readline()
         for _ in range(number_clusters):
-            cluster = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))[1:]
-            clusters.append(cluster)
-        centroids_ids = map(int, file_res.readline().replace(' \n', '\n').split(' '))
+            cluster_members = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))[1:]
+            clusters_members.append(cluster_members)
+        centroids_ids = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))
         for _ in range(number_clusters):
             centroid_x, centroid_y = map(float, file_res.readline().split(' '))
             centroids_coords.append((centroid_x, centroid_y))
@@ -309,7 +309,7 @@ def task_2_2(id_nodes, number_clusters):
             merge_info = list(map(int, merge_infos.replace(' \n', '\n').split(' ')))
             dendrogram.append(merge_info)
 
-    return clusters, centroids_ids, centroids_coords, dendrogram
+    return clusters_members, centroids_ids, centroids_coords, dendrogram
 
 def task_2_3_by_clust(id_object, id_nodes):
     """ Searching tree shortest distances with minimal weight from object 
