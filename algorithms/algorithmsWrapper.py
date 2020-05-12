@@ -290,17 +290,17 @@ def task_2_2(id_nodes, number_clusters):
         FILENAME_GRAPH.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
-    # Parsing content from FILENAME_OUT -> clusters, centroids, dendrogram
-    clusters = []
+    # Parsing content from FILENAME_OUT -> clusters_members, centroids, dendrograms
+    clusters_members = []
     centroids_ids = []
     centroids_coords = []
     dendrogram = []
     with open(FILENAME_OUT, 'r') as file_res:
         _ = file_res.readline()
         for _ in range(number_clusters):
-            cluster = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))[1:]
-            clusters.append(cluster)
-        centroids_ids = map(int, file_res.readline().replace(' \n', '\n').split(' '))
+            cluster_members = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))[1:]
+            clusters_members.append(cluster_members)
+        centroids_ids = list(map(int, file_res.readline().replace(' \n', '\n').split(' ')))
         for _ in range(number_clusters):
             centroid_x, centroid_y = map(float, file_res.readline().split(' '))
             centroids_coords.append((centroid_x, centroid_y))
@@ -309,9 +309,9 @@ def task_2_2(id_nodes, number_clusters):
             merge_info = list(map(int, merge_infos.replace(' \n', '\n').split(' ')))
             dendrogram.append(merge_info)
 
-    return clusters, centroids_ids, centroids_coords, dendrogram
+    return clusters_members, centroids_ids, centroids_coords, dendrogram
 
-def task_2_3_by_clust(id_object, id_nodes):
+def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
     """ Searching tree shortest distances with minimal weight from object 
         to centroids of clusters and from centroids to nodes of clusters
         from selected object of infrastructure
@@ -320,7 +320,10 @@ def task_2_3_by_clust(id_object, id_nodes):
             * Id object of infrastructure - SELECTED
         :param id_nodes: list<int>
             * Ids nodes - SELECTED
-        :param number_clusters: int
+        :param clusters: list<list<int>>
+            * Array of clusters. Cluster is array of id nodes (members)
+        :param id_centroids: list<int>
+            * Ids centroids (nodes) of clusters
         
         Return: (float, float, list<(int, int)> )
             * tree_weight, paths_weight, tree (array of pair ids)
@@ -334,6 +337,18 @@ def task_2_3_by_clust(id_object, id_nodes):
         ctypes.POINTER(ctypes.c_char),
         ctypes.POINTER(ctypes.c_char)
     ]
+
+    # Writing info of clusters to FILENAME_OUT
+    with open(FILENAME_OUT, 'w') as file_info:
+        file_info.write(str(len(clusters)) + '\n')
+        for cluster in clusters:
+            file_info.write(str(len(cluster)) + ' ')
+            for member in cluster:
+                file_info.write(str(member) + ' ')
+        file_info.write('\n')
+        for id_centroid in id_centroids:
+            file_info.write(str(id_centroid) + ' ')
+
     # Calling c++ func (libalgorithms.task_2_3_by_clust)
     libalgorithms.task_2_3_by_clust(
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
