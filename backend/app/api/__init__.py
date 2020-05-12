@@ -72,22 +72,22 @@ def info_objects():
     response.mimetype="application/json"
     return response
 
-@bp.route('/links/info', methods=['GET'])
-def info_links():
+@bp.route('/roads/info', methods=['GET'])
+def info_roads():
     '''
-    Function for implementation API endpoint 'api/links/info'.
+    Function for implementation API endpoint 'api/roads/info'.
 
     > Response:
         (Success)
-            - body:[[str, str], ...]
-                * Array of edges (<id_node>, <id_node>)
+            - body:[[str, str, ...], ...]
+                * Array of roads. Road is array of <id_node>.
         (Failed)
             - body: 
                 :param detail: str
         
         status: int
     '''
-    with open(os.path.join(PATH_DATA, 'data_links.json'), 'r') as file:
+    with open(os.path.join(PATH_DATA, 'data_roads.json'), 'r') as file:
         data_objects = file.read()
     response = make_response(data_objects, 200)
     response.mimetype="application/json"

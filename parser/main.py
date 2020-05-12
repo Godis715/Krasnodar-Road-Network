@@ -24,31 +24,37 @@ def create_nodes(osm_root):
 
     return base_nodes, all_nodes
 
-def create_links(osm_root, nodes, matching_graph):
-    print('==> links...')
+def create_links_and_roads(osm_root, nodes, matching_graph):
+    print('==> links and roads...')
     # Getting all roads from osm
     roads_osm = osm_root.findall("way/tag[@k='highway']/..")
 
     # Getting links: [[id1, id2, d], ...]
-    links_graph = []
     links = []
+    roads = []
     for road_osm in roads_osm:
-        road_oneway = road_osm.find("tag[@k='oneway']")
-        is_road_oneway = True if road_oneway is not None and road_oneway.get('v') == 'yes' else False
+        tag_oneway = road_osm.find("tag[@k='oneway']")
+        is_road_oneway = True if tag_oneway is not None and tag_oneway.get('v') == 'yes' else False
         road_nodes_osm = road_osm.findall('nd')
+
+        # links
         for i in range(1,len(road_nodes_osm)):
             road_node1_id = road_nodes_osm[i-1].get('ref')
             road_node2_id = road_nodes_osm[i].get('ref')
             road_node1_coord = nodes[road_node1_id]
             road_node2_coord = nodes[road_node2_id]
             d = (road_node2_coord[0] - road_node1_coord[0]) ** 2 + (road_node2_coord[1] - road_node1_coord[1]) ** 2
-            links_graph.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
-            links.append([road_node1_id, road_node2_id])
+            links.append([matching_graph[road_node1_id], matching_graph[road_node2_id], d])
             if not is_road_oneway:
-                links_graph.append([matching_graph[road_node2_id], matching_graph[road_node1_id], d])
-                links.append([road_node2_id, road_node1_id])
+                links.append([matching_graph[road_node2_id], matching_graph[road_node1_id], d])
+
+        # road
+        road = list(road_node_osm.get('ref') for road_node_osm in road_nodes_osm)
+        roads.append(road)
+        if not is_road_oneway:
+            roads.append(road[::-1])
     
-    return links, links_graph
+    return links, roads
 
 def _searching_near_node(object_location, nodes):
 
@@ -172,15 +178,15 @@ if __name__ == "__main__":
     
     matching_to_graph = dict({node_id: i for i, node_id in enumerate(base_nodes)})
     matching_from_graph = dict({i: node_id for i, node_id in enumerate(base_nodes)})
-    links, links_graph = create_links(osm_root, base_nodes, matching_to_graph)
+    links, roads = create_links_and_roads(osm_root, base_nodes, matching_to_graph)
     
     data_objects = create_objects(osm_root, base_nodes, all_nodes)
 
     print('Saving...')
     # Graph (nodes and links)
     with open(f'{PATH_DATA}/graph.txt', 'w') as file:
-        file.write(f"{len(base_nodes)} {len(links_graph)}\n")
-        for link in links_graph:
+        file.write(f"{len(base_nodes)} {len(links)}\n")
+        for link in links:
             file.write(f"{link[0]} {link[1]} {link[2]}\n")
         for node_id, _ in sorted(matching_to_graph.items(), key=lambda x: x[1]):
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
@@ -194,9 +200,9 @@ if __name__ == "__main__":
     except:
         pass
 
-    # Real links
-    with open(f'{PATH_DATA}/data_links.json', 'w') as file:
-        file.write(str(links).replace("'", '"'))
+    # Real links (roads)
+    with open(f'{PATH_DATA}/data_roads.json', 'w') as file:
+        file.write(str(roads).replace("'", '"'))
 
     # Real nodes
     with open(f'{PATH_DATA}/data_nodes.json', 'w') as file:
