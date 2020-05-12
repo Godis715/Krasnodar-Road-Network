@@ -361,15 +361,18 @@ def clustering():
     > Response:
         (Success)
             - body:
-                :param clusters: {
-                    :param centroid: {
-                        :param id: <node_id>
-                        :param location: [float, float]
-                            * Coordinates (lan, lon)
+                :param clusters: [
+                    {
+                        :param centroid: {
+                            :param id: <node_id>
+                            :param location: [float, float]
+                                * Coordinates (lan, lon)
+                        }
+                        :param members: array<<node_id>>
+                            * Id nodes of cluster
                     }
-                    :param members: array<<node_id>>
-                        * Id nodes of cluster
-                }
+                    ...
+                ]
                 :param dendrogram: {
                     <node_id>: [
                         {
@@ -440,6 +443,96 @@ def clustering():
     response_data = {
         "clusters": clusters_data,
         "dendrogram": dendrogram_data
+    }
+
+    return jsonify(response_data), 200
+
+@bp.route('/clustering/shortest_paths_tree', methods=['POST'])
+def clust_shortest_paths_tree():
+    '''
+    Function for implementation API endpoint 'api/clustering/shortest_paths_tree'.
+
+    > Request:
+        - body:
+            :param object: str
+                Id node for object
+            :param clusters: [
+                {
+                    :param centroid: {
+                        :param id: <node_id>
+                        :param location: [float, float]
+                            * Coordinates (lan, lon)
+                    }
+                    :param members: array<<node_id>>
+                        * Id nodes of cluster
+                }
+                ...
+            ]
+                
+    > Response:
+        (Success)
+            - body:
+                :param tree_weight: double
+                :param paths_weight: double
+                    * Sum of the shortest paths
+                :param shortest_paths_tree: [(str, str), ...]
+                    * Array edges
+        (Failed)
+            - body: 
+                :param detail: str
+        
+        status: int
+    '''
+    logger.setLevel(logging.INFO)
+    logger.info("Request on API Gateway 'api/clustering/shortest_paths_tree'")
+
+    # Validation of body request
+    validator = trafaret.Dict({
+        trafaret.Key('object'): trafaret.String,
+        trafaret.Key('clusters'): trafaret.List(trafaret.Dict({
+            trafaret.Key('centroid'): trafaret.Dict({
+                trafaret.Key('id'): trafaret.String,
+                trafaret.Key('location', optional=True): trafaret.List(
+                    trafaret.Float, min_length=2, max_length=2
+                )
+            }),
+            trafaret.Key('members'): trafaret.List(trafaret.String)
+        }))
+    })
+    try:
+        validated_data = validator.check(request.json)
+    except trafaret.DataError:
+        return jsonify({'details': f"Error of body request: {trafaret.extract_error(validator, request.json)}"}), 400
+
+    # Getting info for graph
+    id_object = _graph__get_id_nodes([validated_data['object']])[0]
+   
+    id_nodes = []
+    id_centroids = []
+    clusters = []
+    for cluster in validated_data['clusters']:
+        id_centroid = _graph__get_id_nodes([cluster['centroid']['id']])[0]
+        id_centroids.append(id_centroid)
+
+        id_members = _graph__get_id_nodes(cluster['members'])
+        clusters.append(id_members)
+
+        id_nodes += id_members
+
+    # Result: float (tree_weight), list<(int, int)> (array edges)
+    result = algorithmsWrapper.task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters)
+    tree_weight, paths_weight, edges = result
+
+    # Converting results from graph to real
+    with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
+        matching_from_graph = ast.literal_eval(file.read())
+
+    shortest_paths_tree = list(map(lambda edge: (matching_from_graph[edge[0]], matching_from_graph[edge[1]]), edges))
+    
+    response_data = {
+        "tree_weight": tree_weight,
+        "paths_weight": paths_weight,
+        "shortest_paths_tree": shortest_paths_tree
     }
 
     return jsonify(response_data), 200
