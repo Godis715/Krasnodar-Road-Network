@@ -1,0 +1,24 @@
+.collapsable-card__title {
+	cursor: pointer;
+	background-color: rgb(183, 217, 255);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 2em;
+	user-select: none;
+	transition-duration: 300ms;
+}
+
+.collapsable-card__collapsed > .collapsable-card__title {
+	background-color: whitesmoke;
+}
+
+.collapsable-card__content {
+	overflow: hidden;
+	padding: 1em;
+}
+
+.collapsable-card__collapsed > .collapsable-card__content {
+	max-height: 0;
+	padding: 0;
+}
