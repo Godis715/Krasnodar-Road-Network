@@ -1,0 +1,18 @@
+.object-icon::after {
+	--size: 40px;
+	width: var(--size);
+    height: var(--size);
+	background-size: var(--size);
+
+    display: block;
+    content: "";
+
+    background-image: url(https://www.seekicon.com/free-icon-download/map-marker-icon_2.svg);
+	background-repeat: no-repeat;
+
+    transform: translate(
+		calc(-1 * var(--size) / 2 + 12px / 2),
+		calc(-1 * var(--size) + 12px / 2)
+	);
+    filter: drop-shadow(5px 15px 15px rgba(15, 10, 32, 0.473));
+}
