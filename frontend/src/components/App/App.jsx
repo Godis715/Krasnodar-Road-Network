@@ -27,6 +27,7 @@ import NodesLayer from "../_Layers/NodesLayer/NodesLayer";
 
 // Menus
 import ShortestPathsTreeMenu from "../_Menus/ShortestPathsTreeMenu/ShortestPathsTreeMenu";
+import SelectRandomMenu from "../_Menus/SelectRandomMenu/SelectRandomMenu";
 import FindClosestMenu from "../_Menus/FindClosestMenu/FindClosestMenu";
 import FindInRadiusMenu from "../_Menus/FindInRadiusMenu/FindInRadiusMenu";
 import ClusteringMenu from "../_Menus/ClusteringMenu/ClusteringMenu";
@@ -34,6 +35,7 @@ import FindOptimalMenu from "../_Menus/FindOptimalMenu/FindOptimalMenu";
 
 // Utils
 import leafletBoundsToArray from "./leafletBoundsToArray";
+import getRandomElements from "./randomElements";
 import deepEqual from "deep-equal";
 
 import "./App.css";
@@ -56,6 +58,7 @@ export default class App extends React.PureComponent {
         this.onMoveChanged = this.onMoveChanged.bind(this);
         this.onNodeSelected = this.onNodeSelected.bind(this);
         this.onObjectSelected = this.onObjectSelected.bind(this);
+        this.onSelectRandom = this.onSelectRandom.bind(this);
         this.onTabChanged = this.onTabChanged.bind(this);
     }
 
@@ -171,6 +174,16 @@ export default class App extends React.PureComponent {
 
     onTabChanged(openedTab) {
         this.setState({ openedTab });
+    }
+
+    onSelectRandom(count) {
+        const { nodes } = this.state;
+        this.setState({
+            selectedNodes: getRandomElements(
+                Object.keys(nodes),
+                count
+            )
+        });
     }
 
     render() {
@@ -352,6 +365,10 @@ export default class App extends React.PureComponent {
                         </div>
                     </div>
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
+                    <SelectRandomMenu
+                        onChange={this.onSelectRandom}
+                        max={nodes && Object.keys(nodes).length}
+                    />
                     <CollapsableList
                         onChange={this.onTabChanged}
                         opened={openedTab}
