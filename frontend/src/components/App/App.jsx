@@ -27,6 +27,7 @@ import NodesLayer from "../_Layers/NodesLayer/NodesLayer";
 
 // Menus
 import ShortestPathsTreeMenu from "../_Menus/ShortestPathsTreeMenu/ShortestPathsTreeMenu";
+import SelectRandomMenu from "../_Menus/SelectRandomMenu/SelectRandomMenu";
 import FindClosestMenu from "../_Menus/FindClosestMenu/FindClosestMenu";
 import FindInRadiusMenu from "../_Menus/FindInRadiusMenu/FindInRadiusMenu";
 import ClusteringMenu from "../_Menus/ClusteringMenu/ClusteringMenu";
@@ -34,6 +35,7 @@ import FindOptimalMenu from "../_Menus/FindOptimalMenu/FindOptimalMenu";
 
 // Utils
 import leafletBoundsToArray from "./leafletBoundsToArray";
+import getRandomElements from "./randomElements";
 import deepEqual from "deep-equal";
 
 import "./App.css";
@@ -56,6 +58,7 @@ export default class App extends React.PureComponent {
         this.onMoveChanged = this.onMoveChanged.bind(this);
         this.onNodeSelected = this.onNodeSelected.bind(this);
         this.onObjectSelected = this.onObjectSelected.bind(this);
+        this.onSelectRandom = this.onSelectRandom.bind(this);
         this.onTabChanged = this.onTabChanged.bind(this);
     }
 
@@ -74,17 +77,17 @@ export default class App extends React.PureComponent {
             ),
             fetchObjects().then(
                 (_objects) => objects = _objects
-            )/*,
+            ),
             fetchRoads().then(
                 (_roads) => roads = _roads
-            )*/
+            )
         ];
         Promise.all(fetching).then(
             () => {
                 this.setState({
                     nodes,
                     objects,
-                    // roads,
+                    roads,
                     bounds: this.map.current.leafletElement.getBounds()
                 });
             }
@@ -173,6 +176,16 @@ export default class App extends React.PureComponent {
         this.setState({ openedTab });
     }
 
+    onSelectRandom(count) {
+        const { nodes } = this.state;
+        this.setState({
+            selectedNodes: getRandomElements(
+                Object.keys(nodes),
+                count
+            )
+        });
+    }
+
     render() {
         const { latDelta, lngDelta, minZoom } = this.props;
         const {
@@ -244,7 +257,7 @@ export default class App extends React.PureComponent {
                                     onNodeSelected={this.onNodeSelected}
                                 />
                             }
-                            {/*
+                            {
                                 showRoads && zoom > 15 &&
                                 <RoadsLayer
                                     nodes={nodes}
@@ -253,7 +266,6 @@ export default class App extends React.PureComponent {
                                         leafletBoundsToArray(bounds)
                                     }
                                 />
-                                */
                             }
 
                             <SelectedNodesLayer
@@ -353,6 +365,10 @@ export default class App extends React.PureComponent {
                         </div>
                     </div>
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
+                    <SelectRandomMenu
+                        onChange={this.onSelectRandom}
+                        max={nodes && Object.keys(nodes).length}
+                    />
                     <CollapsableList
                         onChange={this.onTabChanged}
                         opened={openedTab}

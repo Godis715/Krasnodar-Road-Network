@@ -8,15 +8,21 @@ class Roads extends React.PureComponent {
         return <>{
             adjList
                 .filter(
-                    ([from, to]) =>
-                        inBounds(nodes[from], bounds) ||
-                        inBounds(nodes[to], bounds)
+                    (roadNodes) => roadNodes.some(
+                        (nodeId) => inBounds(nodes[nodeId], bounds)
+                    )
                 )
                 .map(
-                    ([from, to]) => (
+                    (roadNodes, ri) => (
                         <Polyline
-                            positions={[nodes[from], nodes[to]]}
-                            key={`${from}-${to}`}
+                            positions={
+                                roadNodes.map(
+                                    (nodeId) => nodes[nodeId]
+                                )
+                            }
+                            key={
+                                `road-${ri}`
+                            }
                         />
                     )
                 )

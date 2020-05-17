@@ -1,9 +1,19 @@
 import axios from "axios";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
+if (!apiUrl) {
+    throw new Error("REACT_APP_API_URL must be provided as an env variable");
+}
+
+const axiosInstance = axios.create({
+    baseURL: `${apiUrl}/api`
+});
+
 export function clusterNodes(nodes, clustersNumber, metrics) {
-    return axios
+    return axiosInstance
         .post(
-            "http://localhost:5000/api/clustering",
+            "/clustering",
             {
                 nodes,
                 metrics,
@@ -15,8 +25,8 @@ export function clusterNodes(nodes, clustersNumber, metrics) {
 }
 
 export function fetchNodes() {
-    return axios
-        .get("http://localhost:5000/api/nodes/info")
+    return axiosInstance
+        .get("/nodes/info")
         .then(
             ({ data }) => Object.entries(data).reduce(
                 (acc, [key, [lng, lat]]) => {
@@ -29,58 +39,57 @@ export function fetchNodes() {
 }
 
 export function fetchObjects() {
-    return axios
-        .get("http://localhost:5000/api/objects/info")
+    return axiosInstance
+        .get("/objects/info")
         .then(
             ({ data }) => data
         );
 }
 
 export function fetchRoads() {
-    return axios
-        .get("http://localhost:5000/api/roads/info")
+    return axiosInstance
+        .get("/roads/info")
         .then(
-            ({ roads }) => {
+            ({ data: roads }) => {
                 const visited = {};
+                let notUniqueCount = 0;
                 const uniqueRoads = roads.filter(
-                    ([n1, n2]) => {
-                        if (!visited[n2]) {
-                            visited[n2] = { [n1]: true };
-                        }
-                        else {
-                            visited[n2][n1] = true;
-                        }
-
-                        if (!visited[n1]) {
-                            visited[n1] = { [n2]: true };
+                    (roadNodes) => {
+                        const sorted = [...roadNodes].sort(
+                            (a, b) =>
+                                a > b
+                                    ? 1
+                                    : a < b
+                                        ? -1
+                                        : 0
+                        );
+                        const roadId = sorted.join("-");
+                        if (!visited[roadId]) {
+                            visited[roadId] = true;
                             return true;
                         }
-
-                        if (!visited[n1][n2]) {
-                            visited[n1][n2] = true;
-                            return true;
-                        }
-
+                        notUniqueCount++;
                         return false;
                     }
                 );
+                console.log("Duplicate road count", notUniqueCount);
                 return uniqueRoads;
             }
         );
 }
 
 export function findClosest(nodes, metrics) {
-    return axios
-        .post("http://localhost:5000/api/objects/find/closest", { nodes, metrics })
+    return axiosInstance
+        .post("/objects/find/closest", { nodes, metrics })
         .then(
             ({ data }) => data
         );
 }
 
 export function findInRadius(nodes, radius, metrics) {
-    return axios
+    return axiosInstance
         .post(
-            "http://localhost:5000/api/objects/find/in_radius",
+            "/objects/find/in_radius",
             {
                 nodes,
                 metrics,
@@ -93,9 +102,9 @@ export function findInRadius(nodes, radius, metrics) {
 }
 
 export function findOptimal(nodes, criterion, metrics) {
-    return axios
+    return axiosInstance
         .post(
-            "http://localhost:5000/api/objects/find/optimal",
+            "/objects/find/optimal",
             {
                 nodes,
                 metrics,
@@ -108,9 +117,9 @@ export function findOptimal(nodes, criterion, metrics) {
 }
 
 export function findSPT(objectNodeRef, nodes) {
-    return axios
+    return axiosInstance
         .post(
-            "http://localhost:5000/api/shortest_paths_tree",
+            "/shortest_paths_tree",
             {
                 nodes,
                 object: objectNodeRef
