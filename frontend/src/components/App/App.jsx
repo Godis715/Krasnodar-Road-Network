@@ -74,17 +74,17 @@ export default class App extends React.PureComponent {
             ),
             fetchObjects().then(
                 (_objects) => objects = _objects
-            )/*,
+            ),
             fetchRoads().then(
                 (_roads) => roads = _roads
-            )*/
+            )
         ];
         Promise.all(fetching).then(
             () => {
                 this.setState({
                     nodes,
                     objects,
-                    // roads,
+                    roads,
                     bounds: this.map.current.leafletElement.getBounds()
                 });
             }
@@ -244,7 +244,7 @@ export default class App extends React.PureComponent {
                                     onNodeSelected={this.onNodeSelected}
                                 />
                             }
-                            {/*
+                            {
                                 showRoads && zoom > 15 &&
                                 <RoadsLayer
                                     nodes={nodes}
@@ -253,7 +253,6 @@ export default class App extends React.PureComponent {
                                         leafletBoundsToArray(bounds)
                                     }
                                 />
-                                */
                             }
 
                             <SelectedNodesLayer
