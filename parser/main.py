@@ -109,28 +109,27 @@ def _converting_object(osm_root, base_nodes, all_nodes, object_type, object_name
                 'ref': object_ref
             }
 
-    if object_name != '-':
-        print("Converting ways... ")
-        with click.progressbar(osm_way_objects) as osm_way_objects_bar:
-            for osm_way_object in osm_way_objects_bar:
-                object_outer = np.array([[all_nodes[nd.get('ref')][0], all_nodes[nd.get('ref')][1]] for nd in osm_way_object.findall('nd')])
-                object_down_border = min(object_outer[:, 0])
-                object_up_border = max(object_outer[:, 0])
-                object_left_border = min(object_outer[:, 1])
-                object_right_border = max(object_outer[:, 1])
-                
-                object_location = [
-                    (object_down_border + object_up_border) / 2,
-                    (object_left_border + object_right_border) / 2
-                ]
-                object_ref = _searching_near_node(object_location, base_nodes)
+    print("Converting ways... ")
+    with click.progressbar(osm_way_objects) as osm_way_objects_bar:
+        for osm_way_object in osm_way_objects_bar:
+            object_outer = np.array([[all_nodes[nd.get('ref')][0], all_nodes[nd.get('ref')][1]] for nd in osm_way_object.findall('nd')])
+            object_down_border = min(object_outer[:, 0])
+            object_up_border = max(object_outer[:, 0])
+            object_left_border = min(object_outer[:, 1])
+            object_right_border = max(object_outer[:, 1])
+            
+            object_location = [
+                (object_down_border + object_up_border) / 2,
+                (object_left_border + object_right_border) / 2
+            ]
+            object_ref = _searching_near_node(object_location, base_nodes)
 
-                data_object[osm_way_object.get('id')] = {
-                    'type': object_type,
-                    'name': object_name,
-                    'location': object_location,
-                    'ref': object_ref
-                }
+            data_object[osm_way_object.get('id')] = {
+                'type': object_type,
+                'name': object_name,
+                'location': object_location,
+                'ref': object_ref
+            }
 
     print("Converting relations... ")
     with click.progressbar(osm_relation_objects) as osm_relation_objects_bar:
@@ -172,16 +171,16 @@ def create_objects(osm_root, base_nodes, all_nodes):
     data_fire_stations = _converting_object(osm_root, base_nodes, all_nodes, 'infrastructure', 'fire_station')
     print('> SUPERMARKET')
     data_supermarkets = _converting_object(osm_root, base_nodes, all_nodes, 'infrastructure', 'supermarket')
-    print('============OTHER OBJECTS============')
-    print('> HOUSE')
-    data_houses = _converting_object(osm_root, base_nodes, all_nodes, 'other', 'house')
+    #print('============OTHER OBJECTS============')
+    #print('> HOUSE')
+    #data_houses = _converting_object(osm_root, base_nodes, all_nodes, 'other', 'house')
 
     print('*Concatenating...')
     data_objects = {}
     data_objects.update(data_hospitals)
     data_objects.update(data_fire_stations)
     data_objects.update(data_supermarkets)
-    data_objects.update(data_houses)
+    #data_objects.update(data_houses)
 
     return data_objects
 
