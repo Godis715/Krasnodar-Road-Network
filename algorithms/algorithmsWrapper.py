@@ -22,15 +22,16 @@ libalgorithms.free_memory.restype = None
 def task_1_1_a(id_objects, id_nodes, type_dir):
     """ Searching nearest object of infrastructure for selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
 
         Return: list<(int, int)>
             * Id objeсt for each ids nodes
@@ -62,17 +63,18 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
     """ Searching objects of infrastructure for selected nodes
         at a fixed distance
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        :param max_dist: double
-            * Param for searching
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+            :param max_dist: double
+                * Param for searching
 
         Return: list<(int, list<int>)>
             * Ids objects for each ids nodes
@@ -112,15 +114,16 @@ def task_1_2(id_objects, id_nodes, type_dir):
     """ Searching one object of infrastructure
         which have minimal distance to farthest nodes among selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
 
         Return: int
             * Id object
@@ -151,15 +154,16 @@ def task_1_3(id_objects, id_nodes, type_dir):
     """ Searching one object of infrastructure
         which have minimal sum shortest distances to selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
 
         Return: int
             * Id object
@@ -190,15 +194,16 @@ def task_1_4(id_objects, id_nodes, type_dir):
     """ Searching one object of infrastructure
         which have minimal weight of tree shortest distances to selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
 
         Return: int
             * Id object
@@ -229,10 +234,11 @@ def task_2_1(id_object, id_nodes):
     """ Searching tree shortest distances with minimal weight to selected nodes
         from selected object of infrastructure
 
-        :param id_object: int
-            * Id object of infrastructure - SELECTED
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
+        Arguments
+            :param id_object: int
+                * Id object of infrastructure - SELECTED
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
 
         Return: (float, float, list<(int, int)>)
             * tree_weight, paths_weight and tree (array edges)
@@ -268,9 +274,10 @@ def task_2_1(id_object, id_nodes):
 def task_2_2(id_nodes, number_clusters):
     """ Counting clusters for selected nodes (members + centroids + dendrogram)
 
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param number_clusters: int
+        Arguments
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param number_clusters: int
 
         Return: (list<list<int>>, list<int>, list<(float, float)>, list<list<int>>)
             * clusters, centroids_ids, centroids_coords, dendrogram
@@ -319,14 +326,15 @@ def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
         to centroids of clusters and from centroids to nodes of clusters
         from selected object of infrastructure
 
-        :param id_object: int
-            * Id object of infrastructure - SELECTED
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param clusters: list<list<int>>
-            * Array of clusters. Cluster is array of id nodes (members)
-        :param id_centroids: list<int>
-            * Ids centroids (nodes) of clusters
+        Arguments:
+            :param id_object: int
+                * Id object of infrastructure - SELECTED
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param clusters: list<list<int>>
+                * Array of clusters. Cluster is array of id nodes (members)
+            :param id_centroids: list<int>
+                * Ids centroids (nodes) of clusters
 
         Return: (float, float, list<(int, int)> )
             * tree_weight, paths_weight, tree (array of pair ids)
