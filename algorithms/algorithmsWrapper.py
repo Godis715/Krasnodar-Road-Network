@@ -1,11 +1,6 @@
-#!/usr/bin/python3
-#-*- coding: utf-8 -*-
+"""Wrapper on C++ algorithms"""
 
-import ctypes 
-import ast
-import random
-import time
-import typing
+import ctypes
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,26 +18,28 @@ libalgorithms.free_memory.argtypes = [
 ]
 libalgorithms.free_memory.restype = None
 
+
 def task_1_1_a(id_objects, id_nodes, type_dir):
     """ Searching nearest object of infrastructure for selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+
         Return: list<(int, int)>
             * Id objeсt for each ids nodes
     """
     # Linking types
     libalgorithms.task_1_1_a.restype = ctypes.c_size_t
     libalgorithms.task_1_1_a.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.c_size_t,
         ctypes.c_size_t,
@@ -61,29 +58,31 @@ def task_1_1_a(id_objects, id_nodes, type_dir):
         result.append((id_node, id_object))
     return result
 
+
 def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
     """ Searching objects of infrastructure for selected nodes
         at a fixed distance
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        :param max_dist: double
-            * Param for searching
-        
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+            :param max_dist: double
+                * Param for searching
+
         Return: list<(int, list<int>)>
             * Ids objects for each ids nodes
     """
     # Linking types
     libalgorithms.task_1_1_b.restype = ctypes.POINTER(ctypes.c_size_t)
     libalgorithms.task_1_1_b.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.c_size_t,
         ctypes.c_double,
@@ -110,27 +109,29 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
         libalgorithms.free_memory(id_res_objects)
     return result
 
+
 def task_1_2(id_objects, id_nodes, type_dir):
-    """ Searching one object of infrastructure 
+    """ Searching one object of infrastructure
         which have minimal distance to farthest nodes among selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+
         Return: int
             * Id object
     """
     # Linking types
     libalgorithms.task_1_2.restype = ctypes.c_size_t
     libalgorithms.task_1_2.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
@@ -148,27 +149,29 @@ def task_1_2(id_objects, id_nodes, type_dir):
     )
     return id_object
 
+
 def task_1_3(id_objects, id_nodes, type_dir):
-    """ Searching one object of infrastructure 
+    """ Searching one object of infrastructure
         which have minimal sum shortest distances to selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+
         Return: int
             * Id object
     """
     # Linking types
     libalgorithms.task_1_3.restype = ctypes.c_size_t
     libalgorithms.task_1_3.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
@@ -186,27 +189,29 @@ def task_1_3(id_objects, id_nodes, type_dir):
     )
     return id_object
 
+
 def task_1_4(id_objects, id_nodes, type_dir):
-    """ Searching one object of infrastructure 
+    """ Searching one object of infrastructure
         which have minimal weight of tree shortest distances to selected nodes
 
-        :param id_objects: list<int>
-            * Ids objects of infrastructure - ALL
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param type_dir: int
-            * Have 3 value:
-                > 1 - TO  objects from nodes
-                > 2 - FROM objects to nodes
-                > 3 - 1 and 2
-        
+        Arguments
+            :param id_objects: list<int>
+                * Ids objects of infrastructure - ALL
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param type_dir: int
+                * Have 3 value:
+                    > 1 - TO  objects from nodes
+                    > 2 - FROM objects to nodes
+                    > 3 - 1 and 2
+
         Return: int
             * Id object
     """
     # Linking types
     libalgorithms.task_1_4.restype = ctypes.c_size_t
     libalgorithms.task_1_4.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
@@ -224,22 +229,24 @@ def task_1_4(id_objects, id_nodes, type_dir):
     )
     return id_object
 
+
 def task_2_1(id_object, id_nodes):
-    """ Searching tree shortest distances with minimal weight to selected nodes 
+    """ Searching tree shortest distances with minimal weight to selected nodes
         from selected object of infrastructure
 
-        :param id_object: int
-            * Id object of infrastructure - SELECTED
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        
+        Arguments
+            :param id_object: int
+                * Id object of infrastructure - SELECTED
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+
         Return: (float, float, list<(int, int)>)
             * tree_weight, paths_weight and tree (array edges)
     """
     # Linking types
     libalgorithms.task_2_1.restype = None
     libalgorithms.task_2_1.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_char),
@@ -263,20 +270,22 @@ def task_2_1(id_object, id_nodes):
 
     return tree_weight, paths_weight, tree
 
+
 def task_2_2(id_nodes, number_clusters):
     """ Counting clusters for selected nodes (members + centroids + dendrogram)
 
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param number_clusters: int
-        
+        Arguments
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param number_clusters: int
+
         Return: (list<list<int>>, list<int>, list<(float, float)>, list<list<int>>)
             * clusters, centroids_ids, centroids_coords, dendrogram
     """
     # Linking types
     libalgorithms.task_2_2.restype = None
     libalgorithms.task_2_2.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_char),
@@ -311,27 +320,29 @@ def task_2_2(id_nodes, number_clusters):
 
     return clusters_members, centroids_ids, centroids_coords, dendrogram
 
+
 def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
-    """ Searching tree shortest distances with minimal weight from object 
+    """ Searching tree shortest distances with minimal weight from object
         to centroids of clusters and from centroids to nodes of clusters
         from selected object of infrastructure
 
-        :param id_object: int
-            * Id object of infrastructure - SELECTED
-        :param id_nodes: list<int>
-            * Ids nodes - SELECTED
-        :param clusters: list<list<int>>
-            * Array of clusters. Cluster is array of id nodes (members)
-        :param id_centroids: list<int>
-            * Ids centroids (nodes) of clusters
-        
+        Arguments:
+            :param id_object: int
+                * Id object of infrastructure - SELECTED
+            :param id_nodes: list<int>
+                * Ids nodes - SELECTED
+            :param clusters: list<list<int>>
+                * Array of clusters. Cluster is array of id nodes (members)
+            :param id_centroids: list<int>
+                * Ids centroids (nodes) of clusters
+
         Return: (float, float, list<(int, int)> )
             * tree_weight, paths_weight, tree (array of pair ids)
     """
     # Linking types
     libalgorithms.task_2_3_by_clust.restype = None
     libalgorithms.task_2_3_by_clust.argtypes = [
-        ctypes.POINTER(ctypes.c_size_t), 
+        ctypes.POINTER(ctypes.c_size_t),
         ctypes.c_size_t,
         ctypes.c_size_t,
         ctypes.POINTER(ctypes.c_char),
@@ -365,35 +376,3 @@ def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
             v_from, v_to = map(int, edge.split(' '))
             tree.append((v_from, v_to))
     return tree_weight, paths_weight, tree
-
-if __name__ == "__main__":
-    id_objects = []
-    with open('parser/data/objects.txt', 'r') as file:
-        for row in file:
-            id_objects.append(int(row.replace('\n', '')))
-
-    id_nodes = []
-    for _ in range(30):
-        id_node = random.randint(0, 71350)
-        if id_node not in id_objects:
-            id_nodes.append(id_node)
-
-    print(id_nodes)
-
-    # type_dir = 3
-
-    # max_dist = 0.00001
-
-    # number_clusters = 8
-
-    # task_2_2(id_nodes, number_clusters)
-
-    # time_start = time.monotonic()
-    # length, tree = task_2_3_by_clust(id_objects[0], id_nodes)
-    # time_end = time.monotonic()
-    # print("Time:", time_end - time_start)
-
-    # print(length, tree)
-  
-    
-        

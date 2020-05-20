@@ -1,12 +1,15 @@
+"""Api Gateways"""
+
 import logging
-import trafaret
 import ast
 import os
-import algorithmsWrapper
+import trafaret
 import numpy as np
 from flask import jsonify, abort, make_response, request
 from flask import Blueprint
 from flask_cors import CORS
+
+import algorithmsWrapper
 
 PATH_DATA = './../data'
 
@@ -15,9 +18,12 @@ logger = logging.getLogger(__name__)
 bp = Blueprint('api', __name__)
 CORS(bp)
 
+
 @bp.errorhandler(404)
 def not_found(error):
+    '''Response on 'not found' error'''
     return jsonify({'error': 'Not found'}), 404
+
 
 @bp.route('/nodes/info', methods=['GET'])
 def info_nodes():
@@ -31,16 +37,17 @@ def info_nodes():
                     Real location on map (lon, lat)
                 ...
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     with open(os.path.join(PATH_DATA, 'data_nodes.json'), 'r') as file:
         data_nodes = file.read()
     response = make_response(data_nodes, 200)
-    response.mimetype="application/json"
+    response.mimetype = "application/json"
     return response
+
 
 @bp.route('/objects/info', methods=['GET'])
 def info_objects():
@@ -61,16 +68,17 @@ def info_objects():
                 }
                 ...
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     with open(os.path.join(PATH_DATA, 'data_objects.json'), 'r') as file:
         data_objects = file.read()
     response = make_response(data_objects, 200)
-    response.mimetype="application/json"
+    response.mimetype = "application/json"
     return response
+
 
 @bp.route('/roads/info', methods=['GET'])
 def info_roads():
@@ -82,15 +90,15 @@ def info_roads():
             - body:[[str, str, ...], ...]
                 * Array of roads. Road is array of <id_node>.
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     with open(os.path.join(PATH_DATA, 'data_roads.json'), 'r') as file:
         data_objects = file.read()
     response = make_response(data_objects, 200)
-    response.mimetype="application/json"
+    response.mimetype = "application/json"
     return response
 
 
@@ -101,11 +109,13 @@ def _graph__get_all_id_objects():
             id_objects.append(int(row.replace('\n', '')))
     return id_objects
 
+
 def _graph__get_id_nodes(nodes):
     with open(os.path.join(PATH_DATA, 'matching_to_graph.json'), 'r') as file:
         matching_to_graph = ast.literal_eval(file.read())
     id_nodes = list([matching_to_graph[node] for node in nodes])
     return id_nodes
+
 
 @bp.route('/objects/find/closest', methods=['POST'])
 def find_objects_closest():
@@ -118,16 +128,16 @@ def find_objects_closest():
                 Ids nodes
             :param metrics: str
                 Type direction: 'to', 'from', 'to-from'
-                
+
     > Response:
         (Success)
             - body:
                 <id_node>: <id_object>
                 ...
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -149,9 +159,9 @@ def find_objects_closest():
 
     type_dir = {"to": 1, "from": 2, "to-from": 3}[validated_data['metrics']]
 
-    # Results: list<(int, int)>. Array of pair (id_node, id_object) 
+    # Results: list<(int, int)>. Array of pair (id_node, id_object)
     results = algorithmsWrapper.task_1_1_a(id_objects, id_nodes, type_dir)
-    
+
     # Converting results from graph to real
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
         matching_from_graph = ast.literal_eval(file.read())
@@ -160,6 +170,7 @@ def find_objects_closest():
         response_data[matching_from_graph[result[0]]] = matching_from_graph[result[1]]
 
     return jsonify(response_data), 200
+
 
 @bp.route('/objects/find/in_radius', methods=['POST'])
 def find_objects_in_radius():
@@ -173,16 +184,16 @@ def find_objects_in_radius():
             :param metrics: str
                 Type direction: 'to', 'from', 'to-from'
             :param max_dist: float
-                
+
     > Response:
         (Success)
             - body:
                 <id_node>: list<<id_object>>
                 ...
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -206,9 +217,9 @@ def find_objects_in_radius():
     type_dir = {"to": 1, "from": 2, "to-from": 3}[validated_data['metrics']]
     max_dist = validated_data['max_dist']
 
-    # Results: list<(int, list<int>)>. Array of pair (id_node, array id_object) 
+    # Results: list<(int, list<int>)>. Array of pair (id_node, array id_object)
     results = algorithmsWrapper.task_1_1_b(id_objects, id_nodes, type_dir, max_dist)
-    
+
     # Converting results from graph to real
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
         matching_from_graph = ast.literal_eval(file.read())
@@ -217,6 +228,7 @@ def find_objects_in_radius():
         response_data[matching_from_graph[result[0]]] = list(matching_from_graph[id_object] for id_object in result[1])
 
     return jsonify(response_data), 200
+
 
 @bp.route('/objects/find/optimal', methods=['POST'])
 def find_object_optimal():
@@ -231,16 +243,16 @@ def find_object_optimal():
                 Value: "closest-furthest"|"min-dist-sum"|"min-tree-weight"
             :param metrics: str
                 Type direction: 'to', 'from', 'to-from'
-                
+
     > Response:
         (Success)
             - body:
                 :param id_object: <id_node>
                     * Id node for finding object
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -251,7 +263,7 @@ def find_object_optimal():
         trafaret.Key('nodes'): trafaret.List(trafaret.String),
         trafaret.Key('criterion'): trafaret.Enum(
             "closest-furthest",
-            "min-dist-sum", 
+            "min-dist-sum",
             "min-tree-weight"
         ),
         trafaret.Key('metrics'): trafaret.Enum("to", "from", "to-from")
@@ -268,20 +280,21 @@ def find_object_optimal():
     type_dir = {"to": 1, "from": 2, "to-from": 3}[validated_data['metrics']]
     criterion = validated_data['criterion']
 
-    # Result: int (id_object) 
+    # Result: int (id_object)
     if criterion == "closest-furthest":
         result = algorithmsWrapper.task_1_2(id_objects, id_nodes, type_dir)
     elif criterion == "min-dist-sum":
         result = algorithmsWrapper.task_1_3(id_objects, id_nodes, type_dir)
     elif criterion == "min-tree-weight":
         result = algorithmsWrapper.task_1_4(id_objects, id_nodes, type_dir)
-    
+
     # Converting results from graph to real
     with open(os.path.join(PATH_DATA, 'matching_from_graph.json'), 'r') as file:
         matching_from_graph = ast.literal_eval(file.read())
     response_data = {"id_object": matching_from_graph[result]}
 
     return jsonify(response_data), 200
+
 
 @bp.route('/shortest_paths_tree', methods=['POST'])
 def shortest_paths_tree():
@@ -294,7 +307,7 @@ def shortest_paths_tree():
                 Ids nodes
             :param object: str
                 Id node for object
-                
+
     > Response:
         (Success)
             - body:
@@ -304,9 +317,9 @@ def shortest_paths_tree():
                 :param shortest_paths_tree: [(str, str), ...]
                     * Array edges
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -335,7 +348,7 @@ def shortest_paths_tree():
         matching_from_graph = ast.literal_eval(file.read())
 
     shortest_paths_tree = list(map(lambda edge: (matching_from_graph[edge[0]], matching_from_graph[edge[1]]), edges))
-    
+
     response_data = {
         "tree_weight": tree_weight,
         "paths_weight": paths_weight,
@@ -343,6 +356,7 @@ def shortest_paths_tree():
     }
 
     return jsonify(response_data), 200
+
 
 @bp.route('/clustering', methods=['POST'])
 def clustering():
@@ -357,7 +371,7 @@ def clustering():
                 Number of clusters
             :param metrics: str
                 Type direction: 'to', 'from', 'to-from'
-                
+
     > Response:
         (Success)
             - body:
@@ -385,9 +399,9 @@ def clustering():
                     ...
                 }
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -447,6 +461,7 @@ def clustering():
 
     return jsonify(response_data), 200
 
+
 @bp.route('/clustering/shortest_paths_tree', methods=['POST'])
 def clust_shortest_paths_tree():
     '''
@@ -468,7 +483,7 @@ def clust_shortest_paths_tree():
                 }
                 ...
             ]
-                
+
     > Response:
         (Success)
             - body:
@@ -478,9 +493,9 @@ def clust_shortest_paths_tree():
                 :param shortest_paths_tree: [(str, str), ...]
                     * Array edges
         (Failed)
-            - body: 
+            - body:
                 :param detail: str
-        
+
         status: int
     '''
     logger.setLevel(logging.INFO)
@@ -506,7 +521,7 @@ def clust_shortest_paths_tree():
 
     # Getting info for graph
     id_object = _graph__get_id_nodes([validated_data['object']])[0]
-   
+
     id_nodes = []
     id_centroids = []
     clusters = []
@@ -528,7 +543,7 @@ def clust_shortest_paths_tree():
         matching_from_graph = ast.literal_eval(file.read())
 
     shortest_paths_tree = list(map(lambda edge: (matching_from_graph[edge[0]], matching_from_graph[edge[1]]), edges))
-    
+
     response_data = {
         "tree_weight": tree_weight,
         "paths_weight": paths_weight,
