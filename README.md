@@ -5,7 +5,7 @@
 Продакшен версия доступна по адресу: https://krasnodar-road-network.ru
 
 ------
-### Запуск test версии
+### Запуск local версии
 * Установка зависимостей:
 ```bash
    sh install_frontend_dependencies.sh
@@ -19,6 +19,6 @@
 ```
 * Запуск:
 ```bash
-   sh run_test_backend.sh
-   sh run_test_frontend.sh
+   sh run_local_backend.sh
+   sh run_local_frontend.sh
 ```
