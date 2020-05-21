@@ -13,7 +13,7 @@ class SelectRandomMenu extends React.PureComponent {
 
     onCountChanged(ev) {
         this.setState({
-            randomCount: ev.target.value
+            randomCount: parseInt(ev.target.value)
         });
     }
 

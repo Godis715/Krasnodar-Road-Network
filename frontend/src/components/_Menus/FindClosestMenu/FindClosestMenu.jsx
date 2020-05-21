@@ -24,6 +24,7 @@ class FindClosestMenu extends React.PureComponent {
 
     render() {
         const { metrics } = this.state;
+        const { disabled, alreadyFound } = this.props;
         return (
             <div>
                 <RadioGroup
@@ -36,13 +37,18 @@ class FindClosestMenu extends React.PureComponent {
                     ]}
                     onChange={this.onMetricsChanged}
                 />
+                {
+                    disabled &&
+                    <div>Выберите узлы.</div>
+                }
                 <button
                     onClick={this.onSubmit}
+                    disabled={disabled}
                 >
                     Найти
                 </button>
                 {
-                    this.props.disabled &&
+                    alreadyFound &&
                     <div>
                         Ближайшие объекты найдены. Чтобы увидеть результат, наведите на значок здания.
                     </div>

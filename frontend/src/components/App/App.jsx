@@ -34,11 +34,31 @@ import ClusteringMenu from "../_Menus/ClusteringMenu/ClusteringMenu";
 import FindOptimalMenu from "../_Menus/FindOptimalMenu/FindOptimalMenu";
 
 // Utils
-import leafletBoundsToArray from "./leafletBoundsToArray";
 import getRandomElements from "./randomElements";
+import { getSubclusters } from "../../utils/dendrogram";
+import rainbowGradient from "../../utils/rainbowGradient";
 import deepEqual from "deep-equal";
 
 import "./App.css";
+
+function getNodeColors(clusters) {
+    const nodesColors = {};
+
+    clusters.forEach(
+        ({ members }, ci) => members.forEach(
+            (nodeId) => {
+                nodesColors[nodeId] = {
+                    color: `rgb(${
+                        rainbowGradient(ci / clusters.length).join(",")
+                    })`,
+                    opacity: 1
+                };
+            }
+        )
+    );
+
+    return nodesColors;
+}
 
 export default class App extends React.PureComponent {
     constructor(props) {
@@ -51,17 +71,26 @@ export default class App extends React.PureComponent {
             lat: 45.0347,
             lng: 38.9699,
             shouldClusterNodes: true,
-            shouldClusterObjects: false
+            shouldClusterObjects: true
         };
 
         this.map = React.createRef();
 
+        this.onFindSPT = this.onFindSPT.bind(this);
+        this.onFindClosest = this.onFindClosest.bind(this);
+        this.onFindOptimal = this.onFindOptimal.bind(this);
         this.onZoomChanged = this.onZoomChanged.bind(this);
         this.onMoveChanged = this.onMoveChanged.bind(this);
         this.onNodeSelected = this.onNodeSelected.bind(this);
+        this.onFindInRadius = this.onFindInRadius.bind(this);
         this.onObjectSelected = this.onObjectSelected.bind(this);
+        this.onSubclusterSelected = this.onSubclusterSelected.bind(this);
+        this.onSubclusterLeft = this.onSubclusterLeft.bind(this);
         this.onSelectRandom = this.onSelectRandom.bind(this);
+        this.onClusterNodes = this.onClusterNodes.bind(this);
         this.onTabChanged = this.onTabChanged.bind(this);
+        this.onNodeFocus = this.onNodeFocus.bind(this);
+        this.onNodeLeave = this.onNodeLeave.bind(this);
     }
 
     static defaultProps = {
@@ -69,6 +98,17 @@ export default class App extends React.PureComponent {
         // find out exact boundaries
         latDelta: 0.25,
         lngDelta: 0.5
+    }
+
+    static defaultData = {
+        focused: null,
+        inRadius: null,
+        closest: null,
+        optimal: null,
+        clusters: null,
+        dendrogram: null,
+        nodesColors: null,
+        sptData: null
     }
 
     componentDidMount() {
@@ -96,32 +136,28 @@ export default class App extends React.PureComponent {
         );
     }
 
+    getBounds() {
+        const newBounds = this.map.current.leafletElement.getBounds();
+        const oldBounds = this.state.bounds;
+        if (!deepEqual(oldBounds, newBounds)) {
+            return newBounds;
+        }
+
+        return oldBounds;
+    }
+
     onZoomChanged(ev) {
-        if (ev.target._zoom !== this.state.zoom) {
-            console.log("Zoomed!");
-            this.setState({
-                zoom: ev.target._zoom,
-                bounds: this.map.current.leafletElement.getBounds()
-            });
-        }
-        else {
-            console.log("Changing zoom skipped");
-        }
+        console.log("On zoom");
+        this.setState({
+            zoom: ev.target._zoom,
+            bounds: this.getBounds()
+        });
     }
 
     onMoveChanged() {
-        console.log(this.map.current);
-        const boundsPrev = this.state.bounds;
-        const bounds = this.map.current.leafletElement.getBounds();
-        if (!deepEqual(bounds, boundsPrev)) {
-            console.log("Moved!");
-            this.setState({
-                bounds
-            });
-        }
-        else {
-            console.log("Changing bounds skipped");
-        }
+        this.setState({
+            bounds: this.getBounds()
+        });
     }
 
     onNodeSelected(nodeId) {
@@ -136,12 +172,7 @@ export default class App extends React.PureComponent {
                     ...selectedNodes,
                     nodeId
                 ],
-                focused: null,
-                inRadius: null,
-                closest: null,
-                optimal: null,
-                clusters: null,
-                dendrogram: null
+                ...App.defaultData
             });
         }
         else {
@@ -150,12 +181,7 @@ export default class App extends React.PureComponent {
                     ...selectedNodes.slice(0, i),
                     ...selectedNodes.slice(i + 1)
                 ],
-                focused: null,
-                inRadius: null,
-                closest: null,
-                optimal: null,
-                clusters: null,
-                dendrogram: null
+                ...App.defaultData
             });
         }
     }
@@ -168,12 +194,14 @@ export default class App extends React.PureComponent {
         }
         if (!selectedObject || selectedObject !== objectId) {
             this.setState({
-                selectedObject: objectId
+                selectedObject: objectId,
+                ...App.defaultData
             });
         }
         else {
             this.setState({
-                selectedObject: null
+                selectedObject: null,
+                ...App.defaultData
             });
         }
     }
@@ -188,8 +216,129 @@ export default class App extends React.PureComponent {
             selectedNodes: getRandomElements(
                 Object.keys(nodes),
                 count
-            )
+            ),
+            ...App.defaultData
         });
+    }
+
+    onClusterNodes(num, metrics) {
+        this.setState({
+            clusters: null,
+            dendrogram: null
+        });
+
+        clusterNodes(this.state.selectedNodes, num, metrics)
+            .then(
+                (data) => this.setState({
+                    ...data,
+                    nodeColors: getNodeColors(data.clusters)
+                })
+            );
+    }
+
+    onSubclusterSelected(height, id) {
+        console.log("Selected at height", height);
+        const { dendrogram, selectedNodes } = this.state;
+        const subclusters = Boolean(height)
+            ? getSubclusters(dendrogram, selectedNodes, height)
+            : [[id]];
+
+        console.log(subclusters);
+        const nodeColors = {};
+
+        selectedNodes.forEach(
+            (nodeId) => {
+                nodeColors[nodeId] = {
+                    color: "gray",
+                    opacity: 0.5
+                };
+            }
+        );
+
+        subclusters[0].forEach(
+            (nodeId) => {
+                nodeColors[nodeId] = {
+                    color: "rgb(255, 150, 20)",
+                    opacity: 1
+                };
+            }
+        );
+
+        if (subclusters.length > 1) {
+            subclusters[1].forEach(
+                (nodeId) => {
+                    nodeColors[nodeId] = {
+                        color: "rgb(20, 255, 150)",
+                        opacity: 1
+                    };
+                }
+            );
+        }
+
+        this.setState({
+            nodeColors
+        });
+    }
+
+    onSubclusterLeft() {
+        this.setState({
+            nodeColors: getNodeColors(this.state.clusters)
+        });
+    }
+
+    onNodeFocus(nodeId) {
+        this.setState({
+            focused: nodeId
+        });
+    }
+
+    onNodeLeave() {
+        this.setState({
+            focused: null
+        });
+    }
+
+    onFindSPT() {
+        const { objects, selectedObject, selectedNodes } = this.state;
+
+        this.setState({
+            sptData: null
+        });
+
+        findSPT(objects[selectedObject].ref, selectedNodes).then(
+            (data) => this.setState({ sptData: data })
+        );
+    }
+
+
+    onFindOptimal(criterion, metrics) {
+        const { selectedNodes } = this.state;
+        this.setState({
+            optimal: null
+        });
+        findOptimal(selectedNodes, criterion, metrics).then(
+            (data) => this.setState({ optimal: data })
+        );
+    }
+
+    onFindInRadius(radius, metrics) {
+        const { selectedNodes } = this.state;
+        this.setState({
+            inRadius: null
+        });
+        findInRadius(selectedNodes, radius, metrics).then(
+            (data) => this.setState({ inRadius: data })
+        );
+    }
+
+    onFindClosest(metrics) {
+        const { selectedNodes } = this.state;
+        this.setState({
+            closest: null
+        });
+        findClosest(selectedNodes, metrics).then(
+            (data) => this.setState({ closest: data })
+        );
     }
 
     render() {
@@ -212,12 +361,14 @@ export default class App extends React.PureComponent {
             // map interaction
             selectedObject,
             selectedNodes,
+            nodeColors,
             focused,
             // data from backend
             closest,
             inRadius,
             optimal,
             clusters,
+            dendrogram,
             sptData
         } = this.state;
 
@@ -229,7 +380,7 @@ export default class App extends React.PureComponent {
         ];
 
         const highlightObject = closest && focused && closest[focused];
-
+        console.log("Updating map");
         return (
             <div className="App">
                 <Map
@@ -260,9 +411,7 @@ export default class App extends React.PureComponent {
                                 zoom > 15 &&
                                 <NodesLayer
                                     nodes={nodes}
-                                    bounds={
-                                        leafletBoundsToArray(bounds)
-                                    }
+                                    bounds={bounds}
                                     clusterNodes={shouldClusterNodes}
                                     onNodeSelected={this.onNodeSelected}
                                 />
@@ -272,9 +421,7 @@ export default class App extends React.PureComponent {
                                 <RoadsLayer
                                     nodes={nodes}
                                     adjList={roads}
-                                    bounds={
-                                        leafletBoundsToArray(bounds)
-                                    }
+                                    bounds={bounds}
                                 />
                             }
 
@@ -283,22 +430,9 @@ export default class App extends React.PureComponent {
                                 selectedNodes={selectedNodes}
                                 onNodeSelected={this.onNodeSelected}
                                 clusters={clusters}
-                                onNodeFocus={
-                                    (nodeId) => {
-                                        console.log("Node focused!");
-                                        this.setState({
-                                            focused: nodeId
-                                        });
-                                    }
-                                }
-                                onNodeLeave={
-                                    () => {
-                                        console.log("Node left!");
-                                        this.setState({
-                                            focused: null
-                                        });
-                                    }
-                                }
+                                onNodeFocus={this.onNodeFocus}
+                                onNodeLeave={this.onNodeLeave}
+                                nodeColors={nodeColors}
                             />
                             {
                                 openedTab === "find-closest" &&
@@ -338,9 +472,7 @@ export default class App extends React.PureComponent {
                                 <ShortestPathsTreeLayer
                                     adjList={sptData.shortest_paths_tree}
                                     nodes={nodes}
-                                    bounds={
-                                        leafletBoundsToArray(bounds)
-                                    }
+                                    bounds={bounds}
                                 />
                             }
                         </>
@@ -400,56 +532,41 @@ export default class App extends React.PureComponent {
                                 id: "find-closest",
                                 title: "Поиск ближайших объектов",
                                 content: <FindClosestMenu
-                                    onFindClosest={
-                                        (metrics) => findClosest(selectedNodes, metrics).then(
-                                            (data) => this.setState({ closest: data })
-                                        )
-                                    }
-                                    disabled={Boolean(closest)}
+                                    onFindClosest={this.onFindClosest}
+                                    disabled={selectedNodes.length === 0}
+                                    alreadyFound={Boolean(closest)}
                                 />
                             },
                             {
                                 id: "find-in-radius",
                                 title: "Найти объекты в радиусе",
                                 content: <FindInRadiusMenu
-                                    onFindInRadius={
-                                        (radius, metrics) => findInRadius(selectedNodes, radius, metrics).then(
-                                            (data) => this.setState({ inRadius: data })
-                                        )
-                                    }
-                                    disabled={Boolean(inRadius)}
+                                    onFindInRadius={this.onFindInRadius}
+                                    disabled={selectedNodes.length === 0}
+                                    alreadyFound={Boolean(inRadius)}
                                 />
                             },
                             {
                                 id: "find-optimal",
                                 title: "Поиск оптимально расположенного объекта",
                                 content: <FindOptimalMenu
-                                    onFindOptimal={
-                                        (criterion, metrics) => findOptimal(selectedNodes, criterion, metrics).then(
-                                            (data) => this.setState({ optimal: data })
-                                        )
-                                    }
+                                    onFindOptimal={this.onFindOptimal}
                                     onNavigate={
                                         () => this.setState({
                                             lat: nodes[optimal][0],
                                             lng: nodes[optimal][1]
                                         })
                                     }
-                                    disabled={Boolean(optimal)}
+                                    disabled={selectedNodes.length === 0}
+                                    alreadyFound={Boolean(optimal)}
                                 />
                             },
                             {
                                 id: "shortest-paths-tree",
                                 title: "Дерево кратчайших путей",
                                 content: <ShortestPathsTreeMenu
-                                    onFindShortestPathsTree={
-                                        () => findSPT(objects[selectedObject].ref, selectedNodes).then(
-                                            (data) => this.setState({ sptData: data })
-                                        )
-                                    }
-                                    disabled={
-                                        Boolean(sptData && selectedObject)
-                                    }
+                                    onFindShortestPathsTree={this.onFindSPT}
+                                    disabled={!selectedObject || selectedNodes.length === 0}
                                     info={sptData}
                                 />
                             },
@@ -457,14 +574,14 @@ export default class App extends React.PureComponent {
                                 id: "clustering",
                                 title: "Кластеризация узлов",
                                 content: <ClusteringMenu
-                                    onClusterNodes={
-                                        (num, metrics) => clusterNodes(selectedNodes, num, metrics).then(
-                                            (data) => this.setState({
-                                                ...data
-                                            })
-                                        )
-                                    }
-                                    disabled={Boolean(clusters)}
+                                    onClusterNodes={this.onClusterNodes}
+                                    disabled={!nodes || selectedNodes.length === 0}
+                                    dendrogram={dendrogram}
+                                    clusters={clusters}
+                                    nodes={selectedNodes}
+                                    onSubclusterSelected={this.onSubclusterSelected}
+                                    onSubclusterLeft={this.onSubclusterLeft}
+                                    maxNodes={nodes ? Object.keys(nodes).length : 0}
                                 />
                             }
                         ]}

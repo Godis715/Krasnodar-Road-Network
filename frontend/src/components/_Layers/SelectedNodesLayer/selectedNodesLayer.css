@@ -17,7 +17,9 @@
 		calc(-1 * var(--size))
 	);
     filter:
-        drop-shadow(3px 3px 3px rgb(15, 10, 32));
+		drop-shadow(3px 3px 3px rgb(15, 10, 32));
+		
+	opacity: var(--opacity);
 }
 
 .selected-node-icon:hover > div::after {

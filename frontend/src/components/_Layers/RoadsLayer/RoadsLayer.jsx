@@ -1,10 +1,12 @@
 import React from "react";
 import { Polyline } from "react-leaflet";
 import probablyIntersects from "../../../utils/probablyIntersects";
+import leafletBoundsToArray from "../../../utils/leafletBoundsToArray";
 
 class Roads extends React.PureComponent {
     render() {
         const { nodes, adjList, bounds } = this.props;
+        const boundsArr = leafletBoundsToArray(bounds);
         return <>{
             adjList
                 .filter(
@@ -14,7 +16,7 @@ class Roads extends React.PureComponent {
                                 nodes[roadNodes[i]],
                                 nodes[nodeId]
                             ],
-                            bounds
+                            boundsArr
                         )
                     )
                 )

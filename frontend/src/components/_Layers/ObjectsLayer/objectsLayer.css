@@ -21,5 +21,5 @@
 	filter:
 		hue-rotate(var(--hue))
 		saturate(var(--saturate))
-		drop-shadow(5px 15px 15px rgba(15, 10, 32, 0.473));
+		drop-shadow(3px 3px 3px rgba(15, 10, 32, 0.473));
 }

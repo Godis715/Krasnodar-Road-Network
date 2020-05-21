@@ -2,19 +2,25 @@ import React from "react";
 
 class ShortestPathsTreeMenu extends React.PureComponent {
     render() {
+        const { disabled, onFindShortestPathsTree, info } = this.props;
         return (
             <div>
+                {
+                    disabled &&
+                    <div>Выберите узлы и объект инфраструктуры.</div>
+                }
                 <button
-                    onClick={this.props.onFindShortestPathsTree}
+                    onClick={onFindShortestPathsTree}
+                    disabled={disabled}
                 >
                     Найти
                 </button>
                 {
-                    this.props.disabled &&
+                    info &&
                     <div>
                         <div>Дерево кратчайших путей было найдено.</div>
-                        <div>Суммарная длина всех путей {this.props.info.paths_weight}м</div>
-                        <div>Вес дерева (длина всех дорог) {this.props.info.tree_weight}м</div>
+                        <div>Суммарная длина всех путей {info.paths_weight}м</div>
+                        <div>Вес дерева (длина всех дорог) {info.tree_weight}м</div>
                     </div>
                 }
             </div>

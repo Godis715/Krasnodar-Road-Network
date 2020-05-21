@@ -30,6 +30,7 @@ class FindOptimalMenu extends React.PureComponent {
 
     render() {
         const { metrics, criterion } = this.state;
+        const { disabled, alreadyFound, onNavigate } = this.props;
         return (
             <div>
                 <RadioGroup
@@ -53,16 +54,21 @@ class FindOptimalMenu extends React.PureComponent {
                     ]}
                     onChange={this.onCriterionChanged}
                 />
+                {
+                    disabled &&
+                    <div>Выберите узлы.</div>
+                }
                 <button
                     onClick={this.onSubmit}
+                    disabled={disabled}
                 >
                     Найти
                 </button>
                 {
-                    this.props.disabled &&
+                    alreadyFound &&
                     <div>
                         <span>Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.</span>
-                        <button onClick={this.props.onNavigate}>
+                        <button onClick={onNavigate}>
                             Показать
                         </button>
                     </div>
