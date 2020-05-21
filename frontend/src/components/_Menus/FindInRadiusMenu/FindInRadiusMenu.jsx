@@ -11,7 +11,7 @@ class FindInRadiusMenu extends React.PureComponent {
 
         this.state = {
             metrics: "to",
-            radius: "500"
+            radius: 500
         };
 
         this.onMetricsChanged = this.onMetricsChanged.bind(this);
@@ -24,25 +24,19 @@ class FindInRadiusMenu extends React.PureComponent {
     }
 
     onRadiusChanged(ev) {
-        const radius = ev.target.value;
-        if (!radius) {
-            this.setState({
-                radius: ""
-            });
-        }
-        else if (strIsValidNumber(radius)) {
-            this.setState({ radius });
-        }
+        this.setState({
+            radius: parseFloat(ev.target.value)
+        });
     }
 
     onSubmit() {
         const { metrics, radius } = this.state;
-        const radiusFloat = parseFloat(radius);
-        this.props.onFindInRadius(radiusFloat, metrics);
+        this.props.onFindInRadius(radius, metrics);
     }
 
     render() {
         const { metrics, radius } = this.state;
+        const { disabled, alreadyFound } = this.props;
         return (
             <div>
                 <RadioGroup
@@ -57,16 +51,27 @@ class FindInRadiusMenu extends React.PureComponent {
                 />
                 <div>
                     <label htmlFor="radius-input">В радиусе</label>
-                    <input id="radius-input" type="text" value={radius} onChange={this.onRadiusChanged} />
+                    <input
+                        id="radius-input"
+                        type="number"
+                        step="any"
+                        value={radius}
+                        onChange={this.onRadiusChanged}
+                    />
                     <span>м</span>
                 </div>
+                {
+                    disabled &&
+                    <div>Выберите узлы и укажите радиус поиска.</div>
+                }
                 <button
                     onClick={this.onSubmit}
+                    disabled={disabled}
                 >
                     Найти
                 </button>
                 {
-                    this.props.disabled &&
+                    alreadyFound &&
                     <div>
                         Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.
                     </div>

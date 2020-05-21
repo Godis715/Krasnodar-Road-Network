@@ -12,6 +12,7 @@
     "fast-xml-parser": "^3.16.0",
     "leaflet": "^1.6.0",
     "react": "^16.13.1",
+    "react-d3-tree": "^1.16.1",
     "react-dom": "^16.13.1",
     "react-leaflet": "^2.6.3",
     "react-leaflet-markercluster": "^2.0.0",

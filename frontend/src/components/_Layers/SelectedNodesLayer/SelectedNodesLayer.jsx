@@ -2,23 +2,50 @@ import React from "react";
 import { Marker, LayerGroup } from "react-leaflet";
 import L from "leaflet";
 import "./selectedNodesLayer.css";
+import iconSvg from "./icon-svg.json";
 
-const SELECTED_NODE_ICON = L.divIcon({
-    className: "selected-node-icon"
+const getIconSvg = (color) => iconSvg.replace("{color}", color);
+
+const SELECTED_NODE_ICON = (style) => L.divIcon({
+    className: "selected-node-icon",
+    html: `<div style="--svg-icon:url(&quot;${
+        getIconSvg(style.color)
+    }&quot;); --opacity: ${style.opacity}"/>`
 });
 
 class SelectedNodesLayer extends React.PureComponent {
     render() {
-        const { selectedNodes, nodes, onNodeSelected, onNodeFocus, onNodeLeave } = this.props;
+        const { selectedNodes, nodes, onNodeSelected, onNodeFocus, onNodeLeave, clusters, nodeColors } = this.props;
+
+        const nodesClusters = {};
+        if (clusters) {
+            console.log(clusters);
+            clusters.forEach(
+                ({ members }, ci) => members.forEach(
+                    (nodeId) => {
+                        nodesClusters[nodeId] = ci;
+                    }
+                )
+            );
+        }
+
         return (
             <LayerGroup>
                 {
                     selectedNodes.map(
                         (nodeId) => (
-                            <Marker
+                            <Marker key={nodeId}
                                 position={nodes[nodeId]}
-                                key={nodeId}
-                                icon={SELECTED_NODE_ICON}
+                                icon={
+                                    SELECTED_NODE_ICON(
+                                        nodeColors
+                                            ? nodeColors[nodeId]
+                                            : {
+                                                color: "black",
+                                                opacity: 1
+                                            }
+                                    )
+                                }
                                 onClick={
                                     () => onNodeSelected(nodeId)
                                 }

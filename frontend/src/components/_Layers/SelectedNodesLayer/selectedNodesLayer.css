@@ -1,6 +1,6 @@
 
-.selected-node-icon::after {
-	--size: 40px;
+.selected-node-icon > div::after {
+	--size: 30px;
 
 	display: block;
 	content: "";
@@ -9,29 +9,19 @@
     height: var(--size);
 	background-size: var(--size);
 
-    background-image: url(https://svgsilh.com/svg/309113.svg);
+	background-image: var(--svg-icon);
 	background-repeat: no-repeat;
 
     transform: translate(
 		calc(-1 * var(--size) / 2 + 12px / 2),
 		calc(-1 * var(--size))
 	);
-    filter: 
-        contrast(0%)
-        sepia(100%)
-        saturate(1000%)
-        brightness(180%)
-        hue-rotate(30deg)
-        drop-shadow(5px 15px 15px rgb(15, 10, 32));
+    filter:
+		drop-shadow(3px 3px 3px rgb(15, 10, 32));
+		
+	opacity: var(--opacity);
 }
 
-.selected-node-icon:hover::after {
-	opacity: 0.6;
-	filter: 
-		contrast(0%)
-		sepia(100%)
-		saturate(1000%)
-		brightness(180%)
-		hue-rotate(-30deg)
-		drop-shadow(5px 15px 15px rgb(15, 10, 32));
+.selected-node-icon:hover > div::after {
+	opacity: 0.3;
 }
