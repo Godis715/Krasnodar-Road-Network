@@ -49,7 +49,9 @@ export default class App extends React.PureComponent {
             selectedNodes: [],
             openedTab: null,
             lat: 45.0347,
-            lng: 38.9699
+            lng: 38.9699,
+            shouldClusterNodes: true,
+            shouldClusterObjects: false
         };
 
         this.map = React.createRef();
@@ -107,7 +109,7 @@ export default class App extends React.PureComponent {
         }
     }
 
-    onMoveChanged(ev) {
+    onMoveChanged() {
         console.log(this.map.current);
         const boundsPrev = this.state.bounds;
         const bounds = this.map.current.leafletElement.getBounds();
@@ -137,7 +139,9 @@ export default class App extends React.PureComponent {
                 focused: null,
                 inRadius: null,
                 closest: null,
-                optimal: null
+                optimal: null,
+                clusters: null,
+                dendrogram: null
             });
         }
         else {
@@ -149,7 +153,9 @@ export default class App extends React.PureComponent {
                 focused: null,
                 inRadius: null,
                 closest: null,
-                optimal: null
+                optimal: null,
+                clusters: null,
+                dendrogram: null
             });
         }
     }
@@ -200,6 +206,7 @@ export default class App extends React.PureComponent {
             // interface general
             openedTab,
             // customization
+            shouldClusterObjects,
             shouldClusterNodes,
             showRoads,
             // map interaction
@@ -241,11 +248,14 @@ export default class App extends React.PureComponent {
                     />
                     {
                         Boolean(nodes) && <>
-                            <ObjectsLayer
-                                objects={objects}
-                                onObjectSelected={this.onObjectSelected}
-                            />
-
+                            {
+                                openedTab !== "clustering" &&
+                                <ObjectsLayer
+                                    objects={objects}
+                                    onObjectSelected={this.onObjectSelected}
+                                    clusterObjects={shouldClusterObjects}
+                                />
+                            }
                             {
                                 zoom > 15 &&
                                 <NodesLayer
@@ -272,6 +282,7 @@ export default class App extends React.PureComponent {
                                 nodes={nodes}
                                 selectedNodes={selectedNodes}
                                 onNodeSelected={this.onNodeSelected}
+                                clusters={clusters}
                                 onNodeFocus={
                                     (nodeId) => {
                                         console.log("Node focused!");
@@ -362,6 +373,18 @@ export default class App extends React.PureComponent {
                                 }
                             />
                             <label htmlFor="cluster-nodes">Кластеризовывать узлы</label>
+
+                            <input
+                                type="checkbox"
+                                id="cluster-objects"
+                                checked={shouldClusterObjects}
+                                onChange={
+                                    () => this.setState({
+                                        shouldClusterObjects: !shouldClusterObjects
+                                    })
+                                }
+                            />
+                            <label htmlFor="cluster-objects">Кластеризовывать объекты</label>
                         </div>
                     </div>
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
@@ -436,7 +459,9 @@ export default class App extends React.PureComponent {
                                 content: <ClusteringMenu
                                     onClusterNodes={
                                         (num, metrics) => clusterNodes(selectedNodes, num, metrics).then(
-                                            (data) => console.log(data)//this.setState({ clusters: data })
+                                            (data) => this.setState({
+                                                ...data
+                                            })
                                         )
                                     }
                                     disabled={Boolean(clusters)}

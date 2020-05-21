@@ -4,15 +4,22 @@
     height: var(--size);
 	background-size: var(--size);
 
+	--saturate: 200%;
+	--hue: 48deg;
+
     display: block;
     content: "";
 
-    background-image: url(https://www.seekicon.com/free-icon-download/map-marker-icon_2.svg);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' viewBox='0 0 512 512'%3E%3Cstyle%3E .st0%7Bfill:%23f55;%7D .st1%7Bfill:%23a33;%7D%0A%3C/style%3E%3Cg id='XMLID_1_'%3E%3Cpath id='XMLID_5_' class='st0' d='M256,0C161.5,0,85.1,76.4,85.1,170.9c0,29.9,7.9,58.3,22.1,83.5c2.4,3.9,4.7,7.9,7.1,11.8 L256,512l141-245.8c2.4-3.2,3.9-6.3,6.3-10.2l1.6-2.4c14.2-24.4,22.1-52.8,22.1-83.5C426.9,76.4,350.5,0,256,0z M256,85.1 c47.3,0,85.1,38.6,85.1,85.1c0,47.3-37.8,85.9-85.1,85.9s-85.1-38.6-85.1-85.1C170.9,123.7,208.7,85.1,256,85.1z'/%3E%3Cpath id='XMLID_8_' class='st1' d='M256,63.8c-59.1,0-106.3,48-106.3,106.3c0,59.1,48,106.3,106.3,106.3 c59.1,0,106.3-48,106.3-106.3S315.1,63.8,256,63.8z M256,106.3c35.4,0,63.8,28.4,63.8,63.8s-28.4,63.8-63.8,63.8 s-63.8-28.4-63.8-63.8S220.6,106.3,256,106.3z'/%3E%3C/g%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 
     transform: translate(
 		calc(-1 * var(--size) / 2 + 12px / 2),
 		calc(-1 * var(--size) + 12px / 2)
 	);
-    filter: drop-shadow(5px 15px 15px rgba(15, 10, 32, 0.473));
+
+	filter:
+		hue-rotate(var(--hue))
+		saturate(var(--saturate))
+		drop-shadow(5px 15px 15px rgba(15, 10, 32, 0.473));
 }

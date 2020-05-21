@@ -1,6 +1,6 @@
 import React from "react";
 import { Polyline } from "react-leaflet";
-import inBounds from "../../../utils/inBounds";
+import probablyIntersects from "../../../utils/probablyIntersects";
 
 class Roads extends React.PureComponent {
     render() {
@@ -8,8 +8,14 @@ class Roads extends React.PureComponent {
         return <>{
             adjList
                 .filter(
-                    (roadNodes) => roadNodes.some(
-                        (nodeId) => inBounds(nodes[nodeId], bounds)
+                    (roadNodes) => roadNodes.slice(1).some(
+                        (nodeId, i) => probablyIntersects(
+                            [
+                                nodes[roadNodes[i]],
+                                nodes[nodeId]
+                            ],
+                            bounds
+                        )
                     )
                 )
                 .map(
