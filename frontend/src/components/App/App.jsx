@@ -11,6 +11,7 @@ import {
     fetchObjects,
     findOptimal,
     findSPT,
+    findCBT,
     clusterNodes
 } from "./requests";
 
@@ -23,6 +24,7 @@ import ObjectsInRadiusLayer from "../_Layers/ObjectsInRadiusLayer/ObjectsInRadiu
 import ShortestPathsTreeLayer from "../_Layers/ShortestPathsTreeLayer/ShortestPathsTreeLayer";
 import SelectedObjectLayer from "../_Layers/SelectedObjectLayer/SelectedObjectLayer";
 import OptimalObjectLayer from "../_Layers/OptimalObjectLayer/OptimalObjectLayer";
+import CentroidsLayer from "../_Layers/CentroidsLayer/CentroidsLayer";
 import NodesLayer from "../_Layers/NodesLayer/NodesLayer";
 
 // Menus
@@ -71,7 +73,8 @@ export default class App extends React.PureComponent {
             lat: 45.0347,
             lng: 38.9699,
             shouldClusterNodes: true,
-            shouldClusterObjects: true
+            shouldClusterObjects: true,
+            showObjects: true
         };
 
         this.map = React.createRef();
@@ -98,17 +101,6 @@ export default class App extends React.PureComponent {
         // find out exact boundaries
         latDelta: 0.25,
         lngDelta: 0.5
-    }
-
-    static defaultData = {
-        focused: null,
-        inRadius: null,
-        closest: null,
-        optimal: null,
-        clusters: null,
-        dendrogram: null,
-        nodesColors: null,
-        sptData: null
     }
 
     componentDidMount() {
@@ -161,6 +153,16 @@ export default class App extends React.PureComponent {
     }
 
     onNodeSelected(nodeId) {
+        const dataToReset = {
+            focused: null,
+            inRadius: null,
+            closest: null,
+            optimal: null,
+            clusters: null,
+            dendrogram: null,
+            nodeColors: null,
+            sptData: null
+        };
         console.log("Node selected!");
         const { selectedNodes } = this.state;
         const i = selectedNodes.findIndex(
@@ -172,7 +174,7 @@ export default class App extends React.PureComponent {
                     ...selectedNodes,
                     nodeId
                 ],
-                ...App.defaultData
+                ...dataToReset
             });
         }
         else {
@@ -181,7 +183,7 @@ export default class App extends React.PureComponent {
                     ...selectedNodes.slice(0, i),
                     ...selectedNodes.slice(i + 1)
                 ],
-                ...App.defaultData
+                ...dataToReset
             });
         }
     }
@@ -195,13 +197,13 @@ export default class App extends React.PureComponent {
         if (!selectedObject || selectedObject !== objectId) {
             this.setState({
                 selectedObject: objectId,
-                ...App.defaultData
+                sptData: null
             });
         }
         else {
             this.setState({
                 selectedObject: null,
-                ...App.defaultData
+                sptData: null
             });
         }
     }
@@ -211,20 +213,31 @@ export default class App extends React.PureComponent {
     }
 
     onSelectRandom(count) {
+        const dataToReset = {
+            focused: null,
+            inRadius: null,
+            closest: null,
+            optimal: null,
+            clusters: null,
+            dendrogram: null,
+            nodeColors: null,
+            sptData: null
+        };
         const { nodes } = this.state;
         this.setState({
             selectedNodes: getRandomElements(
                 Object.keys(nodes),
                 count
             ),
-            ...App.defaultData
+            ...dataToReset
         });
     }
 
     onClusterNodes(num, metrics) {
         this.setState({
             clusters: null,
-            dendrogram: null
+            dendrogram: null,
+            nodeColors: null
         });
 
         clusterNodes(this.state.selectedNodes, num, metrics)
@@ -298,18 +311,29 @@ export default class App extends React.PureComponent {
         });
     }
 
-    onFindSPT() {
-        const { objects, selectedObject, selectedNodes } = this.state;
+    onFindSPT(treeType) {
+        const { objects, selectedObject, selectedNodes, clusters } = this.state;
 
         this.setState({
             sptData: null
         });
 
-        findSPT(objects[selectedObject].ref, selectedNodes).then(
-            (data) => this.setState({ sptData: data })
-        );
+        if (treeType === "shortest") {
+            findSPT(objects[selectedObject].ref, selectedNodes)
+                .then(
+                    (data) => this.setState({ sptData: data })
+                );
+        }
+        else {
+            const clustersData = clusters.map(
+                ({ centroid, members }) => ({ centroid, members })
+            );
+            findCBT(objects[selectedObject].ref, clustersData)
+                .then(
+                    (data) => this.setState({ sptData: data })
+                );
+        }
     }
-
 
     onFindOptimal(criterion, metrics) {
         const { selectedNodes } = this.state;
@@ -357,6 +381,7 @@ export default class App extends React.PureComponent {
             // customization
             shouldClusterObjects,
             shouldClusterNodes,
+            showObjects,
             showRoads,
             // map interaction
             selectedObject,
@@ -380,7 +405,7 @@ export default class App extends React.PureComponent {
         ];
 
         const highlightObject = closest && focused && closest[focused];
-        console.log("Updating map");
+        console.log("Updating map", clusters);
         return (
             <div className="App">
                 <Map
@@ -400,7 +425,7 @@ export default class App extends React.PureComponent {
                     {
                         Boolean(nodes) && <>
                             {
-                                openedTab !== "clustering" &&
+                                openedTab !== "clustering" && showObjects &&
                                 <ObjectsLayer
                                     objects={objects}
                                     onObjectSelected={this.onObjectSelected}
@@ -475,6 +500,21 @@ export default class App extends React.PureComponent {
                                     bounds={bounds}
                                 />
                             }
+                            {
+                                clusters &&
+                                <CentroidsLayer
+                                    centroids={
+                                        clusters.map(
+                                            ({ centroid }, i) => ({
+                                                center: nodes[centroid.id],
+                                                style: {
+                                                    color: `rgb(${rainbowGradient(i / clusters.length).join(",")})`
+                                                }
+                                            })
+                                        )
+                                    }
+                                />
+                            }
                         </>
                     }
                 </Map>
@@ -482,41 +522,58 @@ export default class App extends React.PureComponent {
                     <div>
                         <h2>Отображение</h2>
                         <div>
-                            <input
-                                type="checkbox"
-                                id="show-roads"
-                                checked={showRoads}
-                                onChange={
-                                    () => this.setState({
-                                        showRoads: !showRoads
-                                    })
-                                }
-                            />
-                            <label htmlFor="show-roads">Показать дороги</label>
-
-                            <input
-                                type="checkbox"
-                                id="cluster-nodes"
-                                checked={shouldClusterNodes}
-                                onChange={
-                                    () => this.setState({
-                                        shouldClusterNodes: !shouldClusterNodes
-                                    })
-                                }
-                            />
-                            <label htmlFor="cluster-nodes">Кластеризовывать узлы</label>
-
-                            <input
-                                type="checkbox"
-                                id="cluster-objects"
-                                checked={shouldClusterObjects}
-                                onChange={
-                                    () => this.setState({
-                                        shouldClusterObjects: !shouldClusterObjects
-                                    })
-                                }
-                            />
-                            <label htmlFor="cluster-objects">Кластеризовывать объекты</label>
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    id="show-roads"
+                                    checked={showRoads}
+                                    onChange={
+                                        () => this.setState({
+                                            showRoads: !showRoads
+                                        })
+                                    }
+                                />
+                                <label htmlFor="show-roads">Показать дороги (вблизи)</label>
+                            </div>
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    id="cluster-nodes"
+                                    checked={shouldClusterNodes}
+                                    onChange={
+                                        () => this.setState({
+                                            shouldClusterNodes: !shouldClusterNodes
+                                        })
+                                    }
+                                />
+                                <label htmlFor="cluster-nodes">Кластеризовывать узлы</label>
+                            </div>
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    id="cluster-objects"
+                                    checked={shouldClusterObjects}
+                                    onChange={
+                                        () => this.setState({
+                                            shouldClusterObjects: !shouldClusterObjects
+                                        })
+                                    }
+                                />
+                                <label htmlFor="cluster-objects">Кластеризовывать объекты</label>
+                            </div>
+                            <div>
+                                <input
+                                    type="checkbox"
+                                    id="show-objects"
+                                    checked={showObjects}
+                                    onChange={
+                                        () => this.setState({
+                                            showObjects: !showObjects
+                                        })
+                                    }
+                                />
+                                <label htmlFor="show-objects">Отобразить объекты</label>
+                            </div>
                         </div>
                     </div>
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
@@ -568,6 +625,7 @@ export default class App extends React.PureComponent {
                                     onFindShortestPathsTree={this.onFindSPT}
                                     disabled={!selectedObject || selectedNodes.length === 0}
                                     info={sptData}
+                                    clusteringDone={Boolean(clusters)}
                                 />
                             },
                             {
@@ -575,7 +633,7 @@ export default class App extends React.PureComponent {
                                 title: "Кластеризация узлов",
                                 content: <ClusteringMenu
                                     onClusterNodes={this.onClusterNodes}
-                                    disabled={!nodes || selectedNodes.length === 0}
+                                    disabled={selectedNodes.length === 0}
                                     dendrogram={dendrogram}
                                     clusters={clusters}
                                     nodes={selectedNodes}

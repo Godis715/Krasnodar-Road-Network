@@ -14,6 +14,39 @@ const svgSquare = {
     }
 };
 
+class CenteredTree extends React.PureComponent {
+    state = {}
+
+    componentDidMount() {
+        const dimensions = this.treeContainer.getBoundingClientRect();
+        this.setState({
+            translate: {
+                x: dimensions.width / 2,
+                y: dimensions.height / 4
+            }
+        });
+    }
+
+    render() {
+        const { containerProps, treeProps } = this.props;
+        return (
+            <div
+                {...containerProps}
+                ref={
+                    (tc) => {
+                        this.treeContainer = tc;
+                    }
+                }
+            >
+                <Tree
+                    {...treeProps}
+                    translate={this.state.translate}
+                />
+            </div>
+        );
+    }
+}
+
 class ClusteringMenu extends React.PureComponent {
     constructor(props) {
         super(props);
@@ -41,6 +74,9 @@ class ClusteringMenu extends React.PureComponent {
 
     onMouseOver(nodeData) {
         console.log("Selected", nodeData);
+        if (!nodeData.parent) {
+            return;
+        }
         this.props.onSubclusterSelected(nodeData.height, nodeData.nodeId);
     }
     onSubmit() {
@@ -74,6 +110,7 @@ class ClusteringMenu extends React.PureComponent {
 
         return (
             <>
+                <div className="block_margin-b_s">Способ измерения расстояния:</div>
                 <RadioGroup
                     value={metrics}
                     name="metrics"
@@ -84,9 +121,10 @@ class ClusteringMenu extends React.PureComponent {
                     ]}
                     onChange={this.onMetricsChanged}
                 />
-                <div>
+                <div className="block_margin-t_m">
                     <label
                         htmlFor="clusters-n-input"
+                        className="inline_space-end_s"
                     >
                         Количество кластеров
                     </label>
@@ -100,47 +138,51 @@ class ClusteringMenu extends React.PureComponent {
                     />
                 </div>
                 <button
+                    className="block_margin-t_s"
                     onClick={this.onSubmit}
                     disabled={disabled}
                 >
                     Найти
                 </button>
                 {
+                    disabled &&
+                    <div className="block_margin-t_s hint">Выберите узлы.</div>
+                }
+                {
                     clusters &&
-                    <div>
+                    <div className="block_margin-t_s hint hint_type_success">
                         Кластеры были найдены.
                     </div>
                 }
                 {
                     dendrogram &&
-                    <div
-                        style={{ width: "100%", height: "100%", border: "1px solid black" }}
-                    >
-                        <Tree
-                            orientation="vertical"
-                            pathFunc="step"
-                            transitionDuration={0}
-                            scaleExtent={{
+                    <CenteredTree
+                        containerProps={{
+                            className: "block_margin-t_s abc",
+                            style: { width: "100%", height: "25em", border: "1px solid black" },
+                            onScroll: (e) => e.preventDefault()
+                        }}
+                        treeProps={{
+                            orientation: "vertical",
+                            pathFunc: "step",
+                            transitionDuration: 0,
+                            scaleExtent: {
                                 min: 1,
                                 max: 1
-                            }}
-                            depthFactor={50}
-                            translate={{
-                                x: 100,
-                                y: 20
-                            }}
-                            nodeSvgShape={svgSquare}
-                            separation={{
+                            },
+                            depthFactor: 50,
+                            nodeSvgShape: svgSquare,
+                            separation: {
                                 siblings: 0.25,
                                 nonSiblings: 0.25
-                            }}
-                            onMouseOver={this.onMouseOver}
-                            onMouseOut={onSubclusterLeft}
-                            data={[
+                            },
+                            onMouseOver: this.onMouseOver,
+                            onMouseOut: onSubclusterLeft,
+                            data: [
                                 treeData
-                            ]}
-                        />
-                    </div>
+                            ]
+                        }}
+                    />
                 }
             </>
         );

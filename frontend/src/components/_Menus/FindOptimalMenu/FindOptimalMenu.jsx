@@ -33,6 +33,7 @@ class FindOptimalMenu extends React.PureComponent {
         const { disabled, alreadyFound, onNavigate } = this.props;
         return (
             <div>
+                <div className="block_margin-b_s">Способ измерения расстояния:</div>
                 <RadioGroup
                     value={metrics}
                     name="metrics"
@@ -43,32 +44,38 @@ class FindOptimalMenu extends React.PureComponent {
                     ]}
                     onChange={this.onMetricsChanged}
                 />
-                <h3>Критерий</h3>
+                <div className="block_margin-t_m block_margin-b_s">Критерий:</div>
                 <RadioGroup
                     value={criterion}
                     name="criterion"
                     items={[
                         ["closest-furthest", "Расстояние до дальнего узла"],
                         ["min-dist-sum", "Сумма расстояния до узлов"],
-                        ["min-tree-weight", "Вес дерева путей (кратчайшее дерево или д. кратчайших путей?)"]
+                        ["min-tree-weight", "Вес дерева путей"]
                     ]}
                     onChange={this.onCriterionChanged}
                 />
-                {
-                    disabled &&
-                    <div>Выберите узлы.</div>
-                }
                 <button
+                    className="block_margin-t_m"
                     onClick={this.onSubmit}
                     disabled={disabled}
                 >
                     Найти
                 </button>
                 {
+                    disabled &&
+                    <div className="block_margin-t_s hint">Выберите узлы.</div>
+                }
+                {
                     alreadyFound &&
                     <div>
-                        <span>Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.</span>
-                        <button onClick={onNavigate}>
+                        <span className="block_margin-t_s hint hint_type_success">
+                            Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.
+                        </span>
+                        <button
+                            onClick={onNavigate}
+                            className="block_margin-t_s"
+                        >
                             Показать
                         </button>
                     </div>

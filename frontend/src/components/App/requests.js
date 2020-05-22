@@ -116,6 +116,7 @@ export function findOptimal(nodes, criterion, metrics) {
         );
 }
 
+// SPT = shortest paths tree
 export function findSPT(objectNodeRef, nodes) {
     return axiosInstance
         .post(
@@ -123,6 +124,21 @@ export function findSPT(objectNodeRef, nodes) {
             {
                 nodes,
                 object: objectNodeRef
+            }
+        )
+        .then(
+            ({ data }) => data
+        );
+}
+
+// CBT - cluster-based tree
+export function findCBT(objectNodeRef, clusters) {
+    return axiosInstance
+        .post(
+            "/clustering/shortest_paths_tree",
+            {
+                object: objectNodeRef,
+                clusters
             }
         )
         .then(
