@@ -369,8 +369,6 @@ def clustering():
                 Ids nodes
             :param clusters_n: int
                 Number of clusters
-            :param metrics: str
-                Type direction: 'to', 'from', 'to-from'
 
     > Response:
         (Success)
@@ -410,8 +408,7 @@ def clustering():
     # Validation of body request
     validator = trafaret.Dict({
         trafaret.Key('nodes'): trafaret.List(trafaret.String),
-        trafaret.Key('clusters_n'): trafaret.Int,
-        trafaret.Key('metrics'): trafaret.Enum("to", "from", "to-from")
+        trafaret.Key('clusters_n'): trafaret.Int
     })
     try:
         validated_data = validator.check(request.json)
