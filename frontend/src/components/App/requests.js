@@ -16,7 +16,6 @@ export function clusterNodes(nodes, clustersNumber) {
             "/clustering",
             {
                 nodes,
-                metrics: "to", // will be removed from api soon 
                 clusters_n: clustersNumber
             }
         )
