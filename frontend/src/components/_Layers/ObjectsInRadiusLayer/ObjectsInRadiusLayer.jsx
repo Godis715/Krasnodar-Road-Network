@@ -7,7 +7,6 @@ import "./objectsInRadiusLayer.css";
 class ObjectsInRadiusLayer extends React.PureComponent {
     render() {
         const { nodePosition, objectPositions } = this.props;
-        console.log(nodePosition, objectPositions);
         return (
             <LayerGroup>
                 {

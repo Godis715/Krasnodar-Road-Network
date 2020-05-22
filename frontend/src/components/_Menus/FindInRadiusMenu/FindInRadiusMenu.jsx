@@ -39,6 +39,7 @@ class FindInRadiusMenu extends React.PureComponent {
         const { disabled, alreadyFound } = this.props;
         return (
             <div>
+                <div className="block_margin-b_s">Способ измерения расстояния:</div>
                 <RadioGroup
                     value={metrics}
                     name="metrics"
@@ -49,8 +50,13 @@ class FindInRadiusMenu extends React.PureComponent {
                     ]}
                     onChange={this.onMetricsChanged}
                 />
-                <div>
-                    <label htmlFor="radius-input">В радиусе</label>
+                <div className="block_margin-t_m">
+                    <label
+                        htmlFor="radius-input"
+                        className="inline_space-end_s"
+                    >
+                        В радиусе
+                    </label>
                     <input
                         id="radius-input"
                         type="number"
@@ -60,19 +66,20 @@ class FindInRadiusMenu extends React.PureComponent {
                     />
                     <span>м</span>
                 </div>
-                {
-                    disabled &&
-                    <div>Выберите узлы и укажите радиус поиска.</div>
-                }
                 <button
+                    className="block_margin-t_s"
                     onClick={this.onSubmit}
                     disabled={disabled}
                 >
                     Найти
                 </button>
                 {
+                    disabled &&
+                    <div className="block_margin-t_s hint">Выберите узлы и укажите радиус поиска.</div>
+                }
+                {
                     alreadyFound &&
-                    <div>
+                    <div className="block_margin-t_s hint hint_type_success">
                         Объекты найдены. Наведите на значок здания, чтобы посмотреть результат.
                     </div>
                 }

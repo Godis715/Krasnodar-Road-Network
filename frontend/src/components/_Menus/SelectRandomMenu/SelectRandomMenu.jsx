@@ -1,4 +1,5 @@
 import React from "react";
+import "./selectRandomMenu.css";
 
 class SelectRandomMenu extends React.PureComponent {
     constructor(props) {
@@ -25,18 +26,25 @@ class SelectRandomMenu extends React.PureComponent {
 
     render() {
         const { randomCount } = this.state;
-        const { max } = this.props;
+        const { max, disabled } = this.props;
         return (
-            <div>
-                <button onClick={this.onSubmit}>Выбрать</button>
+            <div className="select-random-menu-cont">
+                <button
+                    onClick={this.onSubmit}
+                    className="inline_space-end_s"
+                    disabled={disabled}
+                >
+                    Выбрать
+                </button>
                 <input
+                    className="inline_space-end_s"
                     type="number"
                     value={randomCount}
                     min={0}
                     max={max}
                     onChange={this.onCountChanged}
                 />
-                <span>случайных узлов (всего {max || "-"})</span>
+                <span className="block_margin-t_s">случайных узлов (всего {max || "-"})</span>
             </div>
         );
     }

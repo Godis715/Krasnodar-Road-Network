@@ -1,0 +1,36 @@
+.centroid-icon > div {
+	--size: 40px;
+	--inner-size: 12px;
+	--border-size: 5px;
+	width: var(--size);
+	height: var(--size);
+	content: "";
+	border: var(--border-size) solid var(--color);
+	border-radius: 50%;
+	position: relative;
+	filter: drop-shadow(
+		3px 3px 3px black
+	);
+	box-sizing: border-box;
+
+	transform: translate(
+		calc(-1 * var(--size) / 2 + 12px / 2),
+		calc(-1 * var(--size) / 2 + 12px / 2)
+	);
+}
+
+.centroid-icon > div::after {
+	position: absolute;
+	width: var(--inner-size);
+	height: var(--inner-size);
+	content: "";
+	background-color: var(--color);
+	border-radius: 50%;
+
+	--indent: calc(
+		(var(--size) - var(--inner-size)) / 2 - var(--border-size)
+	);
+
+	top: var(--indent);
+	left: var(--indent);
+}

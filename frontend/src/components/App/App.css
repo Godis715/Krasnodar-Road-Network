@@ -6,7 +6,7 @@
     position: relative;
 
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 2fr minmax(25em, 1fr);
     column-gap: var(--indent);
 }
 
@@ -16,40 +16,50 @@
 }
 
 .toolbar-container {
-
+    overflow-y: auto;
 }
 
-.node-list {
-    width: fit-content;
+.block_margin-v_m {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
-.node-list__item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5em;
+.block_margin-t_m {
+    margin-top: 1rem;
 }
 
-.remove-node {
-    width: 1.2em;
-    height: 1.2em;
-    background-color: lightgray;
-    margin-left: 0.5em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 20%;
-    cursor: pointer;
+.block_margin-t_s {
+    margin-top: 0.5rem;
 }
 
-.remove-node:hover {
-    background-color: gray;
+.block_margin-b_m {
+    margin-bottom: 1rem;
 }
 
-.remove-node::after {
-    content: "x";
-    font-size: 0.8em;
+.block_margin-b_s {
+    margin-bottom: 0.5rem;
 }
 
-.remove-node:hover::after {
-    color: white;
+.inline_space-end_s {
+    margin-inline-end: 0.5rem;
+}
+
+span, button {
+    display: inline-block;
+}
+
+input[type="number"] {
+    padding-left: 0.2rem;
+    width: 6em;
+}
+
+.hint {
+    color: gray;
+    background-color: whitesmoke;
+    padding: 0.3em 0.5em;
+}
+
+.hint_type_success {
+    color: green;
+    background-color: #e7fde7;
 }

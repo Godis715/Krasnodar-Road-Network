@@ -6,7 +6,6 @@ import "./closestObjectLayer.css";
 class ClosestObjectLayer extends React.PureComponent {
     render() {
         const { nodePosition, objectPosition } = this.props;
-        console.log(nodePosition, objectPosition);
         return (
             <LayerGroup>
                 {

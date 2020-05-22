@@ -19,7 +19,6 @@ class SelectedNodesLayer extends React.PureComponent {
 
         const nodesClusters = {};
         if (clusters) {
-            console.log(clusters);
             clusters.forEach(
                 ({ members }, ci) => members.forEach(
                     (nodeId) => {
@@ -41,7 +40,7 @@ class SelectedNodesLayer extends React.PureComponent {
                                         nodeColors
                                             ? nodeColors[nodeId]
                                             : {
-                                                color: "black",
+                                                color: "rgb(180, 255, 50)",
                                                 opacity: 1
                                             }
                                     )

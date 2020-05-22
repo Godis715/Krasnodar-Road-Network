@@ -12,7 +12,6 @@ class SelectedObjectLayer extends React.PureComponent {
         const { selectedObject, objects, onObjectSelected } = this.props;
         const loc = selectedObject &&
             objects[selectedObject].location;
-        console.log("Render selected object layer");
         return (
             <LayerGroup>{
                 selectedObject &&
