@@ -10,15 +10,16 @@ const axiosInstance = axios.create({
     baseURL: `${apiUrl}/api`
 });
 
-export function clusterNodes(nodes, clustersNumber, metrics) {
+export function clusterNodes(nodes, clustersNumber) {
     return axiosInstance
         .post(
             "/clustering",
             {
                 nodes,
-                metrics,
+                metrics: "to", // will be removed from api soon 
                 clusters_n: clustersNumber
-            })
+            }
+        )
         .then(
             ({ data }) => data
         );
@@ -142,6 +143,23 @@ export function findCBT(objectNodeRef, clusters) {
             }
         )
         .then(
-            ({ data }) => data
+            ({ data }) => {
+                const visited = new Set();
+                return {
+                    ...data,
+                    shortest_paths_tree: data.shortest_paths_tree.filter(
+                        ([id1, id2]) => {
+                            const hash = id1 < id2
+                                ? `${id1}-${id2}`
+                                : `${id2}-${id1}`;
+                            if (!visited.has(hash)) {
+                                visited.add(hash);
+                                return true;
+                            }
+                            return false;
+                        }
+                    )
+                };
+            }
         );
 }

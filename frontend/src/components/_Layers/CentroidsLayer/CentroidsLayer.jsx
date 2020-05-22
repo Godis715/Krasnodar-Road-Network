@@ -11,7 +11,6 @@ const CentroidIcon = (style) => L.divIcon({
 class CentroidsLayer extends React.PureComponent {
     render() {
         const { centroids } = this.props;
-        console.log(centroids);
 
         return <LayerGroup>{
             centroids.map(

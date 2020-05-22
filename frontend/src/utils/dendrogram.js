@@ -34,7 +34,6 @@ export function dendrogramToTreeData(dendrogram, nodes) {
 
 export function getSubclusters(dendrogram, nodes, h) {
     const treeData = dendrogramToTreeData(dendrogram, nodes);
-    console.log(treeData);
     const queue = [...treeData.children];
     let subtree;
     while(queue.length > 0) {

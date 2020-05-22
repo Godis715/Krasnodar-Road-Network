@@ -25,7 +25,6 @@ class ShortestPathsTreeMenu extends React.PureComponent {
     render() {
         const { treeType } = this.state;
         const { disabled, info, clusteringDone } = this.props;
-        console.log(clusteringDone);
         return (
             <div>
                 <div className="block_margin-b_s">Тип:</div>

@@ -1,6 +1,7 @@
 import React from "react";
-import { Map, TileLayer } from "react-leaflet";
+import { Map, TileLayer, Pane } from "react-leaflet";
 import CollapsableList from "../CollapsableList/CollapsableList";
+import CheckboxGroup from "../CheckboxGroup/CheckboxGroup";
 
 // Requests
 import {
@@ -79,21 +80,36 @@ export default class App extends React.PureComponent {
 
         this.map = React.createRef();
 
-        this.onFindSPT = this.onFindSPT.bind(this);
-        this.onFindClosest = this.onFindClosest.bind(this);
-        this.onFindOptimal = this.onFindOptimal.bind(this);
-        this.onZoomChanged = this.onZoomChanged.bind(this);
-        this.onMoveChanged = this.onMoveChanged.bind(this);
-        this.onNodeSelected = this.onNodeSelected.bind(this);
-        this.onFindInRadius = this.onFindInRadius.bind(this);
-        this.onObjectSelected = this.onObjectSelected.bind(this);
-        this.onSubclusterSelected = this.onSubclusterSelected.bind(this);
-        this.onSubclusterLeft = this.onSubclusterLeft.bind(this);
-        this.onSelectRandom = this.onSelectRandom.bind(this);
-        this.onClusterNodes = this.onClusterNodes.bind(this);
-        this.onTabChanged = this.onTabChanged.bind(this);
-        this.onNodeFocus = this.onNodeFocus.bind(this);
-        this.onNodeLeave = this.onNodeLeave.bind(this);
+        const methodsToBind = [
+            "onFindSPT",
+            "onFindClosest",
+            "onFindOptimal",
+            "onZoomChanged",
+            "onMoveChanged",
+            "onNodeSelected",
+            "onFindInRadius",
+            "onObjectSelected",
+            "onSubclusterSelected",
+            "onSubclusterLeft",
+            "onSelectRandom",
+            "onClusterNodes",
+            "onTabChanged",
+            "onNodeFocus",
+            "onNodeLeave",
+            "onToggleShowRoads",
+            "onToggleShouldClusterNodes",
+            "onToggleShouldClusterObjects",
+            "onToggleShowObjects"
+        ];
+
+        methodsToBind.forEach(
+            (methodName) => {
+                if (!this[methodName]) {
+                    throw new Error(`Method ${methodName} doesn't exit in App component`);
+                }
+                this[methodName] = this[methodName].bind(this);
+            }
+        );
     }
 
     static defaultProps = {
@@ -233,14 +249,14 @@ export default class App extends React.PureComponent {
         });
     }
 
-    onClusterNodes(num, metrics) {
+    onClusterNodes(num) {
         this.setState({
             clusters: null,
             dendrogram: null,
             nodeColors: null
         });
 
-        clusterNodes(this.state.selectedNodes, num, metrics)
+        clusterNodes(this.state.selectedNodes, num)
             .then(
                 (data) => this.setState({
                     ...data,
@@ -256,7 +272,6 @@ export default class App extends React.PureComponent {
             ? getSubclusters(dendrogram, selectedNodes, height)
             : [[id]];
 
-        console.log(subclusters);
         const nodeColors = {};
 
         selectedNodes.forEach(
@@ -365,6 +380,30 @@ export default class App extends React.PureComponent {
         );
     }
 
+    onToggleShowRoads() {
+        this.setState({
+            showRoads: !this.state.showRoads
+        });
+    }
+
+    onToggleShouldClusterNodes() {
+        this.setState({
+            shouldClusterNodes: !this.state.shouldClusterNodes
+        });
+    }
+
+    onToggleShouldClusterObjects() {
+        this.setState({
+            shouldClusterObjects: !this.state.shouldClusterObjects
+        });
+    }
+
+    onToggleShowObjects() {
+        this.setState({
+            showObjects: !this.state.showObjects
+        });
+    }
+
     render() {
         const { latDelta, lngDelta, minZoom } = this.props;
         const {
@@ -405,7 +444,7 @@ export default class App extends React.PureComponent {
         ];
 
         const highlightObject = closest && focused && closest[focused];
-        console.log("Updating map", clusters);
+        console.log("Updating map");
         return (
             <div className="App">
                 <Map
@@ -422,6 +461,7 @@ export default class App extends React.PureComponent {
                         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
+                    <Pane name="selectedNodesPane" style={{ zIndex: 500 }} />
                     {
                         Boolean(nodes) && <>
                             {
@@ -521,63 +561,38 @@ export default class App extends React.PureComponent {
                 <div className="toolbar-container">
                     <div>
                         <h2>Отображение</h2>
-                        <div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    id="show-roads"
-                                    checked={showRoads}
-                                    onChange={
-                                        () => this.setState({
-                                            showRoads: !showRoads
-                                        })
-                                    }
-                                />
-                                <label htmlFor="show-roads">Показать дороги (вблизи)</label>
-                            </div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    id="cluster-nodes"
-                                    checked={shouldClusterNodes}
-                                    onChange={
-                                        () => this.setState({
-                                            shouldClusterNodes: !shouldClusterNodes
-                                        })
-                                    }
-                                />
-                                <label htmlFor="cluster-nodes">Кластеризовывать узлы</label>
-                            </div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    id="cluster-objects"
-                                    checked={shouldClusterObjects}
-                                    onChange={
-                                        () => this.setState({
-                                            shouldClusterObjects: !shouldClusterObjects
-                                        })
-                                    }
-                                />
-                                <label htmlFor="cluster-objects">Кластеризовывать объекты</label>
-                            </div>
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    id="show-objects"
-                                    checked={showObjects}
-                                    onChange={
-                                        () => this.setState({
-                                            showObjects: !showObjects
-                                        })
-                                    }
-                                />
-                                <label htmlFor="show-objects">Отобразить объекты</label>
-                            </div>
-                        </div>
+                        <CheckboxGroup
+                            items={[
+                                {
+                                    type: "show-roads",
+                                    checked: showRoads,
+                                    label: "Показать дороги (вблизи)",
+                                    onChange: this.onToggleShowRoads
+                                },
+                                {
+                                    type: "cluster-nodes",
+                                    checked: shouldClusterNodes,
+                                    label: "Кластеризовывать узлы",
+                                    onChange: this.onToggleShouldClusterNodes
+                                },
+                                {
+                                    type: "cluster-objects",
+                                    checked: shouldClusterObjects,
+                                    label: "Кластеризовывать объекты",
+                                    onChange: this.onToggleShouldClusterObjects
+                                },
+                                {
+                                    type: "show-objects",
+                                    checked: showObjects,
+                                    label: "Отобразить объекты",
+                                    onChange: this.onToggleShowObjects
+                                }
+                            ]}
+                        />
                     </div>
                     <h2>Выбранно узлов: {selectedNodes.length}</h2>
                     <SelectRandomMenu
+                        disabled={!nodes}
                         onChange={this.onSelectRandom}
                         max={nodes && Object.keys(nodes).length}
                     />

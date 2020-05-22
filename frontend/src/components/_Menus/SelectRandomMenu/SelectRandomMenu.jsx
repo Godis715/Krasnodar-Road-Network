@@ -26,12 +26,13 @@ class SelectRandomMenu extends React.PureComponent {
 
     render() {
         const { randomCount } = this.state;
-        const { max } = this.props;
+        const { max, disabled } = this.props;
         return (
             <div className="select-random-menu-cont">
                 <button
                     onClick={this.onSubmit}
                     className="inline_space-end_s"
+                    disabled={disabled}
                 >
                     Выбрать
                 </button>
