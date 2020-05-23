@@ -110,7 +110,7 @@ def create_links_and_roads(osm_root, nodes, matching_to_graph):
     for road_osm in roads_osm:
         tag_oneway = road_osm.find("tag[@k='oneway']")
         is_road_oneway = tag_oneway is not None and tag_oneway.get('v') == 'yes'
-        road_nodes_osm = road_osm.findall('nd')
+        road_nodes_osm = road_osm.findall('nd')[::-1]
 
         # links
         for i in range(1, len(road_nodes_osm)):
@@ -339,7 +339,7 @@ if __name__ == "__main__":
     matching_from_graph = dict({i: node_id for i, node_id in enumerate(base_nodes)})
     links, roads = create_links_and_roads(osm_root, base_nodes, matching_to_graph)
 
-    data_objects = create_objects(osm_root, base_nodes, all_nodes)
+    # data_objects = create_objects(osm_root, base_nodes, all_nodes)
 
     print('Saving...')
     # Graph (nodes and links)
@@ -349,28 +349,29 @@ if __name__ == "__main__":
             file.write(f"{link[0]} {link[1]} {link[2]}\n")
         for node_id, _ in sorted(matching_to_graph.items(), key=lambda x: x[1]):
             file.write(f"{base_nodes[node_id][0]} {base_nodes[node_id][1]}\n")
-    # Graph objects
-    with open(f'{PATH_DATA}/graph_objects.txt', 'w') as file:
-        for _, object_info in data_objects.items():
-            if object_info['type'] == 'infrastructure':
-                object_match_id = matching_to_graph[object_info['ref']]
-                file.write(f"{object_match_id}\n")
+    
+    # # Graph objects
+    # with open(f'{PATH_DATA}/graph_objects.txt', 'w') as file:
+    #     for _, object_info in data_objects.items():
+    #         if object_info['type'] == 'infrastructure':
+    #             object_match_id = matching_to_graph[object_info['ref']]
+    #             file.write(f"{object_match_id}\n")
 
     # Real links (roads)
     with open(f'{PATH_DATA}/data_roads.json', 'w') as file:
         file.write(str(roads).replace("'", '"'))
 
-    # Real nodes
-    with open(f'{PATH_DATA}/data_nodes.json', 'w') as file:
-        file.write(str(base_nodes).replace("'", '"'))
+    # # Real nodes
+    # with open(f'{PATH_DATA}/data_nodes.json', 'w') as file:
+    #     file.write(str(base_nodes).replace("'", '"'))
 
-    # Real objects
-    with open(f'{PATH_DATA}/data_objects.json', 'w') as file:
-        file.write(str(data_objects).replace("'", '"'))
+    # # Real objects
+    # with open(f'{PATH_DATA}/data_objects.json', 'w') as file:
+    #     file.write(str(data_objects).replace("'", '"'))
 
-    # Matching: real and graph
-    with open(f'{PATH_DATA}/matching_to_graph.json', 'w') as file:
-        file.write(str(matching_to_graph).replace("'", '"'))
+    # # Matching: real and graph
+    # with open(f'{PATH_DATA}/matching_to_graph.json', 'w') as file:
+    #     file.write(str(matching_to_graph).replace("'", '"'))
 
-    with open(f'{PATH_DATA}/matching_from_graph.json', 'w') as file:
-        file.write(str(matching_from_graph).replace("'", '"'))
+    # with open(f'{PATH_DATA}/matching_from_graph.json', 'w') as file:
+    #     file.write(str(matching_from_graph).replace("'", '"'))
