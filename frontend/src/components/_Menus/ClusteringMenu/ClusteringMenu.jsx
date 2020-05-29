@@ -132,7 +132,7 @@ class ClusteringMenu extends React.PureComponent {
                 {
                     clusters &&
                     <div className="block_margin-t_s hint hint_type_success">
-                        Кластеры были найдены.
+                        Кластеры были найдены. Нажмите на узел дендрограммы, чтобы раскрыть поддерево узла.
                     </div>
                 }
                 {

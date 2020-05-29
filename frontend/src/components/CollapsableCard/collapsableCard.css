@@ -1,3 +1,11 @@
+.collapsable-card:not(.collapsable-card__collapsed) > .collapsable-card_status_loading {
+	--gradient-size: 100px;
+	background: rgb(183, 217, 255) linear-gradient(90deg, rgba(255, 255, 255, 0) 0px, rgba(255, 255, 255, 0.8) 50px, rgba(255, 255, 255, 0) 100px);
+	animation: loading 1s infinite linear;
+	background-size: var(--gradient-size) 100%;
+	background-repeat: no-repeat;
+}
+
 .collapsable-card__title {
 	cursor: pointer;
 	background-color: rgb(183, 217, 255);
@@ -7,6 +15,16 @@
 	height: 2em;
 	user-select: none;
 	transition-duration: 300ms;
+}
+
+@keyframes loading {
+	from {
+		background-position: calc(-1 * var(--gradient-size));
+	}
+
+	to {
+		background-position: calc(100% + var(--gradient-size));
+	}
 }
 
 .collapsable-card__collapsed > .collapsable-card__title {

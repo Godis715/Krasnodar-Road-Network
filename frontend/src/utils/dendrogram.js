@@ -18,7 +18,8 @@ export function dendrogramToTreeData(dendrogram, nodes) {
                 children: [
                     subtrees[c1],
                     subtrees[c2]
-                ]
+                ],
+                _collapsed: true
             };
             delete subtrees[c2];
         }

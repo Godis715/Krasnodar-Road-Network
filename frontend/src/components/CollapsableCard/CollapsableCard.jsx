@@ -13,10 +13,10 @@ class CollapsableCard extends React.Component {
     }
 
     render() {
-        const { title, content, isOpen } = this.props;
+        const { title, content, isOpen, loading } = this.props;
         return (
             <div className={`collapsable-card ${isOpen ? "" : "collapsable-card__collapsed"}`}>
-                <div className="collapsable-card__title" onClick={this.onClick}>
+                <div className={`collapsable-card__title  ${loading ? "collapsable-card_status_loading" : "" }`} onClick={this.onClick}>
                     {title}
                 </div>
                 <div className="collapsable-card__content">
