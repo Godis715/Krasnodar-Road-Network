@@ -10,6 +10,7 @@ class SelectRandomMenu extends React.PureComponent {
 
         this.onCountChanged = this.onCountChanged.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.onErase = this.onErase.bind(this);
     }
 
     onCountChanged(ev) {
@@ -22,6 +23,10 @@ class SelectRandomMenu extends React.PureComponent {
         this.props.onChange(
             this.state.randomCount
         );
+    }
+
+    onErase() {
+        this.props.onChange(0);
     }
 
     render() {
@@ -44,7 +49,8 @@ class SelectRandomMenu extends React.PureComponent {
                     max={max}
                     onChange={this.onCountChanged}
                 />
-                <span className="block_margin-t_s">случайных узлов (всего {max || "-"})</span>
+                <span className="block_margin-t_s inline_space-end_s">случайных узлов (всего {max || "-"})</span>
+                <button onClick={this.onErase}>Сбросить</button>
             </div>
         );
     }

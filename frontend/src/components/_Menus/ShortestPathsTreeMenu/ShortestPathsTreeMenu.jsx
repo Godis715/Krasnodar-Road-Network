@@ -1,5 +1,6 @@
 import React from "react";
 import RadioGroup from "../../RadioGroup/RadioGroup";
+import formatDistance from "./formatDistance";
 
 class ShortestPathsTreeMenu extends React.PureComponent {
 
@@ -59,10 +60,10 @@ class ShortestPathsTreeMenu extends React.PureComponent {
                             Дерево кратчайших путей было найдено.
                         </div>
                         <div className="block_margin-t_s">
-                            Суммарная длина всех путей {info.paths_weight}м
+                            Суммарная длина всех путей {formatDistance(info.paths_weight)}
                         </div>
                         <div className="block_margin-t_s">
-                            Вес дерева (длина всех дорог) {info.tree_weight}м
+                            Вес дерева (длина всех дорог) {formatDistance(info.tree_weight)}
                         </div>
                     </div>
                 }

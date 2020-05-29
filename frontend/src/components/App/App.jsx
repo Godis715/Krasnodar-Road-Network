@@ -1,5 +1,5 @@
 import React from "react";
-import { Map, TileLayer, Pane } from "react-leaflet";
+import { Map, TileLayer } from "react-leaflet";
 import CollapsableList from "../CollapsableList/CollapsableList";
 import CheckboxGroup from "../CheckboxGroup/CheckboxGroup";
 
@@ -253,14 +253,16 @@ export default class App extends React.PureComponent {
         this.setState({
             clusters: null,
             dendrogram: null,
-            nodeColors: null
+            nodeColors: null,
+            loading: true
         });
 
         clusterNodes(this.state.selectedNodes, num)
             .then(
                 (data) => this.setState({
                     ...data,
-                    nodeColors: getNodeColors(data.clusters)
+                    nodeColors: getNodeColors(data.clusters),
+                    loading: false
                 })
             );
     }
@@ -330,13 +332,17 @@ export default class App extends React.PureComponent {
         const { objects, selectedObject, selectedNodes, clusters } = this.state;
 
         this.setState({
-            sptData: null
+            sptData: null,
+            loading: true
         });
 
         if (treeType === "shortest") {
             findSPT(objects[selectedObject].ref, selectedNodes)
                 .then(
-                    (data) => this.setState({ sptData: data })
+                    (data) => this.setState({
+                        sptData: data,
+                        loading: false
+                    })
                 );
         }
         else {
@@ -345,7 +351,10 @@ export default class App extends React.PureComponent {
             );
             findCBT(objects[selectedObject].ref, clustersData)
                 .then(
-                    (data) => this.setState({ sptData: data })
+                    (data) => this.setState({
+                        sptData: data,
+                        loading: false
+                    })
                 );
         }
     }
@@ -353,30 +362,42 @@ export default class App extends React.PureComponent {
     onFindOptimal(criterion, metrics) {
         const { selectedNodes } = this.state;
         this.setState({
-            optimal: null
+            optimal: null,
+            loading: true
         });
         findOptimal(selectedNodes, criterion, metrics).then(
-            (data) => this.setState({ optimal: data })
+            (data) => this.setState({
+                optimal: data,
+                loading: false
+            })
         );
     }
 
     onFindInRadius(radius, metrics) {
         const { selectedNodes } = this.state;
         this.setState({
-            inRadius: null
+            inRadius: null,
+            loading: true
         });
         findInRadius(selectedNodes, radius, metrics).then(
-            (data) => this.setState({ inRadius: data })
+            (data) => this.setState({
+                inRadius: data,
+                loading: false
+            })
         );
     }
 
     onFindClosest(metrics) {
         const { selectedNodes } = this.state;
         this.setState({
-            closest: null
+            closest: null,
+            loading: true
         });
         findClosest(selectedNodes, metrics).then(
-            (data) => this.setState({ closest: data })
+            (data) => this.setState({
+                closest: data,
+                loading: false
+            })
         );
     }
 
@@ -417,6 +438,7 @@ export default class App extends React.PureComponent {
             objects,
             // interface general
             openedTab,
+            loading,
             // customization
             shouldClusterObjects,
             shouldClusterNodes,
@@ -461,7 +483,6 @@ export default class App extends React.PureComponent {
                         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    <Pane name="selectedNodesPane" style={{ zIndex: 500 }} />
                     {
                         Boolean(nodes) && <>
                             {
@@ -482,11 +503,12 @@ export default class App extends React.PureComponent {
                                 />
                             }
                             {
-                                showRoads && zoom > 15 &&
+                                showRoads && roads && zoom > 15 &&
                                 <RoadsLayer
                                     nodes={nodes}
                                     adjList={roads}
                                     bounds={bounds}
+                                    color="#5af"
                                 />
                             }
 
@@ -544,14 +566,18 @@ export default class App extends React.PureComponent {
                                 clusters &&
                                 <CentroidsLayer
                                     centroids={
-                                        clusters.map(
-                                            ({ centroid }, i) => ({
-                                                center: nodes[centroid.id],
-                                                style: {
-                                                    color: `rgb(${rainbowGradient(i / clusters.length).join(",")})`
+                                        clusters
+                                            .map(
+                                                ({ centroid, members }, i) => members.length > 1 && {
+                                                    center: nodes[centroid.id],
+                                                    style: {
+                                                        color: `rgb(${rainbowGradient(i / clusters.length).join(",")})`
+                                                    }
                                                 }
-                                            })
-                                        )
+                                            )
+                                            .filter(
+                                                (c) => Boolean(c)
+                                            )
                                     }
                                 />
                             }
@@ -607,7 +633,8 @@ export default class App extends React.PureComponent {
                                     onFindClosest={this.onFindClosest}
                                     disabled={selectedNodes.length === 0}
                                     alreadyFound={Boolean(closest)}
-                                />
+                                />,
+                                loading
                             },
                             {
                                 id: "find-in-radius",
@@ -616,7 +643,8 @@ export default class App extends React.PureComponent {
                                     onFindInRadius={this.onFindInRadius}
                                     disabled={selectedNodes.length === 0}
                                     alreadyFound={Boolean(inRadius)}
-                                />
+                                />,
+                                loading
                             },
                             {
                                 id: "find-optimal",
@@ -631,7 +659,8 @@ export default class App extends React.PureComponent {
                                     }
                                     disabled={selectedNodes.length === 0}
                                     alreadyFound={Boolean(optimal)}
-                                />
+                                />,
+                                loading
                             },
                             {
                                 id: "shortest-paths-tree",
@@ -641,7 +670,8 @@ export default class App extends React.PureComponent {
                                     disabled={!selectedObject || selectedNodes.length === 0}
                                     info={sptData}
                                     clusteringDone={Boolean(clusters)}
-                                />
+                                />,
+                                loading
                             },
                             {
                                 id: "clustering",
@@ -655,7 +685,8 @@ export default class App extends React.PureComponent {
                                     onSubclusterSelected={this.onSubclusterSelected}
                                     onSubclusterLeft={this.onSubclusterLeft}
                                     maxNodes={nodes ? Object.keys(nodes).length : 0}
-                                />
+                                />,
+                                loading
                             }
                         ]}
                     />

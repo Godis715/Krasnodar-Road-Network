@@ -30,6 +30,7 @@ class CollapsableList extends React.Component {
                                 isOpen={opened === item.id}
                                 value={item.id}
                                 onToggled={this.onToggled}
+                                loading={item.loading}
                             />
                         )
                     )
