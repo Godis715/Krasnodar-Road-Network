@@ -6,7 +6,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 FILENAME_GRAPH = os.path.join(BASE_DIR, '../data/graph.txt')
-
 FILENAME_OUT = os.path.join(BASE_DIR, 'out.txt')
 
 # loading lib
@@ -19,7 +18,7 @@ libalgorithms.free_memory.argtypes = [
 libalgorithms.free_memory.restype = None
 
 
-def task_1_1_a(id_objects, id_nodes, type_dir):
+def task_1_1_a(id_objects, id_nodes, type_dir, filename_graph=FILENAME_GRAPH):
     """ Searching nearest object of infrastructure for selected nodes
 
         Arguments
@@ -32,6 +31,8 @@ def task_1_1_a(id_objects, id_nodes, type_dir):
                     > 1 - TO  objects from nodes
                     > 2 - FROM objects to nodes
                     > 3 - 1 and 2
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: list<(int, int)>
             * Id objeсt for each ids nodes
@@ -53,13 +54,13 @@ def task_1_1_a(id_objects, id_nodes, type_dir):
             len(id_objects),
             id_node,
             type_dir,
-            FILENAME_GRAPH.encode('utf-8')
+            filename_graph.encode('utf-8')
         )
         result.append((id_node, id_object))
     return result
 
 
-def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
+def task_1_1_b(id_objects, id_nodes, type_dir, max_dist, filename_graph=FILENAME_GRAPH):
     """ Searching objects of infrastructure for selected nodes
         at a fixed distance
 
@@ -75,6 +76,8 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
                     > 3 - 1 and 2
             :param max_dist: double
                 * Param for searching
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: list<(int, list<int>)>
             * Ids objects for each ids nodes
@@ -100,7 +103,7 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
             id_node,
             max_dist,
             type_dir,
-            FILENAME_GRAPH.encode('utf-8'),
+            filename_graph.encode('utf-8'),
             ctypes.byref(size_res)
         )
         result.append(
@@ -110,7 +113,7 @@ def task_1_1_b(id_objects, id_nodes, type_dir, max_dist):
     return result
 
 
-def task_1_2(id_objects, id_nodes, type_dir):
+def task_1_2(id_objects, id_nodes, type_dir, filename_graph=FILENAME_GRAPH):
     """ Searching one object of infrastructure
         which have minimal distance to farthest nodes among selected nodes
 
@@ -124,6 +127,8 @@ def task_1_2(id_objects, id_nodes, type_dir):
                     > 1 - TO  objects from nodes
                     > 2 - FROM objects to nodes
                     > 3 - 1 and 2
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: int
             * Id object
@@ -145,12 +150,12 @@ def task_1_2(id_objects, id_nodes, type_dir):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         type_dir,
-        FILENAME_GRAPH.encode('utf-8')
+        filename_graph.encode('utf-8')
     )
     return id_object
 
 
-def task_1_3(id_objects, id_nodes, type_dir):
+def task_1_3(id_objects, id_nodes, type_dir, filename_graph=FILENAME_GRAPH):
     """ Searching one object of infrastructure
         which have minimal sum shortest distances to selected nodes
 
@@ -164,6 +169,8 @@ def task_1_3(id_objects, id_nodes, type_dir):
                     > 1 - TO  objects from nodes
                     > 2 - FROM objects to nodes
                     > 3 - 1 and 2
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: int
             * Id object
@@ -185,12 +192,12 @@ def task_1_3(id_objects, id_nodes, type_dir):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         type_dir,
-        FILENAME_GRAPH.encode('utf-8')
+        filename_graph.encode('utf-8')
     )
     return id_object
 
 
-def task_1_4(id_objects, id_nodes, type_dir):
+def task_1_4(id_objects, id_nodes, type_dir, filename_graph=FILENAME_GRAPH):
     """ Searching one object of infrastructure
         which have minimal weight of tree shortest distances to selected nodes
 
@@ -204,6 +211,8 @@ def task_1_4(id_objects, id_nodes, type_dir):
                     > 1 - TO  objects from nodes
                     > 2 - FROM objects to nodes
                     > 3 - 1 and 2
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: int
             * Id object
@@ -225,12 +234,12 @@ def task_1_4(id_objects, id_nodes, type_dir):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         type_dir,
-        FILENAME_GRAPH.encode('utf-8')
+        filename_graph.encode('utf-8')
     )
     return id_object
 
 
-def task_2_1(id_object, id_nodes):
+def task_2_1(id_object, id_nodes, filename_graph=FILENAME_GRAPH):
     """ Searching tree shortest distances with minimal weight to selected nodes
         from selected object of infrastructure
 
@@ -239,6 +248,8 @@ def task_2_1(id_object, id_nodes):
                 * Id object of infrastructure - SELECTED
             :param id_nodes: list<int>
                 * Ids nodes - SELECTED
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: (float, float, list<(int, int)>)
             * tree_weight, paths_weight and tree (array edges)
@@ -257,7 +268,7 @@ def task_2_1(id_object, id_nodes):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         id_object,
-        FILENAME_GRAPH.encode('utf-8'),
+        filename_graph.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
     # Parsing content from FILENAME_OUT -> (tree_weight, paths_weight, tree)
@@ -271,13 +282,15 @@ def task_2_1(id_object, id_nodes):
     return tree_weight, paths_weight, tree
 
 
-def task_2_2(id_nodes, number_clusters):
+def task_2_2(id_nodes, number_clusters, filename_graph=FILENAME_GRAPH):
     """ Counting clusters for selected nodes (members + centroids + dendrogram)
 
         Arguments
             :param id_nodes: list<int>
                 * Ids nodes - SELECTED
             :param number_clusters: int
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: (list<list<int>>, list<int>, list<(float, float)>, list<list<int>>)
             * clusters, centroids_ids, centroids_coords, dendrogram
@@ -296,7 +309,7 @@ def task_2_2(id_nodes, number_clusters):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         number_clusters,
-        FILENAME_GRAPH.encode('utf-8'),
+        filename_graph.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
     # Parsing content from FILENAME_OUT -> clusters_members, centroids, dendrograms
@@ -321,7 +334,7 @@ def task_2_2(id_nodes, number_clusters):
     return clusters_members, centroids_ids, centroids_coords, dendrogram
 
 
-def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
+def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters, filename_graph=FILENAME_GRAPH):
     """ Searching tree shortest distances with minimal weight from object
         to centroids of clusters and from centroids to nodes of clusters
         from selected object of infrastructure
@@ -335,6 +348,8 @@ def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
                 * Array of clusters. Cluster is array of id nodes (members)
             :param id_centroids: list<int>
                 * Ids centroids (nodes) of clusters
+            :param filename_graph: str
+                * Path to graph - OPTIONAL
 
         Return: (float, float, list<(int, int)> )
             * tree_weight, paths_weight, tree (array of pair ids)
@@ -365,7 +380,7 @@ def task_2_3_by_clust(id_object, id_nodes, id_centroids, clusters):
         (ctypes.c_size_t * len(id_nodes))(*id_nodes),
         len(id_nodes),
         id_object,
-        FILENAME_GRAPH.encode('utf-8'),
+        filename_graph.encode('utf-8'),
         FILENAME_OUT.encode('utf-8')
     )
     # Parsing content from FILENAME_OUT -> tree_weight, paths_weight, tree
