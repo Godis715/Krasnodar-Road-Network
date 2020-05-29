@@ -14,8 +14,6 @@
 * Сборка:
 ```bash
    sh build_algorithms.sh
-   export REACT_APP_API_URL=localhost:5000
-   sh build_frontend.sh
 ```
 * Запуск:
 ```bash
