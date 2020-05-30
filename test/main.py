@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import sys
 import argparse
+import time
 
 sys.path.insert(0, os.path.join('./../algorithms'))
 import algorithmsWrapper
@@ -22,24 +23,20 @@ if __name__ == "__main__":
 
     # Reading graph
     input_graph = pd.read_csv(name_input_graph, index_col=0).rename(columns=int)
+    input_graph = pd.read_csv(name_input_graph, index_col=0)
 
     # Number of vertexes
     n = input_graph.shape[0]
 
-    # Matrix of adjacencies for testing
-    # with open(PATH_INPUT_GRAPH, 'r') as input_file:
-    #     _ = input_file.readline()
-    #     with open('tmp.txt', 'w') as tmp_file:
-    #         for row in input_file:
-    #             tmp_file.write(row.split(',', 1)[1].replace('\n', '') + ',\n')
-
     # Convering tp list of adjacencies with weight
     data_graph = []
-    for vartex_from in range(n):
-        for vartex_to in range(n):
-            dst = input_graph[vartex_from][vartex_to]
+    for vеrtex_from in range(n):
+        links = list(input_graph[str(vеrtex_from)])
+        for vertex_to in range(vеrtex_from, n):
+            dst = links[vertex_to]
             if dst != 0:
-                data_graph.append([vartex_from, vartex_to, dst])
+                data_graph.append([vеrtex_from, vertex_to, dst])
+                data_graph.append([vertex_to, vеrtex_from, dst])
 
     with open(PATH_GRAPH_FOR_ALGORITHMS, 'w') as file_graph:
         # Writing number of vertexes and links
@@ -47,8 +44,8 @@ if __name__ == "__main__":
 
         # Writing data of links
         for data_link in data_graph:
-            vartex_from, vartex_to, dst = data_link
-            file_graph.write(f"{vartex_from} {vartex_to} {input_graph[vartex_from][vartex_to]}\n")
+            vеrtex_from, vertex_to, dst = data_link
+            file_graph.write(f"{vеrtex_from} {vertex_to} {dst}\n")
 
         # Writing coords of vertexes (mock)
         for _ in range(n):
@@ -59,15 +56,37 @@ if __name__ == "__main__":
     vertexes_to = list(map(int, input("Input vertexes TO: ").split(' ')))
 
     # Calling algorithm
+    time_start = time.monotonic()
     tree_weight, paths_weight, edges = algorithmsWrapper.task_2_1(
         id_object=vertex_from,
         id_nodes=vertexes_to,
         filename_graph=PATH_GRAPH_FOR_ALGORITHMS
     )
+    time_end = time.monotonic()
 
     # Printing result
-    print("Tree weight:", tree_weight)
+    print("\nTime:", round(time_end - time_start, 6))
+    print("\nTree weight:", tree_weight)
     print("Paths weight:", paths_weight)
-    print("Edges:")
-    for edge in edges:
-        print(f"From {edge[0]} to {edge[1]}")
+    print("Ways:")
+
+    ways = []
+
+    q_vertex = []
+    q_vertex.append((vertex_from, [vertex_from]))
+    while len(q_vertex) != 0:
+        cur_vertex, cur_way = q_vertex.pop()
+        check_end = True
+        for edge in edges:
+            if edge[0] == cur_vertex:
+                check_end = False
+                new_way = cur_way + [edge[1]]
+                q_vertex.append((edge[1], new_way))
+        if check_end or cur_vertex in vertexes_to:
+            ways.append(cur_way)
+            
+    for way in ways:
+        print(way)
+
+    # for edge in edges:
+    #     print(f"From {edge[0]} to {edge[1]}")
