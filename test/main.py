@@ -9,7 +9,7 @@ import algorithmsWrapper
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PATH_INPUT_GRAPH = 'input_graph.csv'
+PATH_INPUT_GRAPH = './test_graph/input_graph.csv'
 PATH_GRAPH_FOR_ALGORITHMS = os.path.join(BASE_DIR, 'graph.txt')
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     input_graph = pd.read_csv(name_input_graph, index_col=0).rename(columns=int)
     input_graph = pd.read_csv(name_input_graph, index_col=0)
 
-    # Number of vertexes
+    # Number of vertices
     n = input_graph.shape[0]
 
     # Convering tp list of adjacencies with weight
@@ -39,7 +39,7 @@ if __name__ == "__main__":
                 data_graph.append([vertex_to, vеrtex_from, dst])
 
     with open(PATH_GRAPH_FOR_ALGORITHMS, 'w') as file_graph:
-        # Writing number of vertexes and links
+        # Writing number of vertices and links
         file_graph.write(f"{n} {len(data_graph)}\n")
 
         # Writing data of links
@@ -47,19 +47,19 @@ if __name__ == "__main__":
             vеrtex_from, vertex_to, dst = data_link
             file_graph.write(f"{vеrtex_from} {vertex_to} {dst}\n")
 
-        # Writing coords of vertexes (mock)
+        # Writing coords of vertices (mock)
         for _ in range(n):
             file_graph.write(f"0 0\n")
 
     # Input params
     vertex_from = int(input("Input vertex FROM: "))
-    vertexes_to = list(map(int, input("Input vertexes TO: ").split(' ')))
+    vertices_to = list(map(int, input("Input vertices TO: ").split(' ')))
 
     # Calling algorithm
     time_start = time.monotonic()
     tree_weight, paths_weight, edges = algorithmsWrapper.task_2_1(
         id_object=vertex_from,
-        id_nodes=vertexes_to,
+        id_nodes=vertices_to,
         filename_graph=PATH_GRAPH_FOR_ALGORITHMS
     )
     time_end = time.monotonic()
@@ -82,11 +82,8 @@ if __name__ == "__main__":
                 check_end = False
                 new_way = cur_way + [edge[1]]
                 q_vertex.append((edge[1], new_way))
-        if check_end or cur_vertex in vertexes_to:
+        if check_end or cur_vertex in vertices_to:
             ways.append(cur_way)
             
     for way in ways:
         print(way)
-
-    # for edge in edges:
-    #     print(f"From {edge[0]} to {edge[1]}")
