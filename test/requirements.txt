@@ -105,7 +105,7 @@ packaging==20.3
 pacman-mirrors==4.16.4
 pandas==1.0.3
 pandocfilters==1.4.2
-paramiko==2.7.1
+paramiko==2.10.1
 parso==0.7.0
 passlib==1.7.2
 pbr==5.4.4
