@@ -92,7 +92,7 @@ munch==2.5.0
 nbconvert==5.6.1
 nbformat==4.4.0
 networkx==2.4
-notebook==6.0.3
+notebook==6.4.10
 npyscreen==4.10.5
 numpy==1.18.2
 optimus-manager==1.3
