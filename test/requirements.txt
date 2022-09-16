@@ -80,7 +80,7 @@ ldap3==2.7
 LibAppArmor==2.13.4
 lockfile==0.12.2
 louis==3.13.0
-Mako==1.1.2
+Mako==1.2.2
 MarkupSafe==1.1.1
 matplotlib==3.2.1
 mccabe==0.6.1
